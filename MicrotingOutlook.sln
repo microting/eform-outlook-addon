@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceCode", "SourceCode\SourceCode.csproj", "{69213ADA-C58C-4497-831D-EB9964018951}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookSql", "OutlookSql\OutlookSql.csproj", "{15D8BC36-5BFF-4BBB-9E3B-7F19CDC0F1F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookOffice", "OutlookOffice\OutlookOffice.csproj", "{849124CB-94E2-4CEA-AF6E-1606CD1F6E29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookCore", "OutlookCore\OutlookCore.csproj", "{448169A7-AB54-4DCE-B30A-739C82E49F0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookShared", "OutlookShared\OutlookShared.csproj", "{56D77DCF-3181-4EE0-9B10-C16DFBA37106}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{69213ADA-C58C-4497-831D-EB9964018951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69213ADA-C58C-4497-831D-EB9964018951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69213ADA-C58C-4497-831D-EB9964018951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69213ADA-C58C-4497-831D-EB9964018951}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15D8BC36-5BFF-4BBB-9E3B-7F19CDC0F1F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15D8BC36-5BFF-4BBB-9E3B-7F19CDC0F1F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15D8BC36-5BFF-4BBB-9E3B-7F19CDC0F1F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15D8BC36-5BFF-4BBB-9E3B-7F19CDC0F1F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{849124CB-94E2-4CEA-AF6E-1606CD1F6E29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{849124CB-94E2-4CEA-AF6E-1606CD1F6E29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{849124CB-94E2-4CEA-AF6E-1606CD1F6E29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{849124CB-94E2-4CEA-AF6E-1606CD1F6E29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{448169A7-AB54-4DCE-B30A-739C82E49F0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{448169A7-AB54-4DCE-B30A-739C82E49F0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{448169A7-AB54-4DCE-B30A-739C82E49F0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{448169A7-AB54-4DCE-B30A-739C82E49F0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56D77DCF-3181-4EE0-9B10-C16DFBA37106}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56D77DCF-3181-4EE0-9B10-C16DFBA37106}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56D77DCF-3181-4EE0-9B10-C16DFBA37106}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56D77DCF-3181-4EE0-9B10-C16DFBA37106}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
