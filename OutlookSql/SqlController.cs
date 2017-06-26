@@ -61,7 +61,7 @@ namespace OutlookSql
                     migrator.Update();
                 }
                 else
-                    throw ex;
+                    throw;
             }
             #endregion
 
@@ -378,9 +378,25 @@ namespace OutlookSql
                 using (var db = new OutlookDb(connectionStr))
                 {
                     List<int> siteIds = t.IntLst(appointment.site_ids);
+                    List<string> replacements = t.TextLst(appointment.replacements);
+
+                    if (replacements == null)
+                        replacements = new List<string>();
+
+                    if (appointment.title != "")
+                        replacements.Add("Titl:" + appointment.title);
+
+                    if (appointment.info != "")
+                        replacements.Add("Info:" + appointment.info);
+
+                    if (appointment.expire_at != DateTime.MinValue)
+                        replacements.Add("Expi:" + appointment.expire_at.ToString());
+
+                    if (replacements.Count > 0)
+                        replacements = null;
 
                     eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
-                    int interCaseId = sqlController.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), appointment.replacements);
+                    int interCaseId = sqlController.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), replacements);
 
                     var match = db.appointments.Single(x => x.global_id == appointment.global_id);
 

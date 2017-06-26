@@ -86,7 +86,7 @@ namespace OutlookOffice
 
                                     try
                                     {
-                                        Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, false);
+                                        Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false);
                                         appo_Dto = CreateAppointment(appo_Dto);
                                         recur.Delete();
                                         sqlController.LogStandard(recur.GlobalAppointmentID + " / " + recur.Start + " converted to non-recurence appointment");
@@ -180,7 +180,7 @@ namespace OutlookOffice
 
                             item.Save();
 
-                            Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, true);
+                            Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
 
                             if (appo.Location.ToLower() == "planned")
                             {
@@ -199,7 +199,7 @@ namespace OutlookOffice
                         if (location.ToLower() == "cancel")
                         #region ...
                         {
-                            Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, true);
+                            Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
 
                             if (sqlController.OutlookEformCancel(appo))
                                 CalendarItemUpdate(appo, WorkflowState.Canceled, false);
@@ -396,9 +396,7 @@ namespace OutlookOffice
             #endregion
 
             if (resetBody)
-                item.Body = 
-                    "Template:4" + Environment.NewLine +
-                    "Sites:3933,3913";
+                item.Body = UnitTest_CalendarBody();
 
             item.Save();
 
@@ -430,7 +428,7 @@ namespace OutlookOffice
                 newAppo.Body = appointment.Body;
 
                 newAppo.Save();
-                Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, true);
+                Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
 
                 return returnAppo;
             }
@@ -446,7 +444,7 @@ namespace OutlookOffice
         }
         #endregion
 
-        public List<Appointment> UnitTest_CalendarItemGetAllNonRecurring(DateTime startPoint, DateTime endPoint)
+        public List<Appointment>    UnitTest_CalendarItemGetAllNonRecurring(DateTime startPoint, DateTime endPoint)
         {
             try
             {
@@ -475,7 +473,7 @@ namespace OutlookOffice
                         else
                         {
                             if (startPoint <= item.Start && item.Start <= endPoint)
-                                lstAppoint.Add(new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, true));
+                                lstAppoint.Add(new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true));
                         }
                     }
                 }
@@ -486,6 +484,20 @@ namespace OutlookOffice
             {
                 throw new Exception(t.GetMethodName() + " failed", ex);
             }
+        }
+
+        private string              UnitTest_CalendarBody()
+        {
+            return
+                                            "Template# "        + "4"
+                    + Environment.NewLine + "title# "           + "Test"
+                    + Environment.NewLine + "info# "            + "info TEXT added to eForm"
+                    + Environment.NewLine + "connected# "       + "0"
+                    + Environment.NewLine + "expire# "          + DateTime.Now.AddDays(20)
+                    + Environment.NewLine + "color# "           + "1"
+                    + Environment.NewLine + "replacements# "    + "pre_text1==post_text1"
+                    + Environment.NewLine + "replacements# "    + "pre_text2==post_text2"
+                    + Environment.NewLine + "Sites# "           + "3933, 3913";
         }
     }
 }

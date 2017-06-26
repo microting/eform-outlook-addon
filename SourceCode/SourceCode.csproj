@@ -34,9 +34,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="eFormCore, Version=1.5.4.1, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="eFormCore, Version=1.5.4.5, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Dropbox\3 Code\eFormSDK\Compiled\eFormCore.dll</HintPath>
+      <HintPath>..\..\eFormSDK\Compiled\eFormCore.dll</HintPath>
+    </Reference>
+    <Reference Include="eFormShared, Version=1.5.4.5, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\eFormSDK\Compiled\eFormShared.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>

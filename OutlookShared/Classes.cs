@@ -36,7 +36,7 @@ namespace OutlookShared
 
         }
 
-        public Appointment(string globalId, DateTime start, int duration, string subject, string location, string body, bool intrepidBody)
+        public Appointment(string globalId, DateTime start, int duration, string subject, string location, string body, bool colorRule, bool intrepidBody)
         {
             GlobalId = globalId;
             Start = start;
@@ -51,8 +51,8 @@ namespace OutlookShared
             Title = "";
             Info = "";
             Replacements = new List<string>();
-            ExpireAt = DateTime.Now.AddDays(2);
-            ColorRule = true;
+            ExpireAt = DateTime.MinValue;
+            ColorRule = colorRule;
             MicrotingUId = "";
 
             if (intrepidBody)
@@ -94,86 +94,141 @@ namespace OutlookShared
             }
         }
 
-        private string   ReadingFields(string body)
+        private string  ReadingFields(string body)
         {
+            #region var
             string[] lines = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             SiteIds = new List<int>();
+            Replacements = new List<string>();
             string check = "";
             string rtrnMsg = "";
+            #endregion
 
             foreach (var line in lines)
             {
-
                 try
                 {
                     string input = line.ToLower();
 
-                    if (input == "")
+                    #region template and sites
+                    if (input.Trim() == "")
                         continue;
 
-                    check = "template:";
-                    if (input.Contains(check))
-                        TemplateId = int.Parse(input.Replace(check, "").Trim());
-
-                    check = "sites:";
+                    check = "template#";
                     if (input.Contains(check))
                     {
-                        string temp = input.Replace(check, "").Trim();
+                        TemplateId = int.Parse(line.Remove(0, check.Length).Trim());
+
+                        continue;
+                    }
+
+                    check = "sites#";
+                    if (input.Contains(check))
+                    {
+                        string temp = line.Remove(0, check.Length).Trim();
+                        temp = temp.Replace(",", "|");
 
                         foreach (var item in t.TextLst(temp))
-                        {
                             SiteIds.Add(int.Parse(item));
+
+                        continue;
+                    }
+                    #endregion
+
+                    #region tags
+                    check = "connected#";
+                    if (input.Contains(check))
+                    {
+                        Connected = t.Bool(line.Remove(0, check.Length).Trim());
+                        continue;
+                    }
+
+                    check = "title#";
+                    if (input.Contains(check))
+                    {
+                        Title = line.Remove(0, check.Length).Trim();
+                        continue;
+                    }
+
+                    check = "info#";
+                    if (input.Contains(check))
+                    {
+                        Info = line.Remove(0, check.Length).Trim();
+                        continue;
+                    }
+
+                    check = "expire#";
+                    if (input.Contains(check))
+                    {
+                        ExpireAt = t.Date(line.Remove(0, check.Length).Trim());
+                        continue;
+                    }
+
+                    check = "color#";
+                    if (input.Contains(check))
+                    {
+                        ColorRule = t.Bool(line.Remove(0, check.Length).Trim());
+                        continue;
+                    }
+
+                    check = "colour#";
+                    if (input.Contains(check))
+                    {
+                        ColorRule = t.Bool(line.Remove(0, check.Length).Trim());
+                        continue;
+                    }
+
+                    check = "replacements#";
+                    if (input.Contains(check))
+                    {
+                        if (input.Contains("=="))
+                        {
+                            Replacements.Add(line.Remove(0, check.Length).Trim());
+                            continue;
+                        }
+                        else
+                        {
+                            rtrnMsg = "The following replacement line:'" + line + "' did not contain a '=='." + Environment.NewLine +
+                                "- Expected format: replacements#[old text]==[new text]" + Environment.NewLine +
+                                "- Sample 1       : replacements#Location==Odense" + Environment.NewLine +
+                                "- Sample 2       : replacements#[Choice1]==true" + Environment.NewLine +
+                                "" + Environment.NewLine + rtrnMsg;
+                            continue;
                         }
                     }
-     
-                    check = "connected:";
-                    if (input.Contains(check))
-                        Connected = t.Bool(input.Replace(check, "").Trim());
-            
-                    check = "title:";
-                    if (input.Contains(check))
-                        Title = input.Replace(check, "").Trim();
-      
-                    check = "info:";
-                    if (input.Contains(check))
-                        Info = input.Replace(check, "").Trim();
+                    #endregion
 
-                    check = "expire:";
-                    if (input.Contains(check))
-                        ExpireAt = t.Date(input.Replace(check, "").Trim());
-
-                    check = "color:";
-                    if (input.Contains(check))
-                        ColorRule = t.Bool(input.Replace(check, "").Trim());
-
-                    check = "colour:";
-                    if (input.Contains(check))
-                        ColorRule = t.Bool(input.Replace(check, "").Trim());
+                    //unknown
+                    if (input.Contains("#"))
+                        rtrnMsg = "The following line:'" + line + "' contains a '#'. Line tag not recognized." + Environment.NewLine +
+                            "- Expected format: [line tag]#[infomation]" + Environment.NewLine +
+                            "- Known line tags: 'connected', 'title', 'info', 'expire', 'color', 'colour' & 'replacements'" + Environment.NewLine +
+                            "- Sample 1       : connected#false" + Environment.NewLine +
+                            "- Sample 2       : connected#0" + Environment.NewLine +
+                            "" + Environment.NewLine + rtrnMsg;
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                        rtrnMsg = t.PrintException("The following line:'" + line + "' coursed a exception", ex) + Environment.NewLine +
+                          "" + Environment.NewLine + rtrnMsg;
+                }
             }
 
-            try
-            { 
-                Replacements = null;
-            }
-            catch { }
-
-
-            //none-optional
+            #region none-optional
             if (SiteIds.Count < 1)
-                rtrnMsg = "The mandatory 'sites' input not recognized." + Environment.NewLine +
-                    "- Expected format: sites:[identifier](,[identifier])*n" + Environment.NewLine +
-                    "- Sample 1       : sites:1234,2345,3456" + Environment.NewLine +
-                    "- Sample 2       : sites:'Salg',1234,'Peter',2345" + Environment.NewLine +
+                rtrnMsg = "The mandatory field 'sites' input not recognized." + Environment.NewLine +
+                    "- Expected format: sites#[identifier](,[identifier])*n" + Environment.NewLine +
+                    "- Sample 1       : sites#1234,2345,3456" + Environment.NewLine +
+                    "- Sample 2       : sites#'Salg',1234,'Peter',2345" + Environment.NewLine +
                     "" + Environment.NewLine + rtrnMsg;
 
             if (TemplateId < 1)
-                rtrnMsg = "The mandatory 'template' input not recognized." + Environment.NewLine +
-                    "- Expected format: template:[identifier]" + Environment.NewLine +
-                    "- Sample 1       : template:12" + Environment.NewLine +
-                    "- Sample 2       : template:'Container check'" + Environment.NewLine + 
+                rtrnMsg = "The mandatory field 'template' input not recognized." + Environment.NewLine +
+                    "- Expected format: template#[identifier]" + Environment.NewLine +
+                    "- Sample 1       : template#12" + Environment.NewLine +
+                    "- Sample 2       : template#'Container check'" + Environment.NewLine + 
                     "" + Environment.NewLine + rtrnMsg;
+            #endregion
 
             return rtrnMsg.Trim();
         }
@@ -181,15 +236,23 @@ namespace OutlookShared
         public override string ToString()
         {
             string globalId = "";
+            string start = "";
             string title = "";
+            string location = "";
 
             if (GlobalId != null)
                 globalId = GlobalId;
 
+            if (Start != null)
+                start = Start.ToString();
+
             if (Title != null)
                 title = Title;
 
-            return "GlobalId:" + globalId + " / Start:" + Start + " / Title:" + title;
+            if (Location != null)
+                location = Location;
+
+            return "GlobalId:" + globalId + " / Start:" + start + " / Title:" + title + " / Location:" + location;
         }
         #endregion
     }
