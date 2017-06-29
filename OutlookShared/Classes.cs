@@ -23,7 +23,7 @@ namespace OutlookShared
         public string Title { get; set; }
         public string Info { get; set; }
         public List<string> Replacements { get; set; }
-        public DateTime? ExpireAt { get; set; }
+        public int Expire { get; set; }
         public bool ColorRule { get; set; }
         public string MicrotingUId { get; set; }
    
@@ -36,7 +36,7 @@ namespace OutlookShared
 
         }
 
-        public Appointment(string globalId, DateTime start, int duration, string subject, string location, string body, bool colorRule, bool intrepidBody)
+        public Appointment(string globalId, DateTime start, int duration, string subject, string location, string body, bool colorRule, bool intrepidBody, Func<string, string> Lookup)
         {
             GlobalId = globalId;
             Start = start;
@@ -51,17 +51,17 @@ namespace OutlookShared
             Title = "";
             Info = "";
             Replacements = new List<string>();
-            ExpireAt = DateTime.MinValue;
+            Expire = 2;
             ColorRule = colorRule;
             MicrotingUId = "";
 
             if (intrepidBody)
-                BodyToFields(body);
+                BodyToFields(body, Lookup);
         }
         #endregion
 
-        #region Public
-        public void     BodyToFields(string body)
+        #region methods
+        public void     BodyToFields(string body, Func<string, string> Lookup)
         {
             if (body == null)
                 body = "";
@@ -69,7 +69,7 @@ namespace OutlookShared
             //KeyPoint
             try
             {
-                string intrepidFailedStr = ReadingFields(body);
+                string intrepidFailedStr = ReadingFields(body, Lookup);
 
                 if (intrepidFailedStr != "")
                 {
@@ -94,7 +94,7 @@ namespace OutlookShared
             }
         }
 
-        private string  ReadingFields(string body)
+        private string  ReadingFields(string body, Func<string, string> Lookup)
         {
             #region var
             string[] lines = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
@@ -117,7 +117,16 @@ namespace OutlookShared
                     check = "template#";
                     if (input.Contains(check))
                     {
-                        TemplateId = int.Parse(line.Remove(0, check.Length).Trim());
+                        string itemStr = line.Remove(0, check.Length).Trim();
+
+                        if (itemStr.Contains("'") || itemStr.Contains("’"))
+                            itemStr = Lookup(itemStr.Replace("'", "").Replace("’", "").Trim());
+
+                        if (itemStr.Contains("failed, for title"))
+                            rtrnMsg = itemStr + Environment.NewLine +
+                                "" + Environment.NewLine + rtrnMsg;
+           
+                        TemplateId = int.Parse(itemStr);
 
                         continue;
                     }
@@ -125,11 +134,26 @@ namespace OutlookShared
                     check = "sites#";
                     if (input.Contains(check))
                     {
-                        string temp = line.Remove(0, check.Length).Trim();
-                        temp = temp.Replace(",", "|");
+                        string lineNoComma = line.Remove(0, check.Length).Trim();
+                        lineNoComma = lineNoComma.Replace(",", "|");
 
-                        foreach (var item in t.TextLst(temp))
-                            SiteIds.Add(int.Parse(item));
+                        foreach (var item in t.TextLst(lineNoComma))
+                        {
+                            if (item.Contains("'") || item.Contains("’"))
+                            {
+                                string itemStr = Lookup(item.Replace("'", "").Replace("’", "").Trim());
+
+                                if (itemStr.Contains("failed, for title"))
+                                    rtrnMsg = itemStr + Environment.NewLine +
+                                        "" + Environment.NewLine + rtrnMsg;
+                                else
+                                    SiteIds.AddRange(t.IntLst(itemStr));
+                            }
+                            else
+                                SiteIds.Add(int.Parse(item));
+                        }
+
+                        SiteIds = SiteIds.Distinct().ToList();
 
                         continue;
                     }
@@ -153,14 +177,20 @@ namespace OutlookShared
                     check = "info#";
                     if (input.Contains(check))
                     {
-                        Info = line.Remove(0, check.Length).Trim();
+                        string temp = line.Remove(0, check.Length).Trim();
+
+                        if (Info == "")
+                            Info = temp;
+                        else
+                            Info += "<br>" + temp;
+
                         continue;
                     }
 
                     check = "expire#";
                     if (input.Contains(check))
                     {
-                        ExpireAt = t.Date(line.Remove(0, check.Length).Trim());
+                        Expire = int.Parse(line.Remove(0, check.Length).Trim());
                         continue;
                     }
 

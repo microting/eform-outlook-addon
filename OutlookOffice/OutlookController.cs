@@ -86,7 +86,7 @@ namespace OutlookOffice
 
                                     try
                                     {
-                                        Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false);
+                                        Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false, sqlController.Lookup);
                                         appo_Dto = CreateAppointment(appo_Dto);
                                         recur.Delete();
                                         sqlController.LogStandard(recur.GlobalAppointmentID + " / " + recur.Start + " converted to non-recurence appointment");
@@ -180,7 +180,7 @@ namespace OutlookOffice
 
                             item.Save();
 
-                            Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
+                            Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
 
                             if (appo.Location.ToLower() == "planned")
                             {
@@ -199,7 +199,7 @@ namespace OutlookOffice
                         if (location.ToLower() == "cancel")
                         #region ...
                         {
-                            Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
+                            Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
 
                             if (sqlController.OutlookEformCancel(appo))
                                 CalendarItemUpdate(appo, WorkflowState.Canceled, false);
@@ -428,7 +428,7 @@ namespace OutlookOffice
                 newAppo.Body = appointment.Body;
 
                 newAppo.Save();
-                Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
+                Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
 
                 return returnAppo;
             }
@@ -473,7 +473,7 @@ namespace OutlookOffice
                         else
                         {
                             if (startPoint <= item.Start && item.Start <= endPoint)
-                                lstAppoint.Add(new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true));
+                                lstAppoint.Add(new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup));
                         }
                     }
                 }
@@ -489,15 +489,16 @@ namespace OutlookOffice
         private string              UnitTest_CalendarBody()
         {
             return
-                                            "Template# "        + "4"
-                    + Environment.NewLine + "title# "           + "Test"
-                    + Environment.NewLine + "info# "            + "info TEXT added to eForm"
+                                            "TempLate# "        + "’Test Template’"
+                    + Environment.NewLine + "title# "           + "Outlook appointment eForm test"
+                    + Environment.NewLine + "info# "            + "1: Udfyldt besked linje 1"
+                    + Environment.NewLine + "info# "            + "2: Udfyldt besked linje 2"
+                    + Environment.NewLine + "info# "            + "3: Udfyldt besked linje 3"
                     + Environment.NewLine + "connected# "       + "0"
-                    + Environment.NewLine + "expire# "          + DateTime.Now.AddDays(20)
-                    + Environment.NewLine + "color# "           + "1"
-                    + Environment.NewLine + "replacements# "    + "pre_text1==post_text1"
-                    + Environment.NewLine + "replacements# "    + "pre_text2==post_text2"
-                    + Environment.NewLine + "Sites# "           + "3933, 3913";
+                    + Environment.NewLine + "expirE# "          + "4"
+                    + Environment.NewLine + "replacements# "    + "Gem knap==Save"
+                    + Environment.NewLine + "replacements# "    + "Numerisk==Tal"
+                    + Environment.NewLine + "Sites# "           + "’salg’, 3913";
         }
     }
 }

@@ -16,6 +16,7 @@ namespace OutlookSql
 
         public virtual DbSet<appointment_versions> appointment_versions { get; set; }
         public virtual DbSet<appointments> appointments { get; set; }
+        public virtual DbSet<lookups> lookups { get; set; }
         public virtual DbSet<settings> settings { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

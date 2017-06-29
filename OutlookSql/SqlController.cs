@@ -117,7 +117,7 @@ namespace OutlookSql
                     newAppo.connected = t.Bool(appointment.Connected);
                     newAppo.replacements = t.TextLst(appointment.Replacements);
                     newAppo.duration = appointment.Duration;
-                    newAppo.expire_at = appointment.ExpireAt;
+                    newAppo.expire_at = appointment.Start.AddDays(appointment.Expire);
                     newAppo.global_id = appointment.GlobalId;
                     newAppo.info = appointment.Info;
                     newAppo.location = appointment.Location;
@@ -307,6 +307,23 @@ namespace OutlookSql
                 return false;
             }
         }
+
+        public string       Lookup(string title)
+        {
+            try
+            {
+                using (var db = new OutlookDb(connectionStr))
+                {
+                    lookups match = db.lookups.Single(x => x.title == title);
+                    return match.value;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogEverything(t.PrintException(t.GetMethodName() + " failed, for title:'" + title + "'", ex));
+                return t.GetMethodName() + " failed, for title:'" + title + "'";
+            }
+        }
         #endregion
 
         #region public SDK interaction cases
@@ -384,15 +401,15 @@ namespace OutlookSql
                         replacements = new List<string>();
 
                     if (appointment.title != "")
-                        replacements.Add("Titl:" + appointment.title);
+                        replacements.Add("Title::" + appointment.title);
 
                     if (appointment.info != "")
-                        replacements.Add("Info:" + appointment.info);
+                        replacements.Add("Info::" + appointment.info);
 
                     if (appointment.expire_at != DateTime.MinValue)
-                        replacements.Add("Expi:" + appointment.expire_at.ToString());
+                        replacements.Add("Expire::" + appointment.expire_at.ToString());
 
-                    if (replacements.Count > 0)
+                    if (replacements.Count == 0)
                         replacements = null;
 
                     eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
@@ -507,11 +524,10 @@ namespace OutlookSql
                     if (match.workflow_state == "failed to sync")
                         flagException = true;
 
-
-                    if (SettingRead(Settings.colorsRule) == "0")
-                        statEnd = statLow;
-                    else
+                    if (t.Bool(AppointmentsFind(match.custom).color_rule))
                         statEnd = statHigh;
+                    else
+                        statEnd = statLow;
 
                     #region WorkflowState wFS = ...
                     WorkflowState wFS = WorkflowState.Failed_to_intrepid;
