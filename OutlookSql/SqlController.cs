@@ -594,6 +594,7 @@ namespace OutlookSql
                 SettingUpdate(Settings.preSend_Mins, "1");
                 SettingUpdate(Settings.includeBlankLocations, "false");
                 SettingUpdate(Settings.colorsRule, "1");
+                SettingUpdate(Settings.colorsRule, "default");
             }
         }
 
@@ -622,6 +623,8 @@ namespace OutlookSql
                     failed += SettingCheck(Settings.preSend_Mins);
                     failed += SettingCheck(Settings.includeBlankLocations);
                     failed += SettingCheck(Settings.colorsRule);
+                    failed += SettingCheck(Settings.calendarName);
+
                     if (failed > 0)
                         return false;
 
@@ -815,6 +818,7 @@ namespace OutlookSql
         checkEvery_Mins,
         preSend_Mins,
         includeBlankLocations,
-        colorsRule
+        colorsRule,
+        calendarName
     }
 }

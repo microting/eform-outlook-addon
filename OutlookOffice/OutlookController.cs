@@ -15,19 +15,21 @@ namespace OutlookOffice
     public class OutlookController
     {
         #region var
+        string calendarName;
+        Outlook.MAPIFolder calendarFolder = null;
         SqlController sqlController;
         Tools t = new Tools();
         #endregion
 
         #region con
-        public              OutlookController(SqlController sqlController)
+        public                      OutlookController(SqlController sqlController)
         {
             this.sqlController = sqlController;
         }
         #endregion
 
         #region public
-        public bool         CalendarItemConvertRecurrences()
+        public bool                 CalendarItemConvertRecurrences()
         {
             try
             {
@@ -46,16 +48,8 @@ namespace OutlookOffice
                 string filter = "[Start] >= '" + tLimitFrom.ToString("g") + "' AND [Start] <= '" + tLimitTo__.ToString("g") + "'";
                 sqlController.LogVariable(nameof(filter), filter.ToString());
 
-                Outlook.Application oApp = null;
-                Outlook.NameSpace mapiNamespace = null;
-                Outlook.MAPIFolder CalendarFolder = null;
-                Outlook.Items outlookCalendarItems = null;
-
-                oApp = new Outlook.Application();
-                mapiNamespace = oApp.GetNamespace("MAPI");
-
-                CalendarFolder = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
-                outlookCalendarItems = CalendarFolder.Items;
+                Outlook.MAPIFolder CalendarFolder = GetCalendarFolder();
+                Outlook.Items outlookCalendarItems = CalendarFolder.Items;
                 outlookCalendarItems.IncludeRecurrences = true;
                 outlookCalendarItems = outlookCalendarItems.Restrict(filter);
                 #endregion
@@ -117,7 +111,7 @@ namespace OutlookOffice
             }
         }
 
-        public bool         CalendarItemIntrepid()
+        public bool                 CalendarItemIntrepid()
         {
             try
             {
@@ -139,16 +133,8 @@ namespace OutlookOffice
                 string filter = "[Start] >= '" + tLimitFrom.ToString("g") + "' AND [Start] <= '" + tLimitTo__.ToString("g") + "'";
                 sqlController.LogVariable(nameof(filter), filter.ToString());
 
-                Outlook.Application oApp = null;
-                Outlook.NameSpace mapiNamespace = null;
-                Outlook.MAPIFolder CalendarFolder = null;
-                Outlook.Items outlookCalendarItems = null;
-
-                oApp = new Outlook.Application();
-                mapiNamespace = oApp.GetNamespace("MAPI");
-
-                CalendarFolder = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
-                outlookCalendarItems = CalendarFolder.Items;
+                Outlook.MAPIFolder CalendarFolder = GetCalendarFolder();
+                Outlook.Items outlookCalendarItems = CalendarFolder.Items;
                 outlookCalendarItems.IncludeRecurrences = false;
                 outlookCalendarItems = outlookCalendarItems.Restrict(filter);
                 #endregion
@@ -232,7 +218,7 @@ namespace OutlookOffice
             }
         }
 
-        public bool         CalendarItemReflecting(string globalId)
+        public bool                 CalendarItemReflecting(string globalId)
         {
             try
             {
@@ -329,10 +315,7 @@ namespace OutlookOffice
                 string filter = "[Start] = '" + start.ToString("g") + "'";
                 sqlController.LogVariable(nameof(filter), filter.ToString());
 
-                Outlook.Application outlookNameSpace = new Outlook.Application();
-                Outlook.NameSpace mapiNamespace = outlookNameSpace.GetNamespace("MAPI");
-                Outlook.MAPIFolder calendarFolder = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
-
+                Outlook.MAPIFolder calendarFolder = GetCalendarFolder();
                 Outlook.Items calendarItemsAll = calendarFolder.Items;
                 calendarItemsAll.IncludeRecurrences = false;
                 Outlook.Items calendarItemsRes = calendarItemsAll.Restrict(filter);
@@ -353,7 +336,7 @@ namespace OutlookOffice
             }
         }
 
-        public void         CalendarItemUpdate(Appointment appointment, WorkflowState workflowState, bool resetBody)
+        public void                 CalendarItemUpdate(Appointment appointment, WorkflowState workflowState, bool resetBody)
         {
             Outlook.AppointmentItem item = AppointmentItemFind(appointment.GlobalId, appointment.Start);
 
@@ -405,13 +388,13 @@ namespace OutlookOffice
         #endregion
 
         #region private
-        private DateTime    RoundTime(DateTime dTime)
+        private DateTime            RoundTime(DateTime dTime)
         {
             dTime = dTime.AddMinutes(1);
             return new DateTime(dTime.Year, dTime.Month, dTime.Day, dTime.Hour, dTime.Minute, 0);
         }
 
-        private Appointment CreateAppointment(Appointment appointment)
+        private Appointment         CreateAppointment(Appointment appointment)
         {
             try
             {
@@ -430,6 +413,9 @@ namespace OutlookOffice
                 newAppo.Save();
                 Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
 
+                Outlook.MAPIFolder calendarFolderDestination = GetCalendarFolder();
+                newAppo.Move(calendarFolderDestination);
+
                 return returnAppo;
             }
             catch (Exception ex)
@@ -438,9 +424,55 @@ namespace OutlookOffice
             }
         }
 
-        private string      PrintAppointment(Outlook.AppointmentItem appItem)
+        private string              PrintAppointment(Outlook.AppointmentItem appItem)
         {
             return "GlobalId:" + appItem.GlobalAppointmentID + " / Start:" + appItem.Start + " / Title:" + appItem.Subject;
+        }
+
+        private Outlook.MAPIFolder  GetCalendarFolder()
+        {
+            if (calendarName == sqlController.SettingRead(Settings.calendarName))
+                return calendarFolder;
+            else
+            {
+                calendarName = sqlController.SettingRead(Settings.calendarName);
+
+                Outlook.Application oApp = new Outlook.Application();
+                Outlook.NameSpace mapiNamespace = oApp.GetNamespace("MAPI");
+                Outlook.MAPIFolder oDefault = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox).Parent;
+
+                try
+                {
+                    calendarFolder = GetCalendarFolderByName(oDefault.Folders, calendarName);
+
+                    if (calendarFolder == null)
+                        throw new Exception(t.GetMethodName() + " failed, for calendarName:'" + calendarName + "'. No such calendar found");
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(t.GetMethodName() + " failed, for calendarName:'" + calendarName +"'", ex);
+                }
+
+                return calendarFolder;
+            }
+        }
+
+        private Outlook.MAPIFolder  GetCalendarFolderByName(Outlook._Folders folder, string name)
+        {
+            foreach (Outlook.MAPIFolder Folder in folder)
+            {
+                if (Folder.Name == name)
+                    return Folder;
+                else
+                {
+                    Outlook.MAPIFolder rtrnFolder = GetCalendarFolderByName(Folder.Folders, name);
+
+                    if (rtrnFolder != null)
+                        return rtrnFolder;
+                }
+            }
+
+            return null;
         }
         #endregion
 
@@ -451,14 +483,8 @@ namespace OutlookOffice
                 #region var
                 List<Appointment> lstAppoint = new List<Appointment>();
 
-                Outlook.Application oApp = null;
-                Outlook.NameSpace mapiNamespace = null;
-                Outlook.MAPIFolder CalendarFolder = null;
-                Outlook.Items outlookCalendarItems = null;
-
-                oApp = new Outlook.Application();
-                mapiNamespace = oApp.GetNamespace("MAPI"); ;
-                CalendarFolder = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar); outlookCalendarItems = CalendarFolder.Items;
+                Outlook.MAPIFolder CalendarFolder = GetCalendarFolder();
+                Outlook.Items outlookCalendarItems = CalendarFolder.Items;
                 outlookCalendarItems.IncludeRecurrences = true;
                 #endregion
 

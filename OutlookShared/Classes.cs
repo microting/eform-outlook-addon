@@ -234,7 +234,7 @@ namespace OutlookShared
                             "- Expected format: [line tag]#[infomation]" + Environment.NewLine +
                             "- Known line tags: 'connected', 'title', 'info', 'expire', 'color', 'colour' & 'replacements'" + Environment.NewLine +
                             "- Sample 1       : connected#false" + Environment.NewLine +
-                            "- Sample 2       : connected#0" + Environment.NewLine +
+                            "- Sample 2       : connected# 0" + Environment.NewLine +
                             "" + Environment.NewLine + rtrnMsg;
                 }
                 catch (Exception ex)
