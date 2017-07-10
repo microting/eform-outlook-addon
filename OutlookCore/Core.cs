@@ -154,7 +154,7 @@ namespace OutlookCore
 
                     DateTime now = DateTime.Now;
                     DateTime rollBackTo = now.AddDays(-0);
-                    lstAppointments = outlookController.UnitTest_CalendarItemGetAllNonRecurring(rollBackTo.AddDays(-4), now);
+                    lstAppointments = outlookController.UnitTest_CalendarItemGetAllNonRecurring(rollBackTo.AddDays(-7), now);
                     foreach (var item in lstAppointments)
                         outlookController.CalendarItemUpdate(item, WorkflowState.Planned, true);
 

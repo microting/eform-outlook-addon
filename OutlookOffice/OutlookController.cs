@@ -168,6 +168,14 @@ namespace OutlookOffice
 
                             Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
 
+                            if (appo.Location == null)
+                            {
+                                if (includeBlankLocations)
+                                    appo.Location = "planned";
+                                else
+                                    appo.Location = "";
+                            }
+
                             if (appo.Location.ToLower() == "planned")
                             {
                                 if (sqlController.OutlookEfromCreate(appo))
@@ -414,7 +422,11 @@ namespace OutlookOffice
                 Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
 
                 Outlook.MAPIFolder calendarFolderDestination = GetCalendarFolder();
-                newAppo.Move(calendarFolderDestination);
+                Outlook.NameSpace mapiNamespace = outlookApp.GetNamespace("MAPI");
+                Outlook.MAPIFolder oDefault = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
+
+                if (calendarFolderDestination.Name != oDefault.Name)
+                    newAppo.Move(calendarFolderDestination);
 
                 return returnAppo;
             }
