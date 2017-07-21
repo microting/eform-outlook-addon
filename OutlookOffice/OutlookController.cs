@@ -18,13 +18,15 @@ namespace OutlookOffice
         string calendarName;
         Outlook.MAPIFolder calendarFolder = null;
         SqlController sqlController;
+        Log log;
         Tools t = new Tools();
         #endregion
 
         #region con
-        public                      OutlookController(SqlController sqlController)
+        public                      OutlookController(SqlController sqlController, Log log)
         {
             this.sqlController = sqlController;
+            this.log = log;
         }
         #endregion
 
@@ -46,7 +48,7 @@ namespace OutlookOffice
                 DateTime tLimitFrom = checkLast_At.AddHours(-checkRetrace_Hours);
 
                 string filter = "[Start] >= '" + tLimitFrom.ToString("g") + "' AND [Start] <= '" + tLimitTo__.ToString("g") + "'";
-                sqlController.LogVariable(nameof(filter), filter.ToString());
+                log.LogVariable("Not Specified", nameof(filter), filter.ToString());
 
                 Outlook.MAPIFolder CalendarFolder = GetCalendarFolder();
                 Outlook.Items outlookCalendarItems = CalendarFolder.Items;
@@ -83,11 +85,11 @@ namespace OutlookOffice
                                         Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false, sqlController.Lookup);
                                         appo_Dto = CreateAppointment(appo_Dto);
                                         recur.Delete();
-                                        sqlController.LogStandard(recur.GlobalAppointmentID + " / " + recur.Start + " converted to non-recurence appointment");
+                                        log.LogStandard("Not Specified", recur.GlobalAppointmentID + " / " + recur.Start + " converted to non-recurence appointment");
                                     }
                                     catch (Exception ex)
                                     {
-                                        sqlController.LogWarning(t.PrintException(t.GetMethodName() + " failed. The OutlookController will keep the Expection contained", ex));
+                                        log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed. The OutlookController will keep the Expection contained", ex));
                                     }
                                     ConvertedAny = true;
                                 }
@@ -99,9 +101,9 @@ namespace OutlookOffice
                 #endregion
 
                 if (ConvertedAny)
-                    sqlController.LogStandard(t.GetMethodName() + " completed + converted appointment(s)");
+                    log.LogStandard("Not Specified", t.GetMethodName() + " completed + converted appointment(s)");
                 else
-                    sqlController.LogEverything(t.GetMethodName() + " completed");
+                    log.LogEverything("Not Specified", t.GetMethodName() + " completed");
 
                 return ConvertedAny;
             }
@@ -131,7 +133,7 @@ namespace OutlookOffice
                     tLimitTo__ = tLimitFrom.AddDays(7).AddHours(checkRetrace_Hours);
 
                 string filter = "[Start] >= '" + tLimitFrom.ToString("g") + "' AND [Start] <= '" + tLimitTo__.ToString("g") + "'";
-                sqlController.LogVariable(nameof(filter), filter.ToString());
+                log.LogVariable("Not Specified", nameof(filter), filter.ToString());
 
                 Outlook.MAPIFolder CalendarFolder = GetCalendarFolder();
                 Outlook.Items outlookCalendarItems = CalendarFolder.Items;
@@ -216,7 +218,7 @@ namespace OutlookOffice
                 #endregion
 
                 sqlController.SettingUpdate(Settings.checkLast_At, tLimitTo__.ToString());
-                sqlController.LogVariable("Settings.checkLast_At", Settings.checkLast_At.ToString());
+                log.LogVariable("Not Specified", "Settings.checkLast_At", Settings.checkLast_At.ToString());
 
                 return AllIntrepid;
             }
@@ -321,7 +323,7 @@ namespace OutlookOffice
             try
             {
                 string filter = "[Start] = '" + start.ToString("g") + "'";
-                sqlController.LogVariable(nameof(filter), filter.ToString());
+                log.LogVariable("Not Specified", nameof(filter), filter.ToString());
 
                 Outlook.MAPIFolder calendarFolder = GetCalendarFolder();
                 Outlook.Items calendarItemsAll = calendarFolder.Items;
@@ -391,7 +393,7 @@ namespace OutlookOffice
 
             item.Save();
 
-            sqlController.LogStandard(PrintAppointment(item) + " updated to " + workflowState.ToString());
+            log.LogStandard("Not Specified", PrintAppointment(item) + " updated to " + workflowState.ToString());
         }
         #endregion
 

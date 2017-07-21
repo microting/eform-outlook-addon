@@ -10,18 +10,22 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace OutlookSql
 {
-    public class SqlController
+    public class SqlController : LogWriter
     {
         #region var
         string connectionStr;
+        Log log;
         Tools t = new Tools();
+
+        object _writeLock = new object();
         #endregion
 
         #region con
-        public              SqlController(string connectionString)
+        public                      SqlController(string connectionString)
         {
             try
             {
@@ -37,7 +41,7 @@ namespace OutlookSql
             }
         }
 
-        private void        PrimeDb()
+        private void                PrimeDb()
         {
             int settingsCount = 0;
 
@@ -55,9 +59,9 @@ namespace OutlookSql
             {
                 if (ex.Message.Contains("context has changed") || ex.Message.Contains("'cases'"))
                 {
-                    var configuration = new Configuration();
-                    configuration.TargetDatabase = new DbConnectionInfo(connectionStr, "System.Data.SqlClient");
-                    var migrator = new DbMigrator(configuration);
+                    var configuration               = new Configuration();
+                    configuration.TargetDatabase    = new DbConnectionInfo(connectionStr, "System.Data.SqlClient");
+                    var migrator                    = new DbMigrator(configuration);
                     migrator.Update();
                 }
                 else
@@ -98,10 +102,18 @@ namespace OutlookSql
             }
             #endregion
         }
+
+        public Log                  StartLog(CoreBase core)
+        {
+            string logLevel = SettingRead(Settings.logLevel);
+            int logLevelInt = int.Parse(logLevel);
+            log = new Log(core, this, logLevelInt);
+            return log;
+        }
         #endregion
 
         #region public Outlook
-        public bool         OutlookEfromCreate(Appointment appointment)
+        public bool                 OutlookEfromCreate(Appointment appointment)
         {
             try
             {
@@ -146,12 +158,12 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                LogException(t.GetMethodName() + " failed", ex, false);
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
                 return false;
             }
         }
 
-        public bool         OutlookEformCancel(Appointment appointment)
+        public bool                 OutlookEformCancel(Appointment appointment)
         {
             try
             {
@@ -177,12 +189,12 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                LogException(t.GetMethodName() + " failed", ex, false);
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
                 return false;
             }
         }
 
-        public appointments AppointmentsFind(string globalId)
+        public appointments         AppointmentsFind(string globalId)
         {
             try
             {
@@ -194,12 +206,12 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                LogException(t.GetMethodName() + " failed", ex, false);
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
                 return null;
             }
         }
 
-        public appointments AppointmentsFindOne(WorkflowState workflowState)
+        public appointments         AppointmentsFindOne(WorkflowState workflowState)
         {
             try
             {
@@ -211,12 +223,12 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                LogException(t.GetMethodName() + " failed", ex, false);
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
                 return null;
             }
         }
 
-        public appointments AppointmentsFindOne(int timesReflected)
+        public appointments         AppointmentsFindOne(int timesReflected)
         {
             try
             {
@@ -228,12 +240,12 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                LogException(t.GetMethodName() + " failed", ex, false);
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
                 return null;
             }
         }
 
-        public bool         AppointmentsUpdate(string globalId, WorkflowState workflowState, string body, string expectionString, string response)
+        public bool                 AppointmentsUpdate(string globalId, WorkflowState workflowState, string body, string expectionString, string response)
         {
             try
             {
@@ -265,12 +277,12 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                LogException(t.GetMethodName() + " failed", ex, false);
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
                 return false;
             }
         }
 
-        public bool         AppointmentsReflected(string globalId)
+        public bool                 AppointmentsReflected(string globalId)
         {
             try
             {
@@ -303,12 +315,12 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                LogException(t.GetMethodName() + " failed", ex, false);
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
                 return false;
             }
         }
 
-        public string       Lookup(string title)
+        public string               Lookup(string title)
         {
             try
             {
@@ -320,14 +332,14 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                LogEverything(t.PrintException(t.GetMethodName() + " failed, for title:'" + title + "'", ex));
+                log.LogEverything("Not Specified", t.PrintException(t.GetMethodName() + " failed, for title:'" + title + "'", ex));
                 return t.GetMethodName() + " failed, for title:'" + title + "'";
             }
         }
         #endregion
 
         #region public SDK interaction cases
-        public bool         SyncInteractionCase()
+        public bool                 SyncInteractionCase()
         {
             // read input
             #region create
@@ -343,14 +355,14 @@ namespace OutlookSql
                         return true;
                     else
                     {
-                        LogVariable(nameof(appoint), appoint.ToString());
-                        LogException("Failed to update Outlook appointment, but Appointment created in SDK input", new Exception("FATAL issue"), true);
+                        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+                        log.LogException("Not Specified", "Failed to update Outlook appointment, but Appointment created in SDK input", new Exception("FATAL issue"), true);
                     }
                 }
                 else
                 {
-                    LogVariable(nameof(appoint), appoint.ToString());
-                    LogException("Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
+                    log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+                    log.LogException("Not Specified", "Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
                 }
 
                 return false;
@@ -370,14 +382,14 @@ namespace OutlookSql
                         return true;
                     else
                     {
-                        LogVariable(nameof(appoint), appoint.ToString());
-                        LogException("Failed to update Outlook appointment, but Appointment deleted in SDK input", new Exception("FATAL issue"), true);
+                        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+                        log.LogException("Not Specified", "Failed to update Outlook appointment, but Appointment deleted in SDK input", new Exception("FATAL issue"), true);
                     }
                 }
                 else
                 {
-                    LogVariable(nameof(appoint), appoint.ToString());
-                    LogException("Failed to deleted Appointment in SDK input", new Exception("FATAL issue"), true);
+                    log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+                    log.LogException("Not Specified", "Failed to deleted Appointment in SDK input", new Exception("FATAL issue"), true);
                 }
 
                 return false;
@@ -388,7 +400,7 @@ namespace OutlookSql
             return InteractionCaseProcessed();
         }
 
-        public bool         InteractionCaseCreate(appointments appointment)
+        public bool                 InteractionCaseCreate(appointments appointment)
         {
             try
             {
@@ -431,13 +443,13 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                LogWarning(t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
+                log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
                 AppointmentsUpdate(appointment.global_id, WorkflowState.Failed_to_expection, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
                 return false;
             }
         }
 
-        public bool         InteractionCaseDelete(appointments appointment)
+        public bool                 InteractionCaseDelete(appointments appointment)
         {
             try
             {
@@ -448,13 +460,13 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                LogWarning(t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
+                log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
                 AppointmentsUpdate(appointment.global_id, WorkflowState.Failed_to_expection, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
                 return false;
             }
         }
 
-        public bool         InteractionCaseProcessed()
+        public bool                 InteractionCaseProcessed()
         {
             try
             {
@@ -555,29 +567,32 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                LogException(t.GetMethodName() + " failed", ex, false);
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
                 return true;
             }
         }
         #endregion
 
         #region public setting
-        private void        SettingPrime()
+        private void                SettingPrime()
         {
             using (var db = new OutlookDb(connectionStr))
             {
                 SettingCreate(Settings.firstRunDone, 1);
                 SettingCreate(Settings.logLevel, 2);
-                SettingCreate(Settings.microtingDb, 3);
-                SettingCreate(Settings.checkLast_At, 4);
-                SettingCreate(Settings.checkRetrace_Hours, 5);
-                SettingCreate(Settings.checkEvery_Mins, 6);
-                SettingCreate(Settings.preSend_Mins, 7);
-                SettingCreate(Settings.includeBlankLocations, 8);
-                SettingCreate(Settings.colorsRule, 9);
+                SettingCreate(Settings.logLimit, 3);
+                SettingCreate(Settings.microtingDb, 4);
+                SettingCreate(Settings.checkLast_At, 5);
+                SettingCreate(Settings.checkRetrace_Hours, 6);
+                SettingCreate(Settings.checkEvery_Mins, 7);
+                SettingCreate(Settings.preSend_Mins, 8);
+                SettingCreate(Settings.includeBlankLocations, 9);
+                SettingCreate(Settings.colorsRule, 10);
+                SettingCreate(Settings.calendarName, 11);
 
                 SettingUpdate(Settings.firstRunDone, "true");
-                SettingUpdate(Settings.logLevel, "true");
+                SettingUpdate(Settings.logLevel, "4");
+                SettingUpdate(Settings.logLimit, "200");
                 #region SettingUpdate(Settings.microtingDb, connectionStr.Replace("MicrotingOutlook", "Microting"));
                 try
                 {
@@ -594,11 +609,11 @@ namespace OutlookSql
                 SettingUpdate(Settings.preSend_Mins, "1");
                 SettingUpdate(Settings.includeBlankLocations, "false");
                 SettingUpdate(Settings.colorsRule, "1");
-                SettingUpdate(Settings.colorsRule, "default");
+                SettingUpdate(Settings.calendarName, "default");
             }
         }
 
-        public bool         SettingCheckAll()
+        public bool                 SettingCheckAll()
         {
             try
             {
@@ -616,6 +631,7 @@ namespace OutlookSql
                     int failed = 0;
                     failed += SettingCheck(Settings.firstRunDone);
                     failed += SettingCheck(Settings.logLevel);
+                    failed += SettingCheck(Settings.logLimit);
                     failed += SettingCheck(Settings.microtingDb);
                     failed += SettingCheck(Settings.checkLast_At);
                     failed += SettingCheck(Settings.checkRetrace_Hours);
@@ -637,7 +653,7 @@ namespace OutlookSql
             }
         }
 
-        private void        SettingCreate(Settings name, int id)
+        private void                SettingCreate(Settings name, int id)
         {
             using (var db = new OutlookDb(connectionStr))
             {
@@ -651,7 +667,7 @@ namespace OutlookSql
             }
         }
 
-        public string       SettingRead(Settings name)
+        public string               SettingRead(Settings name)
         {
             try
             {
@@ -667,7 +683,7 @@ namespace OutlookSql
             }
         }
 
-        public void         SettingUpdate(Settings name, string newValue)
+        public void                 SettingUpdate(Settings name, string newValue)
         {
             try
             {
@@ -685,43 +701,107 @@ namespace OutlookSql
         }
         #endregion
 
-        #region public log
-        public void     LogEverything(string str)
+        #region public write log
+        public override string      WriteLogEntry(LogEntry logEntry)
         {
-            //Console.WriteLine("Lvl_(4): " + str);
+            lock (_writeLock)
+            {
+                try
+                {
+                    using (var db = new OutlookDb(connectionStr))
+                    {
+                        logs newLog = new logs();
+                        newLog.created_at = logEntry.Time;
+                        newLog.level = logEntry.Level;
+                        newLog.message = logEntry.Message;
+                        newLog.type = logEntry.Type;
+
+                        db.logs.Add(newLog);
+                        db.SaveChanges();
+
+                        if (logEntry.Level < 0)
+                            WriteLogExceptionEntry(logEntry);
+
+                        #region clean up of log table
+                        int limit = t.Int(SettingRead(Settings.logLimit));
+                        if (limit > 0)
+                        {
+                            List<logs> killList = db.logs.Where(x => x.id <= newLog.id - limit).ToList();
+
+                            if (killList.Count > 0)
+                            {
+                                db.logs.RemoveRange(killList);
+                                db.SaveChanges();
+                            }
+                        }
+                        #endregion
+                    }
+                    return "";
+                }
+                catch (Exception ex)
+                {
+                    return t.PrintException(t.GetMethodName() + " failed", ex);
+                }
+            }
         }
 
-        public void     LogVariable(string variableName, string variableContent)
+        private string              WriteLogExceptionEntry(LogEntry logEntry)
         {
-            //Console.WriteLine("Lvl_(3): Variable Name:" + variableName + " / Content:" + variableContent);
+            try
+            {
+                using (var db = new OutlookDb(connectionStr))
+                {
+                    log_exceptions newLog = new log_exceptions();
+                    newLog.created_at = logEntry.Time;
+                    newLog.level = logEntry.Level;
+                    newLog.message = logEntry.Message;
+                    newLog.type = logEntry.Type;
+
+                    db.log_exceptions.Add(newLog);
+                    db.SaveChanges();
+
+                    #region clean up of log exception table
+                    int limit = t.Int(SettingRead(Settings.logLimit));
+                    if (limit > 0)
+                    {
+                        List<log_exceptions> killList = db.log_exceptions.Where(x => x.id <= newLog.id - limit).ToList();
+
+                        if (killList.Count > 0)
+                        {
+                            db.log_exceptions.RemoveRange(killList);
+                            db.SaveChanges();
+                        }
+                    }
+                    #endregion
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                return t.PrintException(t.GetMethodName() + " failed", ex);
+            }
         }
 
-        public void     LogStandard(string str)
+        public override void        WriteIfFailed(string logEntries)
         {
-            Console.WriteLine("Lvl_(2): " + str);
-        }
-
-        public void     LogCritical(string str)
-        {
-            Console.WriteLine("Lvl_(1): " + str);
-        }
-
-        public void     LogWarning(string str)
-        {
-            Console.WriteLine("Warn(0): " + str);
-        }
-
-        public void     LogException(string exceptionDescription, Exception exception, bool restartCore)
-        {
-            Console.WriteLine("Exp(-1): " + exceptionDescription);
-            Console.WriteLine(t.PrintException(exceptionDescription, exception));
-
-            //TODO - restart - do something
+            lock (_writeLock)
+            {
+                try
+                {
+                    File.AppendAllText(@"expection.txt",
+                        DateTime.Now.ToString() + " // " + "L:" + "-22" + " // " + "Write logic failed" + " // " + Environment.NewLine
+                        + logEntries + Environment.NewLine);
+                }
+                catch
+                {
+                    //magic
+                }
+            }
         }
         #endregion
 
         #region private
-        private int         SettingCheck(Settings setting)
+        private int                 SettingCheck(Settings setting)
         {
             try
             {
@@ -768,7 +848,7 @@ namespace OutlookSql
         #endregion
 
         #region unit test
-        public bool         UnitTest_TruncateTable_Outlook(string tableName)
+        public bool                 UnitTest_TruncateTable_Outlook(string tableName)
         {
             try
             {
@@ -787,7 +867,7 @@ namespace OutlookSql
             }
         }
 
-        public bool         UnitTest_TruncateTable_Microting(string tableName)
+        public bool                 UnitTest_TruncateTable_Microting(string tableName)
         {
             try
             {
@@ -812,6 +892,7 @@ namespace OutlookSql
     {
         firstRunDone,
         logLevel,
+        logLimit,
         microtingDb,
         checkLast_At,
         checkRetrace_Hours,

@@ -31,13 +31,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="eFormCore, Version=1.5.5.4, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Compiled\eFormCore.dll</HintPath>
+    <Reference Include="eFormCore">
+      <HintPath>..\..\eFormSDK\Compiled\eFormCore.dll</HintPath>
     </Reference>
-    <Reference Include="eFormShared, Version=1.5.5.4, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Compiled\eFormShared.dll</HintPath>
+    <Reference Include="eFormShared">
+      <HintPath>..\..\eFormSDK\Compiled\eFormShared.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
