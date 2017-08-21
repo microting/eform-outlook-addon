@@ -1,5 +1,4 @@
-﻿using eFormCore;
-using OutlookCore;
+﻿using OutlookCore;
 
 using System;
 using System.Collections.Generic;
@@ -15,12 +14,9 @@ namespace SourceCode
     {
         static void Main(string[] args)
         {
-            OutlookCore.Core oCore = new OutlookCore.Core();
-            ICore iCore = new eFormCore.Core();
+            Core core = new Core();
 
             string serverConnectionString = File.ReadAllText("input\\sql_connection.txt").Trim();
-            string serverConnectionStrSdk = File.ReadAllText("input\\sql_connection_sdk.txt").Trim();
-            oCore.HandleEventException += Stump;
 
             while (true)
             {
@@ -30,30 +26,20 @@ namespace SourceCode
                 string tempLower = Console.ReadLine().ToLower();
 
                 if (tempLower == "s")
-                {
-                    oCore.Start(serverConnectionString);
-                    iCore.Start(serverConnectionStrSdk);
-                }
+                    core.Start(serverConnectionString);
 
                 if (tempLower == "c")
-                {
-                    oCore.Close();
-                    iCore.Close();
-                }
+                    core.Close();
 
                 if (tempLower == "r")
                 {
-                    oCore.Close();
-                    iCore.Close();
-
-                    oCore.Test_Reset(serverConnectionString);
+                    core.Close();
+                    core.Test_Reset(serverConnectionString);
                 }
 
                 if (tempLower == "q")
                 {
-                    oCore.Close();
-                    iCore.Close();
-
+                    core.Close();
                     break;
                 }
             }

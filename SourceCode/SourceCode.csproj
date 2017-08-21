@@ -34,9 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="eFormCore">
-      <HintPath>..\..\eFormSDK\Compiled\eFormCore.dll</HintPath>
-    </Reference>
     <Reference Include="eFormShared">
       <HintPath>..\..\eFormSDK\Compiled\eFormShared.dll</HintPath>
     </Reference>

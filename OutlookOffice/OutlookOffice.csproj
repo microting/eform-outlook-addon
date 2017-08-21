@@ -31,10 +31,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="eFormShared">
+    <Reference Include="eFormCommunicator, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\eFormSDK\Compiled\eFormCommunicator.dll</HintPath>
+    </Reference>
+    <Reference Include="eFormShared, Version=1.5.5.4, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\eFormSDK\Compiled\eFormShared.dll</HintPath>
     </Reference>
+    <Reference Include="eFormSqlController, Version=1.5.5.4, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\eFormSDK\Compiled\eFormSqlController.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -77,14 +92,14 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OutlookShared\OutlookShared.csproj">
-      <Project>{56d77dcf-3181-4ee0-9b10-c16dfba37106}</Project>
-      <Name>OutlookShared</Name>
-    </ProjectReference>
     <ProjectReference Include="..\OutlookSql\OutlookSql.csproj">
       <Project>{15D8BC36-5BFF-4BBB-9E3B-7F19CDC0F1F1}</Project>
       <Name>OutlookSql</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

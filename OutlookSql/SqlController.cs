@@ -1,5 +1,4 @@
 ﻿using eFormShared;
-using OutlookShared;
 using OutlookSql.Migrations;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
@@ -57,15 +56,14 @@ namespace OutlookSql
             catch (Exception ex)
             #region if failed, will try to update context
             {
-                if (ex.Message.Contains("context has changed") || ex.Message.Contains("'cases'"))
+                //-2146233079 - The model backing the 'DataContext' context has changed since the database was created. Consider using Code First Migrations to update the database
+                //-2146232060 - There is already an object named 'xxx' in the database.
+                if (ex.HResult == -2146233079 || ex.HResult == -2146232060)
                 {
-                    var configuration               = new Configuration();
-                    configuration.TargetDatabase    = new DbConnectionInfo(connectionStr, "System.Data.SqlClient");
-                    var migrator                    = new DbMigrator(configuration);
-                    migrator.Update();
+                    MigrateDb();
                 }
                 else
-                    throw;
+                    throw ex;
             }
             #endregion
 
@@ -89,7 +87,9 @@ namespace OutlookSql
             catch (Exception ex)
             {
                 // This is here because, the priming process of the DB, will require us to go through the process of migrating the DB multiple times.
-                if (ex.Message.Contains("context has changed"))
+                //-2146233079 - The model backing the 'DataContext' context has changed since the database was created. Consider using Code First Migrations to update the database
+                //-2146232060 - There is already an object named 'xxx' in the database.
+                if (ex.HResult == -2146233079 || ex.HResult == -2146232060)
                 {
                     var configuration = new Configuration();
                     configuration.TargetDatabase = new DbConnectionInfo(connectionStr, "System.Data.SqlClient");
@@ -101,6 +101,15 @@ namespace OutlookSql
                     throw new Exception(t.GetMethodName() + " failed", ex);
             }
             #endregion
+        }
+
+        public bool                 MigrateDb()
+        {
+            var configuration = new Configuration();
+            configuration.TargetDatabase = new DbConnectionInfo(connectionStr, "System.Data.SqlClient");
+            var migrator = new DbMigrator(configuration);
+            migrator.Update();
+            return true;
         }
 
         public Log                  StartLog(CoreBase core)
@@ -424,7 +433,7 @@ namespace OutlookSql
                     if (replacements.Count == 0)
                         replacements = null;
 
-                    eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
+                    eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb), false);
                     int interCaseId = sqlController.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), replacements);
 
                     var match = db.appointments.Single(x => x.global_id == appointment.global_id);
@@ -453,7 +462,7 @@ namespace OutlookSql
         {
             try
             {
-                eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
+                eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb), true);
                 sqlController.InteractionCaseDelete(int.Parse(appointment.microting_uid));
 
                 return true;

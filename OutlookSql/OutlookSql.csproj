@@ -31,10 +31,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="eFormShared">
+    <Reference Include="eFormShared, Version=1.6.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\eFormSDK\Compiled\eFormShared.dll</HintPath>
     </Reference>
-    <Reference Include="eFormSqlController">
+    <Reference Include="eFormSqlController, Version=1.6.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\eFormSDK\Compiled\eFormSqlController.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -58,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Appointment.cs" />
     <Compile Include="table\logs.cs" />
     <Compile Include="table\log_exceptions.cs" />
     <Compile Include="table\lookups.cs" />
@@ -75,12 +78,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\OutlookShared\OutlookShared.csproj">
-      <Project>{56d77dcf-3181-4ee0-9b10-c16dfba37106}</Project>
-      <Name>OutlookShared</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

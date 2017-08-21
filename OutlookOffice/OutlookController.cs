@@ -1,5 +1,4 @@
 ﻿using eFormShared;
-using OutlookShared;
 using OutlookSql;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Office = Microsoft.Office.Core;
@@ -159,12 +158,10 @@ namespace OutlookOffice
                         if (location.ToLower() == "planned")
                         #region ...
                         {
-                            if (item.Body == null)
-                                item.Body = "";
-
-                            if (item.Body.Contains("<<Info field:"))
-                                if (item.Body.Contains("End>>"))
-                                    item.Body = t.LocateReplaceAll(item.Body, "<<Info field:", "End>>", "").Trim();
+                            if (item.Body != null)
+                                if (item.Body.Contains("<<Info field:"))
+                                    if (item.Body.Contains("End>>"))
+                                        item.Body = t.LocateReplaceAll(item.Body, "<<Info field:", "End>>", "").Trim();
 
                             item.Save();
 
@@ -209,6 +206,15 @@ namespace OutlookOffice
                         if (location.ToLower() == "check")
                         #region ...
                         {
+                            eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb), false);
+                            eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting);
+
+                            var temp = sqlController.AppointmentsFind(item.GlobalAppointmentID);
+
+                            var list = sqlMicroting.InteractionCaseListRead(int.Parse(temp.microting_uid));
+                            foreach (var aCase in list)
+                                com.CheckStatusUpdateIfNeeded(aCase.microting_uid);
+
                             CalendarItemReflecting(item.GlobalAppointmentID);
                             AllIntrepid = true;
                         }

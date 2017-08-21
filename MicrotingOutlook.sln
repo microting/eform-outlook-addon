@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookOffice", "OutlookOff
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookCore", "OutlookCore\OutlookCore.csproj", "{448169A7-AB54-4DCE-B30A-739C82E49F0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookShared", "OutlookShared\OutlookShared.csproj", "{56D77DCF-3181-4EE0-9B10-C16DFBA37106}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{448169A7-AB54-4DCE-B30A-739C82E49F0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{448169A7-AB54-4DCE-B30A-739C82E49F0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{448169A7-AB54-4DCE-B30A-739C82E49F0C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{56D77DCF-3181-4EE0-9B10-C16DFBA37106}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{56D77DCF-3181-4EE0-9B10-C16DFBA37106}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{56D77DCF-3181-4EE0-9B10-C16DFBA37106}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{56D77DCF-3181-4EE0-9B10-C16DFBA37106}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
