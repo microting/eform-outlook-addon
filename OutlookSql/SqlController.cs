@@ -494,9 +494,10 @@ namespace OutlookSql
                     int statHigh = -99;
                     int statLow = 99;
                     int statCur = 0;
-                    int statEnd = 0;
+                    int statFinal = 0;
                     string addToBody = "";
                     bool flagException = false;
+                    bool anyCompleted = false;
                     #endregion
                     foreach (var item in match.a_interaction_case_lists)
                     {
@@ -522,12 +523,14 @@ namespace OutlookSql
                         {
                             statCur = 4;
                             addToBody += item.siteId + "/" + item.updated_at + "/" + item.stat + "/" + item.microting_uid + "/" + item.check_uid + Environment.NewLine;
+                            anyCompleted = true;
                         }
                         if (item.stat == "Deleted")
                         {
                             statCur = 5;
                             addToBody += item.siteId + "/" + item.updated_at + "/" + item.stat + Environment.NewLine;
                         }
+                        
                         if (item.stat == "Expection")
                         {
                             flagException = true;
@@ -542,25 +545,28 @@ namespace OutlookSql
                         #endregion
                     }
 
+                    if (anyCompleted && statHigh == 5) //as in 1 or more completed, and some deleted
+                        statHigh = 4;
+
                     if (match.workflow_state == "failed to sync")
                         flagException = true;
 
                     if (t.Bool(AppointmentsFind(match.custom).color_rule))
-                        statEnd = statHigh;
+                        statFinal = statHigh;
                     else
-                        statEnd = statLow;
+                        statFinal = statLow;
 
                     #region WorkflowState wFS = ...
                     WorkflowState wFS = WorkflowState.Failed_to_intrepid;
-                    if (statEnd == 1)
+                    if (statFinal == 1)
                         wFS = WorkflowState.Created;
-                    if (statEnd == 2)
+                    if (statFinal == 2)
                         wFS = WorkflowState.Sent;
-                    if (statEnd == 3)
+                    if (statFinal == 3)
                         wFS = WorkflowState.Retrived;
-                    if (statEnd == 4)
+                    if (statFinal == 4)
                         wFS = WorkflowState.Completed;
-                    if (statEnd == 5)
+                    if (statFinal == 5)
                         wFS = WorkflowState.Revoked;
                     if (flagException == true)
                         wFS = WorkflowState.Failed_to_intrepid;

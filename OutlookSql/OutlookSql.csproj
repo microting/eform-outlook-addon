@@ -31,11 +31,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="eFormShared, Version=1.6.0.2, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="eFormShared, Version=1.5.5.4, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\eFormSDK\Compiled\eFormShared.dll</HintPath>
     </Reference>
-    <Reference Include="eFormSqlController, Version=1.6.0.2, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="eFormSqlController, Version=1.5.5.4, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\eFormSDK\Compiled\eFormSqlController.dll</HintPath>
     </Reference>
