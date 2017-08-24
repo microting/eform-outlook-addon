@@ -260,18 +260,17 @@ namespace OutlookCore
                 }
                 catch (ThreadAbortException)
                 {
-                    coreRunning = false;
-                    coreStatChanging = false;
                     log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
                 }
                 catch (Exception ex)
                 {
-                    coreRunning = false;
-                    coreStatChanging = false;
-                    throw new Exception("FATAL Exception. " + t.GetMethodName() + " failed", ex);
+                    FatalExpection(t.GetMethodName() + "failed", ex);
                 }
             }
+            log.LogEverything("Not Specified", t.GetMethodName() + " completed");
+
             coreRunning = false;
+            coreStatChanging = false;
         }
 
         private void            SyncOutlookConvert()
@@ -300,7 +299,7 @@ namespace OutlookCore
                 syncOutlookConvertRunning = false;
 
                 if (Running())
-                    log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                    log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
             }
         }
 
@@ -324,7 +323,7 @@ namespace OutlookCore
             catch (Exception ex)
             {
                 syncOutlookAppsRunning = false;
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
             }
         }
 
@@ -345,7 +344,7 @@ namespace OutlookCore
             catch (Exception ex)
             {
                 syncInteractionCaseRunning = false;
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
             }
         }
         #endregion

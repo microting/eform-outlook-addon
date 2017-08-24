@@ -261,34 +261,34 @@ namespace OutlookOffice
                         item.Categories = null;
                         break;
                     case "Processed":
-                        item.Categories = "1";
+                        item.Categories = "Processing";
                         break;
                     case "Created":
-                        item.Categories = "2";
+                        item.Categories = "Processing";
                         break;
                     case "Sent":
-                        item.Categories = "3";
+                        item.Categories = "Sent";
                         break;
                     case "Retrived":
-                        item.Categories = "4";
+                        item.Categories = "Retrived";
                         break;
                     case "Completed":
-                        item.Categories = "5";
+                        item.Categories = "Completed";
                         break;
                     case "Canceled":
-                        item.Categories = "6";
+                        item.Categories = "Canceled";
                         break;
                     case "Revoked":
-                        item.Categories = "7";
+                        item.Categories = "Revoked";
                         break;
                     case "Failed_to_expection":
-                        item.Categories = "0";
+                        item.Categories = "Error";
                         break;
                     case "Failed_to_intrepid":
-                        item.Categories = "0";
+                        item.Categories = "Error";
                         break;
                     default:
-                        item.Categories = "0";
+                        item.Categories = "Error";
                         break;
                 }
                 #endregion
@@ -365,31 +365,31 @@ namespace OutlookOffice
                     item.Categories = null;
                     break;
                 case WorkflowState.Processed:
-                    item.Categories = "1";
+                    item.Categories = "Processing";
                     break;
                 case WorkflowState.Created:
-                    item.Categories = "2";
+                    item.Categories = "Processing";
                     break;
                 case WorkflowState.Sent:
-                    item.Categories = "3";
+                    item.Categories = "Sent";
                     break;
                 case WorkflowState.Retrived:
-                    item.Categories = "4";
+                    item.Categories = "Retrived";
                     break;
                 case WorkflowState.Completed:
-                    item.Categories = "5";
+                    item.Categories = "Completed";
                     break;
                 case WorkflowState.Canceled:
-                    item.Categories = "6";
+                    item.Categories = "Canceled";
                     break;
                 case WorkflowState.Revoked:
-                    item.Categories = "7";
+                    item.Categories = "Revoked";
                     break;
                 case WorkflowState.Failed_to_expection:
-                    item.Categories = "0";
+                    item.Categories = "Error";
                     break;
                 case WorkflowState.Failed_to_intrepid:
-                    item.Categories = "0";
+                    item.Categories = "Error";
                     break;
             }
             #endregion
