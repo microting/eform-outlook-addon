@@ -1,7 +1,6 @@
 ﻿using eFormShared;
 using OutlookSql;
 using Outlook = Microsoft.Office.Interop.Outlook;
-using Office = Microsoft.Office.Core;
 
 using System;
 using System.Collections.Generic;
