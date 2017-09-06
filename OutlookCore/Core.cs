@@ -71,8 +71,21 @@ namespace OutlookCore
                 {
                     coreStatChanging = true;
 
+                    if (string.IsNullOrEmpty(connectionString))
+                        throw new ArgumentException("serverConnectionString is not allowed to be null or empty");
+
                     //sqlController
                     sqlController = new SqlController(connectionString);
+
+                    //check settings
+                    if (sqlController.SettingCheckAll().Count > 0)
+                        throw new ArgumentException("Use AdminTool to setup database correctly. 'SettingCheckAll()' returned with errors");
+
+                    if (sqlController.SettingRead(Settings.microtingDb) == "...missing...")
+                        throw new ArgumentException("Use AdminTool to setup database correctly. microtingDb(connection string) not set, only default value found");
+
+                    if (sqlController.SettingRead(Settings.firstRunDone) != "true")
+                        throw new ArgumentException("Use AdminTool to setup database correctly. FirstRunDone has not completed");
 
                     //log
                     log = sqlController.StartLog(this);
@@ -82,9 +95,6 @@ namespace OutlookCore
                     log.LogStandard("Not Specified", "SqlController and Logger started");
 
                     //settings read
-                    if (!sqlController.SettingCheckAll())
-                        throw new ArgumentException("Use AdminTool to setup database correct");
-
                     this.connectionString = connectionString;
                     log.LogStandard("Not Specified", "Settings read");
 
@@ -98,6 +108,7 @@ namespace OutlookCore
                     log.LogStandard("Not Specified", "CoreThread started");
 
                     log.LogStandard("Not Specified", "Core started");
+                    coreRunning = true;
                     coreStatChanging = false;
                 }
             }
@@ -107,17 +118,8 @@ namespace OutlookCore
                 coreRunning = false;
                 coreStatChanging = false;
 
-                if (ex.InnerException.Message.Contains("PrimeDb"))
-                    throw ex.InnerException;
-
-                try
-                {
-                    return true;
-                }
-                catch (Exception ex2)
-                {
-                    FatalExpection(t.GetMethodName() + "failed. Could not read settings!", ex2);
-                }
+                FatalExpection(t.GetMethodName() + " failed", ex);
+                return false;
             }
             #endregion
 

@@ -26,81 +26,58 @@ namespace OutlookSql
         #region con
         public                      SqlController(string connectionString)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(connectionString))
-                    throw new ArgumentException("connectionString is not allowed to be null or empty");
+            connectionStr = connectionString;
 
-                connectionStr = connectionString;
-                PrimeDb(); //if needed
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(t.GetMethodName() + " failed", ex);
-            }
-        }
-
-        private void                PrimeDb()
-        {
-            int settingsCount = 0;
-
-            try
-            #region checks database connectionString works
-            {
-                using (var db = new OutlookDb(connectionStr))
-                {
-                    settingsCount = db.settings.Count();
-                }
-            }
-            #endregion
-            catch (Exception ex)
-            #region if failed, will try to update context
-            {
-                //-2146233079 - The model backing the 'DataContext' context has changed since the database was created. Consider using Code First Migrations to update the database
-                //-2146232060 - There is already an object named 'xxx' in the database.
-                if (ex.HResult == -2146233079 || ex.HResult == -2146232060)
-                {
-                    MigrateDb();
-                }
-                else
-                    throw ex;
-            }
+            #region use MS SQL or MySQL connector
+            //if (connectionStr.ToLower().Contains("server="))
+            //{
+            //    dbConnection = new MySqlConnection(connectionString); //MySQL connection
+            //}
+            //else
+            //{
+            //    dbConnection = new SqlConnection(connectionString + ";MultipleActiveResultSets=true"); // ;Connection Timeout=3000");  //MS SQL connection
+            //}
             #endregion
 
-            if (SettingCheckAll())
-                return;
-
-            #region prime db
+            #region connect to DB
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                try
                 {
-                    if (settingsCount != Enum.GetNames(typeof(Settings)).Length)
+                    //dbConnection.Open();
+                }
+                catch
+                {
+                    using (var db = new OutlookDb(connectionStr))
                     {
-                        if (settingsCount == 0)
-                            SettingPrime();
-                        else
-                            throw new Exception("FATAL Exception. Settings needs to be corrected. Please either inspect or clear the Settings table in the Microting database");
+                        db.Database.CreateIfNotExists();
                     }
+                    //dbConnection.Open();
                 }
             }
             catch (Exception ex)
             {
-                // This is here because, the priming process of the DB, will require us to go through the process of migrating the DB multiple times.
-                //-2146233079 - The model backing the 'DataContext' context has changed since the database was created. Consider using Code First Migrations to update the database
-                //-2146232060 - There is already an object named 'xxx' in the database.
-                if (ex.HResult == -2146233079 || ex.HResult == -2146232060)
-                {
-                    var configuration = new Configuration();
-                    configuration.TargetDatabase = new DbConnectionInfo(connectionStr, "System.Data.SqlClient");
-                    var migrator = new DbMigrator(configuration);
-                    migrator.Update();
-                    PrimeDb(); // It's on purpose we call our self until we have no more migrations.
-                }
-                else
-                    throw new Exception(t.GetMethodName() + " failed", ex);
+                throw new Exception("Unable to start SqlController, due to unable to open connection to the database", ex);
             }
             #endregion
+
+            #region migrate if needed
+            try
+            {
+                using (var db = new OutlookDb(connectionStr))
+                {
+                    var match = db.settings.Count();
+                }
+            }
+            catch
+            {
+                MigrateDb();
+            }
+            #endregion
+
+            //region set default for settings if needed
+            if (SettingCheckAll().Count > 0)
+                SettingCreateDefaults();
         }
 
         public bool                 MigrateDb()
@@ -110,14 +87,6 @@ namespace OutlookSql
             var migrator = new DbMigrator(configuration);
             migrator.Update();
             return true;
-        }
-
-        public Log                  StartLog(CoreBase core)
-        {
-            string logLevel = SettingRead(Settings.logLevel);
-            int logLevelInt = int.Parse(logLevel);
-            log = new Log(core, this, logLevelInt);
-            return log;
         }
         #endregion
 
@@ -589,97 +558,102 @@ namespace OutlookSql
         #endregion
 
         #region public setting
-        private void                SettingPrime()
+        public bool                 SettingCreateDefaults()
+        {
+            //key point
+            SettingCreate(Settings.firstRunDone);
+            SettingCreate(Settings.logLevel);
+            SettingCreate(Settings.logLimit);
+            SettingCreate(Settings.microtingDb);
+            SettingCreate(Settings.checkLast_At);
+            SettingCreate(Settings.checkRetrace_Hours);
+            SettingCreate(Settings.checkEvery_Mins);
+            SettingCreate(Settings.preSend_Mins);
+            SettingCreate(Settings.includeBlankLocations);
+            SettingCreate(Settings.colorsRule);
+            SettingCreate(Settings.calendarName);
+
+            return true;
+        }
+
+        public bool                 SettingCreate(Settings name)
         {
             using (var db = new OutlookDb(connectionStr))
             {
-                SettingCreate(Settings.firstRunDone, 1);
-                SettingCreate(Settings.logLevel, 2);
-                SettingCreate(Settings.logLimit, 3);
-                SettingCreate(Settings.microtingDb, 4);
-                SettingCreate(Settings.checkLast_At, 5);
-                SettingCreate(Settings.checkRetrace_Hours, 6);
-                SettingCreate(Settings.checkEvery_Mins, 7);
-                SettingCreate(Settings.preSend_Mins, 8);
-                SettingCreate(Settings.includeBlankLocations, 9);
-                SettingCreate(Settings.colorsRule, 10);
-                SettingCreate(Settings.calendarName, 11);
+                //key point
+                #region id = settings.name
+                int id = -1;
+                string defaultValue = "default";
+                switch (name)
+                {
+                    case Settings.firstRunDone:             id =  1;    defaultValue = "false";                                 break;
+                    case Settings.logLevel:                 id =  2;    defaultValue = "4";                                     break;
+                    case Settings.logLimit:                 id =  3;    defaultValue = "250";                                   break;
+                    #region  case Settings.microtingDb:              id =  4;    defaultValue = 'MicrotingDB';                           break;
+                    case Settings.microtingDb:
 
-                SettingUpdate(Settings.firstRunDone, "true");
-                SettingUpdate(Settings.logLevel, "4");
-                SettingUpdate(Settings.logLimit, "200");
-                #region SettingUpdate(Settings.microtingDb, connectionStr.Replace("MicrotingOutlook", "Microting"));
-                try
-                {
-                    SettingUpdate(Settings.microtingDb, connectionStr.Replace("MicrotingOutlook", "Microting"));
-                }
-                catch
-                {
-                    SettingUpdate(Settings.microtingDb, "xxxxx");
+                        string microtingConnectionString = "...missing...";
+                        try
+                        {
+                            microtingConnectionString = connectionStr.Replace("MicrotingOutlook", "Microting");
+                            SettingUpdate(Settings.firstRunDone, "true");
+                        }
+                        catch { }
+                                                            id =  4;    defaultValue = microtingConnectionString;               break;
+                    #endregion
+                    case Settings.checkLast_At:             id =  5;    defaultValue = DateTime.Now.AddMonths(-3).ToString();   break;
+                    case Settings.checkRetrace_Hours:       id =  6;    defaultValue = "36";                                    break;
+                    case Settings.checkEvery_Mins:          id =  7;    defaultValue = "15";                                    break;
+                    case Settings.preSend_Mins:             id =  8;    defaultValue = "1";                                     break;
+                    case Settings.includeBlankLocations:    id =  9;    defaultValue = "true";                                  break;
+                    case Settings.colorsRule:               id = 10;    defaultValue = "1";                                     break;
+                    case Settings.calendarName:             id = 11;    defaultValue = "default";                               break;
+       
+                    default:
+                        throw new IndexOutOfRangeException(name.ToString() + " is not a known/mapped Settings type");
                 }
                 #endregion
-                SettingUpdate(Settings.checkLast_At, DateTime.Now.AddMonths(-3).ToString());
-                SettingUpdate(Settings.checkRetrace_Hours, "36");
-                SettingUpdate(Settings.checkEvery_Mins, "15");
-                SettingUpdate(Settings.preSend_Mins, "1");
-                SettingUpdate(Settings.includeBlankLocations, "false");
-                SettingUpdate(Settings.colorsRule, "1");
-                SettingUpdate(Settings.calendarName, "default");
-            }
-        }
 
-        public bool                 SettingCheckAll()
-        {
-            try
-            {
-                using (var db = new OutlookDb(connectionStr))
+                settings matchId = db.settings.SingleOrDefault(x => x.id == id);
+                settings matchName = db.settings.SingleOrDefault(x => x.name == name.ToString());
+
+                if (matchName == null)
                 {
-                    int countVal = db.settings.Count(x => x.value == "");
-                    int countSet = db.settings.Count();
+                    if (matchId != null)
+                    {
+                        #region there is already a setting with that id but different name
+                        //the old setting data is copied, and new is added
+                        settings newSettingBasedOnOld = new settings();
+                        newSettingBasedOnOld.id = (db.settings.Select(x => (int?)x.id).Max() ?? 0) + 1;
+                        newSettingBasedOnOld.name = matchId.name.ToString();
+                        newSettingBasedOnOld.value = matchId.value;
 
-                    if (countVal > 0)
-                        return false;
+                        db.settings.Add(newSettingBasedOnOld);
 
-                    if (countSet < Enum.GetNames(typeof(Settings)).Length)
-                        return false;
+                        matchId.name = name.ToString();
+                        matchId.value = defaultValue;
 
-                    int failed = 0;
-                    failed += SettingCheck(Settings.firstRunDone);
-                    failed += SettingCheck(Settings.logLevel);
-                    failed += SettingCheck(Settings.logLimit);
-                    failed += SettingCheck(Settings.microtingDb);
-                    failed += SettingCheck(Settings.checkLast_At);
-                    failed += SettingCheck(Settings.checkRetrace_Hours);
-                    failed += SettingCheck(Settings.checkEvery_Mins);
-                    failed += SettingCheck(Settings.preSend_Mins);
-                    failed += SettingCheck(Settings.includeBlankLocations);
-                    failed += SettingCheck(Settings.colorsRule);
-                    failed += SettingCheck(Settings.calendarName);
+                        db.SaveChanges();
+                        #endregion
+                    }
+                    else
+                    {
+                        //its a new setting
+                        settings newSetting = new settings();
+                        newSetting.id = id;
+                        newSetting.name = name.ToString();
+                        newSetting.value = defaultValue;
 
-                    if (failed > 0)
-                        return false;
-
-                    return true;
+                        db.settings.Add(newSetting);
+                    }
+                    db.SaveChanges();
                 }
+                else
+                    if (string.IsNullOrEmpty(matchName.value))
+                        matchName.value = defaultValue;
             }
-            catch (Exception ex)
-            {
-                throw new Exception(t.GetMethodName() + " failed", ex);
-            }
-        }
 
-        private void                SettingCreate(Settings name, int id)
-        {
-            using (var db = new OutlookDb(connectionStr))
-            {
-                settings set = new settings();
-                set.id = id;
-                set.name = name.ToString();
-                set.value = "";
-
-                db.settings.Add(set);
-                db.SaveChanges();
-            }
+            return true;
         }
 
         public string               SettingRead(Settings name)
@@ -689,6 +663,10 @@ namespace OutlookSql
                 using (var db = new OutlookDb(connectionStr))
                 {
                     settings match = db.settings.SingleOrDefault(x => x.name == name.ToString());
+
+                    if (match == null)
+                        return null;
+
                     return match.value;
                 }
             }
@@ -704,9 +682,54 @@ namespace OutlookSql
             {
                 using (var db = new OutlookDb(connectionStr))
                 {
-                    settings match = db.settings.Single(x => x.name == name.ToString());
+                    settings match = db.settings.SingleOrDefault(x => x.name == name.ToString());
+
+                    if (match == null)
+                    {
+                        SettingCreate(name);
+                        match = db.settings.Single(x => x.name == name.ToString());
+                    }
+
                     match.value = newValue;
                     db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(t.GetMethodName() + " failed", ex);
+            }
+        }
+
+        public List<string>         SettingCheckAll()
+        {
+            List<string> result = new List<string>();
+            try
+            {
+                using (var db = new OutlookDb(connectionStr))
+                {
+                    int countVal = db.settings.Count(x => x.value == "");
+                    int countSet = db.settings.Count();
+
+                    if (countSet == 0)
+                    {
+                        result.Add("NO SETTINGS PRESENT, NEEDS PRIMING!");
+                        return result;
+                    }
+
+                    foreach (var setting in Enum.GetValues(typeof(Settings)))
+                    {
+                        try
+                        {
+                            string readSetting = SettingRead((Settings)setting);
+                            if (readSetting == "")
+                                result.Add(setting.ToString() + " has an empty value!");
+                        }
+                        catch
+                        {
+                            result.Add("There is no setting for " + setting + "! You need to add one");
+                        }
+                    }
+                    return result;
                 }
             }
             catch (Exception ex)
@@ -717,6 +740,21 @@ namespace OutlookSql
         #endregion
 
         #region public write log
+        public Log                  StartLog(CoreBase core)
+        {
+            try
+            {
+                string logLevel = SettingRead(Settings.logLevel);
+                int logLevelInt = int.Parse(logLevel);
+                log = new Log(core, this, logLevelInt);
+                return log;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(t.GetMethodName() + " failed", ex);
+            }
+        }
+
         public override string      WriteLogEntry(LogEntry logEntry)
         {
             lock (_writeLock)
@@ -816,19 +854,6 @@ namespace OutlookSql
         #endregion
 
         #region private
-        private int                 SettingCheck(Settings setting)
-        {
-            try
-            {
-                SettingRead(setting);
-                return 0;
-            }
-            catch
-            {
-                return 1;
-            }
-        }
-
         private appointment_versions MapAppointmentVersions(appointments appointment)
         {
             appointment_versions version = new appointment_versions();
