@@ -205,7 +205,7 @@ namespace OutlookOffice
                         if (location.ToLower() == "check")
                         #region ...
                         {
-                            eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb), false);
+                            eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb));
                             eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting);
 
                             var temp = sqlController.AppointmentsFind(item.GlobalAppointmentID);
