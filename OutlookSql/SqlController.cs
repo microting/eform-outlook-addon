@@ -433,7 +433,7 @@ namespace OutlookSql
                     if (replacements.Count == 0)
                         replacements = null;
 
-                    eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb), false);
+                    eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
                     int interCaseId = sqlController.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), replacements);
 
                     var match = db.appointments.Single(x => x.global_id == appointment.global_id);
@@ -462,7 +462,7 @@ namespace OutlookSql
         {
             try
             {
-                eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb), true);
+                eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
                 sqlController.InteractionCaseDelete(int.Parse(appointment.microting_uid));
 
                 return true;
