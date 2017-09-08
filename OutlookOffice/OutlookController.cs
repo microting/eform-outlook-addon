@@ -18,6 +18,7 @@ namespace OutlookOffice
         SqlController sqlController;
         Log log;
         Tools t = new Tools();
+        object _lockOutlook = new object();
         #endregion
 
         #region con
@@ -34,72 +35,83 @@ namespace OutlookOffice
             try
             {
                 bool ConvertedAny = false;
-
                 #region var
-                int checkEvery_Mins = int.Parse(sqlController.SettingRead(Settings.checkEvery_Mins));
-                int checkRetrace_Hours = int.Parse(sqlController.SettingRead(Settings.checkRetrace_Hours));
-                DateTime checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
-                int preSend_Mins = int.Parse(sqlController.SettingRead(Settings.preSend_Mins));
-                bool includeBlankLocations = bool.Parse(sqlController.SettingRead(Settings.includeBlankLocations));
+                DateTime checkLast_At       = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
+                double checkPreSend_Hours   = double.Parse(sqlController.SettingRead(Settings.checkPreSend_Hours));
+                double checkRetrace_Hours   = double.Parse(sqlController.SettingRead(Settings.checkRetrace_Hours));
+                int checkEvery_Mins         = int.Parse(sqlController.SettingRead(Settings.checkEvery_Mins));
+                bool includeBlankLocations  = bool.Parse(sqlController.SettingRead(Settings.includeBlankLocations));
 
-                DateTime tLimitTo__ = DateTime.Now.AddMinutes(preSend_Mins);
-                DateTime tLimitFrom = checkLast_At.AddHours(-checkRetrace_Hours);
-
-                string filter = "[Start] >= '" + tLimitFrom.ToString("g") + "' AND [Start] <= '" + tLimitTo__.ToString("g") + "'";
-                log.LogVariable("Not Specified", nameof(filter), filter.ToString());
-
-                Outlook.MAPIFolder CalendarFolder = GetCalendarFolder();
-                Outlook.Items outlookCalendarItems = CalendarFolder.Items;
-                outlookCalendarItems.IncludeRecurrences = true;
-                outlookCalendarItems = outlookCalendarItems.Restrict(filter);
+                DateTime timeOfRun          = DateTime.Now;
+                DateTime tLimitTo           = timeOfRun.AddHours(+checkPreSend_Hours);
+                DateTime tLimitFrom         = checkLast_At.AddHours(-checkRetrace_Hours);
                 #endregion
 
                 #region convert recurrences
-                foreach (Outlook.AppointmentItem item in outlookCalendarItems)
+                foreach (Outlook.AppointmentItem item in GetCalendarItems(tLimitTo, tLimitFrom))
                 {
-                    if (item.Location != null && item.IsRecurring)
+                    if (item.IsRecurring) //is recurring, otherwise ignore
                     {
-                        Outlook.RecurrencePattern rp = item.GetRecurrencePattern();
-                        Outlook.AppointmentItem recur = null;
+                        #region location "planned"?
+                        string location = item.Location;
 
-                        DateTime startPoint = item.Start;
-                        while (startPoint.AddYears(1) <= tLimitFrom)
-                            startPoint = startPoint.AddYears(1);
-                        while (startPoint.AddMonths(1) <= tLimitFrom)
-                            startPoint = startPoint.AddMonths(1);
-                        while (startPoint.AddDays(1) <= tLimitFrom)
-                            startPoint = startPoint.AddDays(1);
-
-                        for (DateTime testPoint = startPoint; testPoint <= tLimitTo__; testPoint = testPoint.AddMinutes(checkEvery_Mins)) //KEY POINT
+                        if (location == null)
                         {
-                            if (testPoint >= tLimitFrom)
-                            {
-                                try
-                                {
-                                    recur = rp.GetOccurrence(testPoint);
+                            if (includeBlankLocations)
+                                location = "planned";
+                            else
+                                location = "";
+                        }
 
+                        location = location.ToLower();
+                        #endregion
+
+                        if (location == "planned")
+                        #region ...
+                        {
+                            Outlook.RecurrencePattern rp = item.GetRecurrencePattern();
+                            Outlook.AppointmentItem recur = null;
+
+                            DateTime startPoint = item.Start;
+                            while (startPoint.AddYears(1) <= tLimitFrom)
+                                startPoint = startPoint.AddYears(1);
+                            while (startPoint.AddMonths(1) <= tLimitFrom)
+                                startPoint = startPoint.AddMonths(1);
+                            while (startPoint.AddDays(1) <= tLimitFrom)
+                                startPoint = startPoint.AddDays(1);
+
+                            for (DateTime testPoint = startPoint; testPoint <= tLimitTo; testPoint = testPoint.AddMinutes(checkEvery_Mins)) //KEY POINT
+                            {
+                                if (testPoint >= tLimitFrom)
+                                {
                                     try
                                     {
-                                        Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false, sqlController.Lookup);
-                                        appo_Dto = CreateAppointment(appo_Dto);
-                                        recur.Delete();
-                                        log.LogStandard("Not Specified", recur.GlobalAppointmentID + " / " + recur.Start + " converted to non-recurence appointment");
+                                        recur = rp.GetOccurrence(testPoint);
+
+                                        try
+                                        {
+                                            Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false, sqlController.Lookup);
+                                            appo_Dto = CreateAppointment(appo_Dto);
+                                            recur.Delete();
+                                            log.LogStandard("Not Specified", recur.GlobalAppointmentID + " / " + recur.Start + " converted to non-recurence appointment");
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed. The OutlookController will keep the Expection contained", ex));
+                                        }
+                                        ConvertedAny = true;
                                     }
-                                    catch (Exception ex)
-                                    {
-                                        log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed. The OutlookController will keep the Expection contained", ex));
-                                    }
-                                    ConvertedAny = true;
+                                    catch { }
                                 }
-                                catch { }
                             }
                         }
+                        #endregion
                     }
                 }
                 #endregion
 
                 if (ConvertedAny)
-                    log.LogStandard("Not Specified", t.GetMethodName() + " completed + converted appointment(s)");
+                    log.LogStandard  ("Not Specified", t.GetMethodName() + " completed + converted appointment(s)");
                 else
                     log.LogEverything("Not Specified", t.GetMethodName() + " completed");
 
@@ -116,113 +128,109 @@ namespace OutlookOffice
             try
             {
                 bool AllIntrepid = false;
-
                 #region var
-                int checkRetrace_Hours = int.Parse(sqlController.SettingRead(Settings.checkRetrace_Hours));
-                int preSend_Mins = int.Parse(sqlController.SettingRead(Settings.preSend_Mins));
-                bool includeBlankLocations = bool.Parse(sqlController.SettingRead(Settings.includeBlankLocations));
-                DateTime timeOfRun_ = DateTime.Now;
-                DateTime checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
+                DateTime checkLast_At       = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
+                double checkPreSend_Hours   = double.Parse(sqlController.SettingRead(Settings.checkPreSend_Hours));
+                double checkRetrace_Hours   = double.Parse(sqlController.SettingRead(Settings.checkRetrace_Hours));
+                int checkEvery_Mins         = int.Parse(sqlController.SettingRead(Settings.checkEvery_Mins));
+                bool includeBlankLocations  = bool.Parse(sqlController.SettingRead(Settings.includeBlankLocations));
 
-                DateTime tLimitTo__ = RoundTime(timeOfRun_).AddMinutes(preSend_Mins);
-                DateTime tLimitFrom = checkLast_At.AddHours(-checkRetrace_Hours);
-
-                if (tLimitFrom.AddDays(7).AddHours(checkRetrace_Hours) < tLimitTo__)
-                    tLimitTo__ = tLimitFrom.AddDays(7).AddHours(checkRetrace_Hours);
-
-                string filter = "[Start] >= '" + tLimitFrom.ToString("g") + "' AND [Start] <= '" + tLimitTo__.ToString("g") + "'";
-                log.LogVariable("Not Specified", nameof(filter), filter.ToString());
-
-                Outlook.MAPIFolder CalendarFolder = GetCalendarFolder();
-                Outlook.Items outlookCalendarItems = CalendarFolder.Items;
-                outlookCalendarItems.IncludeRecurrences = false;
-                outlookCalendarItems = outlookCalendarItems.Restrict(filter);
+                DateTime timeOfRun          = DateTime.Now;
+                DateTime tLimitTo           = timeOfRun.AddHours(+checkPreSend_Hours);
+                DateTime tLimitFrom         = checkLast_At.AddHours(-checkRetrace_Hours);
                 #endregion
 
                 #region process appointments
-                foreach (Outlook.AppointmentItem item in outlookCalendarItems)
+                foreach (Outlook.AppointmentItem item in GetCalendarItems(tLimitTo, tLimitFrom))
                 {
-                    if (tLimitFrom <= item.Start && item.Start <= tLimitTo__)
+                    if (!item.IsRecurring) //is NOT recurring, otherwise ignore
                     {
-                        string location = item.Location;
-
-                        if (location == null)
+                        if (tLimitFrom <= item.Start && item.Start <= tLimitTo)
                         {
-                            if (includeBlankLocations)
-                                location = "planned";
-                            else
-                                location = "";
-                        }
+                            #region location "planned"?
+                            string location = item.Location;
 
-                        if (location.ToLower() == "planned")
-                        #region ...
-                        {
-                            if (item.Body != null)
-                                if (item.Body.Contains("<<Info field:"))
-                                    if (item.Body.Contains("End>>"))
-                                        item.Body = t.LocateReplaceAll(item.Body, "<<Info field:", "End>>", "").Trim();
-
-                            item.Save();
-
-                            Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
-
-                            if (appo.Location == null)
+                            if (location == null)
                             {
                                 if (includeBlankLocations)
-                                    appo.Location = "planned";
+                                    location = "planned";
                                 else
-                                    appo.Location = "";
+                                    location = "";
                             }
 
-                            if (appo.Location.ToLower() == "planned")
+                            location = location.ToLower();
+                            #endregion
+
+                            if (location.ToLower() == "planned")
+                            #region ...
                             {
-                                if (sqlController.OutlookEfromCreate(appo))
-                                    CalendarItemUpdate(appo, WorkflowState.Processed, false);
+                                if (item.Body != null)
+                                    if (item.Body.Contains("<<Info field:"))
+                                        if (item.Body.Contains("End>>"))
+                                            item.Body = t.LocateReplaceAll(item.Body, "<<Info field:", "End>>", "").Trim();
+
+                                item.Save();
+
+                                Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
+
+                                if (appo.Location == null)
+                                {
+                                    if (includeBlankLocations)
+                                        appo.Location = "planned";
+                                    else
+                                        appo.Location = "";
+                                }
+
+                                if (appo.Location.ToLower() == "planned")
+                                {
+                                    if (sqlController.OutlookEfromCreate(appo))
+                                        CalendarItemUpdate(appo, WorkflowState.Processed, false);
+                                    else
+                                        CalendarItemUpdate(appo, WorkflowState.Failed_to_expection, false);
+                                }
                                 else
-                                    CalendarItemUpdate(appo, WorkflowState.Failed_to_expection, false);
+                                    CalendarItemUpdate(appo, WorkflowState.Failed_to_intrepid, false);
+
+                                AllIntrepid = true;
                             }
-                            else
-                                CalendarItemUpdate(appo, WorkflowState.Failed_to_intrepid, false);
-           
-                            AllIntrepid = true;
+                            #endregion
+
+                            if (location.ToLower() == "cancel")
+                            #region ...
+                            {
+                                Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
+
+                                if (sqlController.OutlookEformCancel(appo))
+                                    CalendarItemUpdate(appo, WorkflowState.Canceled, false);
+                                else
+                                    CalendarItemUpdate(appo, WorkflowState.Failed_to_intrepid, false);
+
+                                AllIntrepid = true;
+                            }
+                            #endregion
+
+                            if (location.ToLower() == "check")
+                            #region ...
+                            {
+                                eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb));
+                                eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting);
+
+                                var temp = sqlController.AppointmentsFind(item.GlobalAppointmentID);
+
+                                var list = sqlMicroting.InteractionCaseListRead(int.Parse(temp.microting_uid));
+                                foreach (var aCase in list)
+                                    com.CheckStatusUpdateIfNeeded(aCase.microting_uid);
+
+                                CalendarItemReflecting(item.GlobalAppointmentID);
+                                AllIntrepid = true;
+                            }
+                            #endregion
                         }
-                        #endregion
-
-                        if (location.ToLower() == "cancel")
-                        #region ...
-                        {
-                            Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
-
-                            if (sqlController.OutlookEformCancel(appo))
-                                CalendarItemUpdate(appo, WorkflowState.Canceled, false);
-                            else
-                                CalendarItemUpdate(appo, WorkflowState.Failed_to_intrepid, false);
-
-                            AllIntrepid = true;
-                        }
-                        #endregion
-
-                        if (location.ToLower() == "check")
-                        #region ...
-                        {
-                            eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb));
-                            eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting);
-
-                            var temp = sqlController.AppointmentsFind(item.GlobalAppointmentID);
-
-                            var list = sqlMicroting.InteractionCaseListRead(int.Parse(temp.microting_uid));
-                            foreach (var aCase in list)
-                                com.CheckStatusUpdateIfNeeded(aCase.microting_uid);
-
-                            CalendarItemReflecting(item.GlobalAppointmentID);
-                            AllIntrepid = true;
-                        }
-                        #endregion
                     }
                 }
                 #endregion
 
-                sqlController.SettingUpdate(Settings.checkLast_At, tLimitTo__.ToString());
+                sqlController.SettingUpdate(Settings.checkLast_At, timeOfRun.ToString());
                 log.LogVariable("Not Specified", "Settings.checkLast_At", Settings.checkLast_At.ToString());
 
                 return AllIntrepid;
@@ -448,6 +456,21 @@ namespace OutlookOffice
             return "GlobalId:" + appItem.GlobalAppointmentID + " / Start:" + appItem.Start + " / Title:" + appItem.Subject;
         }
 
+        private Outlook.Items       GetCalendarItems(DateTime tLimitTo, DateTime tLimitFrom)
+        {
+            lock (_lockOutlook)
+            {
+                string filter = "[Start] >= '" + tLimitFrom.ToString("g") + "' AND [Start] <= '" + tLimitTo.ToString("g") + "'";
+                log.LogVariable("Not Specified", nameof(filter), filter.ToString());
+
+                Outlook.MAPIFolder CalendarFolder = GetCalendarFolder();
+                Outlook.Items outlookCalendarItems = CalendarFolder.Items;
+                outlookCalendarItems = outlookCalendarItems.Restrict(filter);
+                log.LogVariable("Not Specified", "outlookCalendarItems.Count", outlookCalendarItems.Count);
+                return outlookCalendarItems;
+            }
+        }
+
         private Outlook.MAPIFolder  GetCalendarFolder()
         {
             if (calendarName == sqlController.SettingRead(Settings.calendarName))
@@ -535,15 +558,8 @@ namespace OutlookOffice
         {
             return
                                             "TempLate# "        + "’Test Template’"
-                    + Environment.NewLine + "title# "           + "Outlook appointment eForm test"
-                    + Environment.NewLine + "info# "            + "1: Udfyldt besked linje 1"
-                    + Environment.NewLine + "info# "            + "2: Udfyldt besked linje 2"
-                    + Environment.NewLine + "info# "            + "3: Udfyldt besked linje 3"
-                    + Environment.NewLine + "connected# "       + "0"
-                    + Environment.NewLine + "expirE# "          + "4"
-                    + Environment.NewLine + "replacements# "    + "Gem knap==Save"
-                    + Environment.NewLine + "replacements# "    + "Numerisk==Tal"
-                    + Environment.NewLine + "Sites# "           + "’salg’, 3913";
+                    + Environment.NewLine + "Sites# "           + "’salg’, 3913"
+                    + Environment.NewLine + "title# "           + "Outlook appointment eForm test";
         }
     }
 }
