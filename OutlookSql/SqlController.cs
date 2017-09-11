@@ -37,28 +37,26 @@ namespace OutlookSql
             //{
             //    dbConnection = new SqlConnection(connectionString + ";MultipleActiveResultSets=true"); // ;Connection Timeout=3000");  //MS SQL connection
             //}
-            #endregion
 
-            #region connect to DB
-            try
-            {
-                try
-                {
-                    //dbConnection.Open();
-                }
-                catch
-                {
-                    using (var db = new OutlookDb(connectionStr))
-                    {
-                        db.Database.CreateIfNotExists();
-                    }
-                    //dbConnection.Open();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Unable to start SqlController, due to unable to open connection to the database", ex);
-            }
+            //try
+            //{
+            //    try
+            //    {
+            //        //dbConnection.Open();
+            //    }
+            //    catch
+            //    {
+            //        using (var db = new OutlookDb(connectionStr))
+            //        {
+            //            db.Database.CreateIfNotExists();
+            //        }
+            //        //dbConnection.Open();
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw new Exception("Unable to start SqlController, due to unable to open connection to the database", ex);
+            //}
             #endregion
 
             #region migrate if needed
@@ -119,6 +117,7 @@ namespace OutlookSql
                     newAppo.subject = appointment.Subject;
                     newAppo.template_id = appointment.TemplateId;
                     newAppo.title = appointment.Title;
+                    newAppo.description = appointment.Description;
                     newAppo.color_rule = t.Bool(appointment.ColorRule);
                     newAppo.workflow_state = "Processed";
                     newAppo.created_at = DateTime.Now;
@@ -393,6 +392,9 @@ namespace OutlookSql
                     if (appointment.title != "")
                         replacements.Add("Title::" + appointment.title);
 
+                    if (appointment.description != "")
+                        replacements.Add("Description::" + appointment.description);
+
                     if (appointment.info != "")
                         replacements.Add("Info::" + appointment.info);
 
@@ -566,9 +568,9 @@ namespace OutlookSql
             SettingCreate(Settings.logLimit);
             SettingCreate(Settings.microtingDb);
             SettingCreate(Settings.checkLast_At);
+            SettingCreate(Settings.checkPreSend_Hours);
             SettingCreate(Settings.checkRetrace_Hours);
             SettingCreate(Settings.checkEvery_Mins);
-            SettingCreate(Settings.preSend_Mins);
             SettingCreate(Settings.includeBlankLocations);
             SettingCreate(Settings.colorsRule);
             SettingCreate(Settings.calendarName);
@@ -602,9 +604,9 @@ namespace OutlookSql
                                                             id =  4;    defaultValue = microtingConnectionString;               break;
                     #endregion
                     case Settings.checkLast_At:             id =  5;    defaultValue = DateTime.Now.AddMonths(-3).ToString();   break;
-                    case Settings.checkRetrace_Hours:       id =  6;    defaultValue = "36";                                    break;
-                    case Settings.checkEvery_Mins:          id =  7;    defaultValue = "15";                                    break;
-                    case Settings.preSend_Mins:             id =  8;    defaultValue = "1";                                     break;
+                    case Settings.checkPreSend_Hours:       id =  6;    defaultValue = "36";                                    break;
+                    case Settings.checkRetrace_Hours:       id =  7;    defaultValue = "36";                                    break;
+                    case Settings.checkEvery_Mins:          id =  8;    defaultValue = "15";                                    break;
                     case Settings.includeBlankLocations:    id =  9;    defaultValue = "true";                                  break;
                     case Settings.colorsRule:               id = 10;    defaultValue = "1";                                     break;
                     case Settings.calendarName:             id = 11;    defaultValue = "default";                               break;
@@ -873,6 +875,7 @@ namespace OutlookSql
             version.expectionString = appointment.expectionString;
             version.site_ids = appointment.site_ids;
             version.title = appointment.title;
+            version.description = appointment.description;
             version.info = appointment.info;
             version.replacements = appointment.replacements;
             version.microting_uid = appointment.microting_uid;
@@ -935,9 +938,9 @@ namespace OutlookSql
         logLimit,
         microtingDb,
         checkLast_At,
+        checkPreSend_Hours,
         checkRetrace_Hours,
         checkEvery_Mins,
-        preSend_Mins,
         includeBlankLocations,
         colorsRule,
         calendarName

@@ -1,4 +1,5 @@
-﻿using OutlookCore;
+﻿using eFormData;
+using OutlookCore;
 
 using System;
 using System.Collections.Generic;
@@ -14,34 +15,61 @@ namespace SourceCode
     {
         static void Main(string[] args)
         {
-            Core core = new Core();
+            Core outCore = new Core();
+            eFormCore.Core sdkCore = new eFormCore.Core();
 
-            string serverConnectionString = File.ReadAllText("input\\sql_connection.txt").Trim();
-
+            string outConStr = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "MicrotingOutlook" + ";Integrated Security=True";
+            string sdkConStr = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "MicrotingOdense"  + ";Integrated Security=True";
+            
             while (true)
             {
+                #region text + read input
                 Console.WriteLine("");
-                Console.WriteLine("Input:");
-                Console.WriteLine("'S'tart, 'C'lose, 'R'eset & 'Q'uit");
+                Console.WriteLine("Input    : 'C'lose,'R'eset & 'Q'uit.");
+                Console.WriteLine("Outlook  : 'O' start.  Running:" + outCore.Running());
+                Console.WriteLine("SDK Core : 'S' start.  Running:" + sdkCore.Running());
                 string tempLower = Console.ReadLine().ToLower();
+                #endregion
+
+                if (tempLower == "o")
+                #region outlook core start
+                {
+                    outCore.Start(outConStr);
+                }
+                #endregion
 
                 if (tempLower == "s")
-                    core.Start(serverConnectionString);
-
-                if (tempLower == "c")
-                    core.Close();
+                #region SDK core start
+                {
+                    sdkCore.Start(sdkConStr);
+                }
+                #endregion
 
                 if (tempLower == "r")
+                #region reset
                 {
-                    core.Close();
-                    core.Test_Reset(serverConnectionString);
+                    sdkCore.Close();
+                    outCore.Close();
+                    outCore.Test_Reset(outConStr);
                 }
+                #endregion
+
+                if (tempLower == "c")
+                #region close
+                {
+                    sdkCore.Close();
+                    outCore.Close();
+                }
+                #endregion
 
                 if (tempLower == "q")
+                #region quit
                 {
-                    core.Close();
+                    sdkCore.Close();
+                    outCore.Close();
                     break;
                 }
+                #endregion
             }
 
             Console.WriteLine("Closing app in 0,5 sec");

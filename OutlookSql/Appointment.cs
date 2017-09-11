@@ -21,6 +21,7 @@ namespace OutlookSql
         public List<int> SiteIds { get; set; }
         public bool Connected { get; set; }
         public string Title { get; set; }
+        public string Description { get; set; }
         public string Info { get; set; }
         public List<string> Replacements { get; set; }
         public int Expire { get; set; }
@@ -31,12 +32,12 @@ namespace OutlookSql
         #endregion
 
         #region con
-        public Appointment()
+        public          Appointment()
         {
 
         }
 
-        public Appointment(string globalId, DateTime start, int duration, string subject, string location, string body, bool colorRule, bool intrepidBody, Func<string, string> Lookup)
+        public          Appointment(string globalId, DateTime start, int duration, string subject, string location, string body, bool colorRule, bool intrepidBody, Func<string, string> Lookup)
         {
             GlobalId = globalId;
             Start = start;
@@ -49,6 +50,7 @@ namespace OutlookSql
             SiteIds = new List<int>();
             Connected = false;
             Title = "";
+            Description = "";
             Info = "";
             Replacements = new List<string>();
             Expire = 2;
@@ -171,6 +173,13 @@ namespace OutlookSql
                     if (input.Contains(check))
                     {
                         Title = line.Remove(0, check.Length).Trim();
+                        continue;
+                    }
+
+                    check = "description#";
+                    if (input.Contains(check))
+                    {
+                        Description = line.Remove(0, check.Length).Trim();
                         continue;
                     }
 

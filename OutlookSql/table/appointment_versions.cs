@@ -47,6 +47,9 @@ namespace OutlookSql
 
         [StringLength(255)]
         public string title { get; set; }
+        
+        [StringLength(255)]
+        public string description { get; set; }
 
         public string info { get; set; }
 
