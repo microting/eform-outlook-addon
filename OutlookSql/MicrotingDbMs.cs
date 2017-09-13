@@ -5,17 +5,17 @@ namespace OutlookSql
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
 
-    public partial class MicrotingDb : DbContext
+    public partial class MicrotingDbMs : DbContext, MicrotingContextInterface
     {
-        public MicrotingDb() { }
+        public MicrotingDbMs() { }
 
-        public MicrotingDb(string connectionString)
+        public MicrotingDbMs(string connectionString)
              : base(connectionString)
         {
         }
 
-        public virtual DbSet<a_interaction_case_lists> a_interaction_case_lists { get; set; }
-        public virtual DbSet<a_interaction_cases> a_interaction_cases { get; set; }
+        public virtual DbSet<a_interaction_case_lists>  a_interaction_case_lists { get; set; }
+        public virtual DbSet<a_interaction_cases>       a_interaction_cases { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

@@ -17,6 +17,7 @@ namespace OutlookSql
     {
         #region var
         string connectionStr;
+        bool msSql = true;
         Log log;
         Tools t = new Tools();
 
@@ -26,44 +27,19 @@ namespace OutlookSql
         #region con
         public                      SqlController(string connectionString)
         {
-            connectionStr = connectionString;
+            connectionStr = connectionString.ToLower();
 
-            #region use MS SQL or MySQL connector
-            //if (connectionStr.ToLower().Contains("server="))
-            //{
-            //    dbConnection = new MySqlConnection(connectionString); //MySQL connection
-            //}
-            //else
-            //{
-            //    dbConnection = new SqlConnection(connectionString + ";MultipleActiveResultSets=true"); // ;Connection Timeout=3000");  //MS SQL connection
-            //}
-
-            //try
-            //{
-            //    try
-            //    {
-            //        //dbConnection.Open();
-            //    }
-            //    catch
-            //    {
-            //        using (var db = new OutlookDb(connectionStr))
-            //        {
-            //            db.Database.CreateIfNotExists();
-            //        }
-            //        //dbConnection.Open();
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw new Exception("Unable to start SqlController, due to unable to open connection to the database", ex);
-            //}
-            #endregion
+            if (!connectionStr.Contains("server="))
+                msSql = true;
+            else
+                msSql = false;
 
             #region migrate if needed
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
+                    db.Database.CreateIfNotExists();
                     var match = db.settings.Count();
                 }
             }
@@ -78,6 +54,22 @@ namespace OutlookSql
                 SettingCreateDefaults();
         }
 
+        private OutlookContextInterface   GetContextO()
+        {
+            if (msSql)
+                return new OutlookDbMs(connectionStr);
+            else
+                return new OutlookDbMy(connectionStr);
+        }
+
+        private MicrotingContextInterface GetContextM()
+        {
+            if (msSql)
+                return new MicrotingDbMs(SettingRead(Settings.microtingDb));
+            else
+                return new MicrotingDbMy(SettingRead(Settings.microtingDb));
+        }
+
         public bool                 MigrateDb()
         {
             var configuration = new Configuration();
@@ -88,12 +80,13 @@ namespace OutlookSql
         }
         #endregion
 
+        #region public
         #region public Outlook
         public bool                 OutlookEfromCreate(Appointment appointment)
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == appointment.GlobalId);
 
@@ -144,7 +137,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == appointment.GlobalId);
 
@@ -175,7 +168,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == globalId);
                     return match;
@@ -192,7 +185,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.FirstOrDefault(x => x.workflow_state == workflowState.ToString());
                     return match;
@@ -209,7 +202,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.FirstOrDefault(x => x.completed == timesReflected);
                     return match;
@@ -226,7 +219,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == globalId);
 
@@ -263,7 +256,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == globalId);
 
@@ -301,7 +294,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     lookups match = db.lookups.Single(x => x.title == title);
                     return match.value;
@@ -381,7 +374,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     List<int> siteIds = t.IntLst(appointment.site_ids);
                     List<string> replacements = t.TextLst(appointment.replacements);
@@ -450,7 +443,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new MicrotingDb(SettingRead(Settings.microtingDb)))
+                using (var db = GetContextM())
                 {
                     var match = db.a_interaction_cases.FirstOrDefault(x => x.synced == 0);
                     if (match == null)
@@ -580,7 +573,7 @@ namespace OutlookSql
 
         public bool                 SettingCreate(Settings name)
         {
-            using (var db = new OutlookDb(connectionStr))
+            using (var db = GetContextO())
             {
                 //key point
                 #region id = settings.name
@@ -662,12 +655,12 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
-                    settings match = db.settings.SingleOrDefault(x => x.name == name.ToString());
+                    settings match = db.settings.Single(x => x.name == name.ToString());
 
-                    if (match == null)
-                        return null;
+                    if (match.value == null)
+                        return "";
 
                     return match.value;
                 }
@@ -682,7 +675,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     settings match = db.settings.SingleOrDefault(x => x.name == name.ToString());
 
@@ -707,7 +700,7 @@ namespace OutlookSql
             List<string> result = new List<string>();
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     int countVal = db.settings.Count(x => x.value == "");
                     int countSet = db.settings.Count();
@@ -763,7 +756,7 @@ namespace OutlookSql
             {
                 try
                 {
-                    using (var db = new OutlookDb(connectionStr))
+                    using (var db = GetContextO())
                     {
                         logs newLog = new logs();
                         newLog.created_at = logEntry.Time;
@@ -804,7 +797,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     log_exceptions newLog = new log_exceptions();
                     newLog.created_at = logEntry.Time;
@@ -854,6 +847,7 @@ namespace OutlookSql
             }
         }
         #endregion
+        #endregion
 
         #region private
         private appointment_versions MapAppointmentVersions(appointments appointment)
@@ -895,7 +889,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     db.Database.ExecuteSqlCommand("DELETE FROM [dbo].[" + tableName + "];");
                     db.Database.ExecuteSqlCommand("DBCC CHECKIDENT('" + tableName + "', RESEED, 0);");
@@ -914,7 +908,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new MicrotingDb(SettingRead(Settings.microtingDb)))
+                using (var db = GetContextM())
                 {
                     db.Database.ExecuteSqlCommand("DELETE FROM [dbo].[" + tableName + "];");
                     db.Database.ExecuteSqlCommand("DBCC CHECKIDENT('" + tableName + "', RESEED, 0);");
