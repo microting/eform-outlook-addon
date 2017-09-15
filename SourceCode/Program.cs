@@ -28,6 +28,7 @@ namespace SourceCode
                 Console.WriteLine("Input    : 'C'lose,'R'eset & 'Q'uit.");
                 Console.WriteLine("Outlook  : 'O' start.  Running:" + outCore.Running());
                 Console.WriteLine("SDK Core : 'S' start.  Running:" + sdkCore.Running());
+                Console.WriteLine("-        : 'T'emplate");
                 string tempLower = Console.ReadLine().ToLower();
                 #endregion
 
@@ -68,6 +69,49 @@ namespace SourceCode
                     sdkCore.Close();
                     outCore.Close();
                     break;
+                }
+                #endregion
+
+                if (tempLower == "t")
+                #region template
+                {
+                    if (sdkCore.Running())
+                    {
+                        Console.WriteLine("Creating eForm template from the xmlTemplate.txt");
+      
+                        string xmlStr = File.ReadAllText("xmlTemplate.txt");
+                        var main = sdkCore.TemplateFromXml(xmlStr);
+                        main = sdkCore.TemplateUploadData(main);
+
+                        // Best practice is to validate the parsed xml before trying to save and handle the error(s) gracefully.
+                        List<string> validationErrors = sdkCore.TemplateValidation(main);
+                        if (validationErrors.Count < 1)
+                        {
+                            main.Repeated = 1;
+                            main.CaseType = "Test";
+                            main.StartDate = DateTime.Now;
+                            main.EndDate = DateTime.Now.AddDays(2);
+
+                            try
+                            {
+                                Console.WriteLine("- TemplateId = " + sdkCore.TemplateCreate(main));
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception("PANIC !!!", ex);
+                            }
+                        }
+                        else
+                        {
+                            foreach (string error in validationErrors)
+                            {
+                                Console.WriteLine("The following error is stopping us from creating the template: " + error);
+                            }
+                            Console.WriteLine("Correct the errors in xmlTemplate.txt and try again");
+                        }
+                    }
+                    else
+                        Console.WriteLine("SDK Core not running");
                 }
                 #endregion
             }

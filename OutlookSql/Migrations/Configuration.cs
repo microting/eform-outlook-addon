@@ -5,7 +5,7 @@ namespace OutlookSql.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<OutlookSql.OutlookDb>
+    internal sealed class Configuration : DbMigrationsConfiguration<OutlookSql.OutlookDbMs>
     {
         public Configuration()
         {
@@ -13,7 +13,7 @@ namespace OutlookSql.Migrations
             AutomaticMigrationDataLossAllowed = false;
         }
 
-        protected override void Seed(OutlookSql.OutlookDb context)
+        protected override void Seed(OutlookSql.OutlookDbMs context)
         {
             //  This method will be called after migrating to the latest version.
 

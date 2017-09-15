@@ -1,25 +1,25 @@
 namespace OutlookSql
 {
-    using System;
     using System.Data.Entity;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Linq;
+    using MySql.Data.Entity;
 
-    public partial class OutlookDb : DbContext
+    // Code-Based Configuration and Dependency resolution
+    [DbConfigurationType(typeof(MySqlEFConfiguration))]
+    public partial class OutlookDbMy : DbContext, OutlookContextInterface
     {
-        public OutlookDb() { }
+        public OutlookDbMy() { }
 
-        public OutlookDb(string connectionString)
+        public OutlookDbMy(string connectionString)
             : base(connectionString)
         {
         }
 
-        public virtual DbSet<appointment_versions> appointment_versions { get; set; }
-        public virtual DbSet<appointments> appointments { get; set; }
-        public virtual DbSet<log_exceptions> log_exceptions { get; set; }
-        public virtual DbSet<logs> logs { get; set; }
-        public virtual DbSet<lookups> lookups { get; set; }
-        public virtual DbSet<settings> settings { get; set; }
+        public virtual DbSet<appointment_versions>  appointment_versions { get; set; }
+        public virtual DbSet<appointments>          appointments { get; set; }
+        public virtual DbSet<log_exceptions>        log_exceptions { get; set; }
+        public virtual DbSet<logs>                  logs { get; set; }
+        public virtual DbSet<lookups>               lookups { get; set; }
+        public virtual DbSet<settings>              settings { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

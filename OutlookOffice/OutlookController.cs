@@ -165,9 +165,13 @@ namespace OutlookOffice
                             #region ...
                             {
                                 if (item.Body != null)
-                                    if (item.Body.Contains("<<Info field:"))
-                                        if (item.Body.Contains("End>>"))
-                                            item.Body = t.LocateReplaceAll(item.Body, "<<Info field:", "End>>", "").Trim();
+                                    if (item.Body.Contains("<<< "))
+                                        if (item.Body.Contains("End >>>"))
+                                        {
+                                            item.Body = t.LocateReplaceAll(item.Body, "<<< ", "End >>>", "");
+                                            item.Body = item.Body.Replace("<<< End >>>", "");
+                                            item.Body = item.Body.Trim();
+                                        }
 
                                 item.Save();
 
@@ -245,6 +249,7 @@ namespace OutlookOffice
         {
             try
             {
+                #region appointment = 'find one';
                 appointments appointment = null;
      
                 if (globalId == null)
@@ -257,7 +262,7 @@ namespace OutlookOffice
      
                 if (appointment == null)
                     return false;
-
+                #endregion
                 Outlook.AppointmentItem item = AppointmentItemFind(appointment.global_id, appointment.start_at.Value);
 
                 item.Location = appointment.workflow_state;
@@ -301,23 +306,38 @@ namespace OutlookOffice
                 #endregion
                 item.Body = appointment.body;
                 #region item.Body = appointment.expectionString + item.Body + appointment.response ...
-                if (!string.IsNullOrEmpty(appointment.expectionString))
-                {
-                    item.Body =
-                    "<<Info field: Exception: Start>>" + Environment.NewLine +
-                    appointment.expectionString + Environment.NewLine +
-                    "<<Info field: Exception: End>>" + Environment.NewLine +
-                    Environment.NewLine +
-                    item.Body;
-                }
                 if (!string.IsNullOrEmpty(appointment.response))
                 {
-                    item.Body =
-                    "<<Info field: Response: Start>>" + Environment.NewLine +
-                    appointment.response + Environment.NewLine +
-                    "<<Info field: Response: End>>" + Environment.NewLine +
+                    if (t.Bool(sqlController.SettingRead(Settings.responseBeforeBody)))
+                    {
+                        item.Body =           "<<< Response: Start >>>" + 
+                        Environment.NewLine +
+                        Environment.NewLine + appointment.response + 
+                        Environment.NewLine +
+                        Environment.NewLine + "<<< Response: End >>>" + 
+                        Environment.NewLine +
+                        Environment.NewLine + item.Body;
+                    }
+                    else
+                    {
+                        item.Body =           item.Body + 
+                        Environment.NewLine +
+                        Environment.NewLine + "<<< Response: Start >>>" + 
+                        Environment.NewLine +
+                        Environment.NewLine + appointment.response + 
+                        Environment.NewLine +
+                        Environment.NewLine + "<<< Response: End >>>";
+                    }
+                }
+                if (!string.IsNullOrEmpty(appointment.expectionString))
+                {
+                    item.Body =           "<<< Exception: Start >>>" + 
                     Environment.NewLine +
-                    item.Body;
+                    Environment.NewLine + appointment.expectionString + 
+                    Environment.NewLine +
+                    Environment.NewLine + "<<< Exception: End >>>" + 
+                    Environment.NewLine +
+                    Environment.NewLine + item.Body;
                 }
                 #endregion
                 item.Save();
@@ -557,9 +577,10 @@ namespace OutlookOffice
         private string              UnitTest_CalendarBody()
         {
             return
-                                            "TempLate# "        + "’Test Template’"
-                    + Environment.NewLine + "Sites# "           + "’salg’, 3913"
-                    + Environment.NewLine + "title# "           + "Outlook appointment eForm test";
+                                            "TempLate# "+ "’Besked’"
+                    + Environment.NewLine + "Sites# "   + "’All’"
+                    + Environment.NewLine + "title# "   + "Outlook appointment eForm test"
+                    + Environment.NewLine + "info# "    + "Tekst fra Outlook appointment";
         }
     }
 }

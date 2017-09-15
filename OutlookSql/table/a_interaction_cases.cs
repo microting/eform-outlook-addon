@@ -42,7 +42,6 @@ namespace OutlookSql
 
         public string expectionString { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<a_interaction_case_lists> a_interaction_case_lists { get; set; }
     }
 }

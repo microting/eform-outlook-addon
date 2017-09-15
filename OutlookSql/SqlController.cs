@@ -17,6 +17,8 @@ namespace OutlookSql
     {
         #region var
         string connectionStr;
+        eFormSqlController.SqlController sdkSqlCon = null;
+        bool msSql = true;
         Log log;
         Tools t = new Tools();
 
@@ -26,44 +28,19 @@ namespace OutlookSql
         #region con
         public                      SqlController(string connectionString)
         {
-            connectionStr = connectionString;
+            connectionStr = connectionString.ToLower();
 
-            #region use MS SQL or MySQL connector
-            //if (connectionStr.ToLower().Contains("server="))
-            //{
-            //    dbConnection = new MySqlConnection(connectionString); //MySQL connection
-            //}
-            //else
-            //{
-            //    dbConnection = new SqlConnection(connectionString + ";MultipleActiveResultSets=true"); // ;Connection Timeout=3000");  //MS SQL connection
-            //}
-
-            //try
-            //{
-            //    try
-            //    {
-            //        //dbConnection.Open();
-            //    }
-            //    catch
-            //    {
-            //        using (var db = new OutlookDb(connectionStr))
-            //        {
-            //            db.Database.CreateIfNotExists();
-            //        }
-            //        //dbConnection.Open();
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw new Exception("Unable to start SqlController, due to unable to open connection to the database", ex);
-            //}
-            #endregion
+            if (!connectionStr.Contains("server="))
+                msSql = true;
+            else
+                msSql = false;
 
             #region migrate if needed
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
+                    db.Database.CreateIfNotExists();
                     var match = db.settings.Count();
                 }
             }
@@ -76,6 +53,24 @@ namespace OutlookSql
             //region set default for settings if needed
             if (SettingCheckAll().Count > 0)
                 SettingCreateDefaults();
+
+            sdkSqlCon = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
+        }
+
+        private OutlookContextInterface   GetContextO()
+        {
+            if (msSql)
+                return new OutlookDbMs(connectionStr);
+            else
+                return new OutlookDbMy(connectionStr);
+        }
+
+        private MicrotingContextInterface GetContextM()
+        {
+            if (msSql)
+                return new MicrotingDbMs(SettingRead(Settings.microtingDb));
+            else
+                return new MicrotingDbMy(SettingRead(Settings.microtingDb));
         }
 
         public bool                 MigrateDb()
@@ -88,12 +83,13 @@ namespace OutlookSql
         }
         #endregion
 
+        #region public
         #region public Outlook
         public bool                 OutlookEfromCreate(Appointment appointment)
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == appointment.GlobalId);
 
@@ -144,7 +140,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == appointment.GlobalId);
 
@@ -175,7 +171,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == globalId);
                     return match;
@@ -192,7 +188,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.FirstOrDefault(x => x.workflow_state == workflowState.ToString());
                     return match;
@@ -209,7 +205,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.FirstOrDefault(x => x.completed == timesReflected);
                     return match;
@@ -226,7 +222,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == globalId);
 
@@ -263,7 +259,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == globalId);
 
@@ -301,7 +297,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     lookups match = db.lookups.Single(x => x.title == title);
                     return match.value;
@@ -315,7 +311,7 @@ namespace OutlookSql
         }
         #endregion
 
-        #region public SDK interaction cases
+        #region public SDK
         public bool                 SyncInteractionCase()
         {
             // read input
@@ -381,7 +377,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     List<int> siteIds = t.IntLst(appointment.site_ids);
                     List<string> replacements = t.TextLst(appointment.replacements);
@@ -404,8 +400,7 @@ namespace OutlookSql
                     if (replacements.Count == 0)
                         replacements = null;
 
-                    eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
-                    int interCaseId = sqlController.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), replacements);
+                    int interCaseId = sdkSqlCon.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), replacements);
 
                     var match = db.appointments.Single(x => x.global_id == appointment.global_id);
 
@@ -433,9 +428,7 @@ namespace OutlookSql
         {
             try
             {
-                eFormSqlController.SqlController sqlController = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
-                sqlController.InteractionCaseDelete(int.Parse(appointment.microting_uid));
-
+                sdkSqlCon.InteractionCaseDelete(int.Parse(appointment.microting_uid));
                 return true;
             }
             catch (Exception ex)
@@ -450,7 +443,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new MicrotingDb(SettingRead(Settings.microtingDb)))
+                using (var db = GetContextM())
                 {
                     var match = db.a_interaction_cases.FirstOrDefault(x => x.synced == 0);
                     if (match == null)
@@ -467,6 +460,11 @@ namespace OutlookSql
                     int statCur = 0;
                     int statFinal = 0;
                     string addToBody = "";
+                    List<string> lstSent = new List<string>();
+                    List<string> lstRetrived = new List<string>();
+                    List<string> lstCompleted = new List<string>();
+                    List<string> lstDeleted = new List<string>();
+                    List<string> lstExpection = new List<string>();
                     bool flagException = false;
                     bool anyCompleted = false;
                     #endregion
@@ -476,36 +474,33 @@ namespace OutlookSql
                         statCur = 0;
 
                         if (item.stat == "Created")
-                        {
                             statCur = 1;
-                            addToBody += item.siteId + "/" + item.updated_at + "/" + item.stat + "/" + Environment.NewLine;
-                        }
                         if (item.stat == "Sent")
                         {
                             statCur = 2;
-                            addToBody += item.siteId + "/" + item.updated_at + "/" + item.stat + "/" + item.microting_uid + Environment.NewLine;
+                            lstSent.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
                         }
                         if (item.stat == "Retrived")
                         {
                             statCur = 3;
-                            addToBody += item.siteId + "/" + item.updated_at + "/" + item.stat + "/" + item.microting_uid + Environment.NewLine;
+                            lstRetrived.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
                         }
                         if (item.stat == "Completed")
                         {
                             statCur = 4;
-                            addToBody += item.siteId + "/" + item.updated_at + "/" + item.stat + "/" + item.microting_uid + "/" + item.check_uid + Environment.NewLine;
                             anyCompleted = true;
+                            lstCompleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
                         }
                         if (item.stat == "Deleted")
                         {
                             statCur = 5;
-                            addToBody += item.siteId + "/" + item.updated_at + "/" + item.stat + Environment.NewLine;
+                            lstDeleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
                         }
-                        
+
                         if (item.stat == "Expection")
                         {
                             flagException = true;
-                            addToBody += item.siteId + "/" + item.updated_at + "/Exception" + Environment.NewLine;
+                            lstExpection.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
                         }
 
                         if (statHigh < statCur)
@@ -516,6 +511,7 @@ namespace OutlookSql
                         #endregion
                     }
 
+                    #region pick color
                     if (anyCompleted && statHigh == 5) //as in 1 or more completed, and some deleted
                         statHigh = 4;
 
@@ -526,6 +522,49 @@ namespace OutlookSql
                         statFinal = statHigh;
                     else
                         statFinal = statLow;
+                    #endregion
+
+                    #region craft body text to be added
+                    if (lstExpection.Count > 0)
+                    {
+                        addToBody += "Expection:" + Environment.NewLine;
+                        foreach (var line in lstExpection)
+                            addToBody += line + Environment.NewLine;
+                        addToBody += Environment.NewLine;
+                    }
+
+                    if (lstCompleted.Count > 0)
+                    {
+                        addToBody += "Completed:" + Environment.NewLine;
+                        foreach (var line in lstCompleted)
+                            addToBody += line + Environment.NewLine;
+                        addToBody += Environment.NewLine;
+                    }
+
+                    if (lstRetrived.Count > 0)
+                    {
+                        addToBody += "Retrived:" + Environment.NewLine;
+                        foreach (var line in lstRetrived)
+                            addToBody += line + Environment.NewLine;
+                        addToBody += Environment.NewLine;
+                    }
+
+                    if (lstSent.Count > 0)
+                    {
+                        addToBody += "Sent:" + Environment.NewLine;
+                        foreach (var line in lstSent)
+                            addToBody += line + Environment.NewLine;
+                        addToBody += Environment.NewLine;
+                    }
+
+                    if (lstDeleted.Count > 0)
+                    {
+                        addToBody += "Deleted:" + Environment.NewLine;
+                        foreach (var line in lstDeleted)
+                            addToBody += line + Environment.NewLine;
+                        addToBody += Environment.NewLine;
+                    }
+                    #endregion
 
                     #region WorkflowState wFS = ...
                     WorkflowState wFS = WorkflowState.Failed_to_intrepid;
@@ -544,7 +583,7 @@ namespace OutlookSql
                     #endregion
 
                     if (addToBody != "")
-                        AppointmentsUpdate(match.custom, wFS, null, match.expectionString, addToBody);
+                        AppointmentsUpdate(match.custom, wFS, null, match.expectionString, addToBody.Trim());
                     else
                         AppointmentsUpdate(match.custom, wFS, null, match.expectionString, null);
 
@@ -555,6 +594,27 @@ namespace OutlookSql
             {
                 log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
                 return true;
+            }
+        }
+
+        public string               SiteLookupName(int? siteUId)
+        {
+            try
+            {
+                if (siteUId == null)
+                    return "'Null'";
+
+                var site = sdkSqlCon.SiteRead((int)siteUId);
+
+                if (site == null)
+                    return "No matching name found";
+                else
+                    return site.SiteName;
+            }
+            catch (Exception ex)
+            {
+                log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
+                return "No matching name found";
             }
         }
         #endregion
@@ -573,6 +633,7 @@ namespace OutlookSql
             SettingCreate(Settings.checkEvery_Mins);
             SettingCreate(Settings.includeBlankLocations);
             SettingCreate(Settings.colorsRule);
+            SettingCreate(Settings.responseBeforeBody);
             SettingCreate(Settings.calendarName);
 
             return true;
@@ -580,7 +641,7 @@ namespace OutlookSql
 
         public bool                 SettingCreate(Settings name)
         {
-            using (var db = new OutlookDb(connectionStr))
+            using (var db = GetContextO())
             {
                 //key point
                 #region id = settings.name
@@ -609,7 +670,8 @@ namespace OutlookSql
                     case Settings.checkEvery_Mins:          id =  8;    defaultValue = "15";                                    break;
                     case Settings.includeBlankLocations:    id =  9;    defaultValue = "true";                                  break;
                     case Settings.colorsRule:               id = 10;    defaultValue = "1";                                     break;
-                    case Settings.calendarName:             id = 11;    defaultValue = "default";                               break;
+                    case Settings.responseBeforeBody:       id = 11;    defaultValue = "false";                                 break;
+                    case Settings.calendarName:             id = 12;    defaultValue = "default";                               break;
        
                     default:
                         throw new IndexOutOfRangeException(name.ToString() + " is not a known/mapped Settings type");
@@ -662,12 +724,12 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
-                    settings match = db.settings.SingleOrDefault(x => x.name == name.ToString());
+                    settings match = db.settings.Single(x => x.name == name.ToString());
 
-                    if (match == null)
-                        return null;
+                    if (match.value == null)
+                        return "";
 
                     return match.value;
                 }
@@ -682,7 +744,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     settings match = db.settings.SingleOrDefault(x => x.name == name.ToString());
 
@@ -707,7 +769,7 @@ namespace OutlookSql
             List<string> result = new List<string>();
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     int countVal = db.settings.Count(x => x.value == "");
                     int countSet = db.settings.Count();
@@ -763,7 +825,7 @@ namespace OutlookSql
             {
                 try
                 {
-                    using (var db = new OutlookDb(connectionStr))
+                    using (var db = GetContextO())
                     {
                         logs newLog = new logs();
                         newLog.created_at = logEntry.Time;
@@ -804,7 +866,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     log_exceptions newLog = new log_exceptions();
                     newLog.created_at = logEntry.Time;
@@ -854,8 +916,11 @@ namespace OutlookSql
             }
         }
         #endregion
+        #endregion
 
-        #region private
+        //private
+
+        #region mappers
         private appointment_versions MapAppointmentVersions(appointments appointment)
         {
             appointment_versions version = new appointment_versions();
@@ -895,7 +960,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new OutlookDb(connectionStr))
+                using (var db = GetContextO())
                 {
                     db.Database.ExecuteSqlCommand("DELETE FROM [dbo].[" + tableName + "];");
                     db.Database.ExecuteSqlCommand("DBCC CHECKIDENT('" + tableName + "', RESEED, 0);");
@@ -914,7 +979,7 @@ namespace OutlookSql
         {
             try
             {
-                using (var db = new MicrotingDb(SettingRead(Settings.microtingDb)))
+                using (var db = GetContextM())
                 {
                     db.Database.ExecuteSqlCommand("DELETE FROM [dbo].[" + tableName + "];");
                     db.Database.ExecuteSqlCommand("DBCC CHECKIDENT('" + tableName + "', RESEED, 0);");
@@ -943,6 +1008,7 @@ namespace OutlookSql
         checkEvery_Mins,
         includeBlankLocations,
         colorsRule,
+        responseBeforeBody,
         calendarName
     }
 }
