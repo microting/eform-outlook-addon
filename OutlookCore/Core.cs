@@ -255,7 +255,7 @@ namespace OutlookCore
                             = new Thread(() => SyncInteractionCase());
                         syncInteractionCaseCreateThread.Start();
 
-                        Thread.Sleep(1500);
+                        Thread.Sleep(2000);
                     }
 
                     Thread.Sleep(500);
@@ -289,7 +289,7 @@ namespace OutlookCore
 
                         log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
 
-                        for (int i = 0; i < 5 && coreRunning; i++)
+                        for (int i = 0; i < 6 && coreRunning; i++)
                             Thread.Sleep(1000);
                     }
                     
@@ -368,8 +368,8 @@ namespace OutlookCore
                     List<Appointment> lstAppointments;
 
                     DateTime now = DateTime.Now;
-                    DateTime rollBackTo__ = now.AddDays(+5);
-                    DateTime rollBackFrom = now.AddDays(-5);
+                    DateTime rollBackTo__ = now.AddDays(+2);
+                    DateTime rollBackFrom = now.AddDays(-3);
 
                     lstAppointments = outlookController.UnitTest_CalendarItemGetAllNonRecurring(rollBackFrom, rollBackTo__);
                     foreach (var item in lstAppointments)

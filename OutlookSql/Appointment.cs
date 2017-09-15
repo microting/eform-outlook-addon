@@ -77,9 +77,9 @@ namespace OutlookSql
                 {
                     Location = "Failed_to_intrepid";
                     Body =
-                    "<<Info field: Intrepid error: Start>>" + Environment.NewLine +
+                    "<<< Intrepid error: Start >>>" + Environment.NewLine +
                     intrepidFailedStr + Environment.NewLine +
-                    "<<Info field: Intrepid error: End>>" + Environment.NewLine +
+                    "<<< Intrepid error: End >>>" + Environment.NewLine +
                     Environment.NewLine +
                     Body;
                 }
@@ -88,9 +88,9 @@ namespace OutlookSql
             {
                 Location = "Exception";
                 Body =
-                "<<Info field: Exception: Start>>" + Environment.NewLine +
+                "<<< Exception: Start >>>" + Environment.NewLine +
                 t.PrintException("Failed to intrepid this event, for the following reason:", ex) + Environment.NewLine +
-                "<<Info field: Exception: End>>" + Environment.NewLine +
+                "<<< Exception: End >>>" + Environment.NewLine +
                 Environment.NewLine +
                 Body;
             }
