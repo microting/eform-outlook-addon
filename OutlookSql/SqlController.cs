@@ -44,7 +44,7 @@ namespace OutlookSql
                     var match = db.settings.Count();
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 MigrateDb();
             }
