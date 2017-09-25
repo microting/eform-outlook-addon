@@ -1,4 +1,4 @@
-namespace OutlookSql
+    namespace OutlookSql
 {
     using System;
     using System.Collections.Generic;
@@ -8,23 +8,21 @@ namespace OutlookSql
 
     public partial class a_interaction_cases
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public a_interaction_cases()
         {
             a_interaction_case_lists = new HashSet<a_interaction_case_lists>();
         }
 
+        [Key]
         public int id { get; set; }
 
         [StringLength(255)]
         public string workflow_state { get; set; }
 
         public int? version { get; set; }
-
-        [Column(TypeName = "datetime2")]
+      
         public DateTime? created_at { get; set; }
-
-        [Column(TypeName = "datetime2")]
+             
         public DateTime? updated_at { get; set; }
 
         public int template_id { get; set; }

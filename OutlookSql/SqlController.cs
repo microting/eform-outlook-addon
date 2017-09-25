@@ -28,12 +28,12 @@ namespace OutlookSql
         #region con
         public                      SqlController(string connectionString)
         {
-            connectionStr = connectionString.ToLower();
+            connectionStr = connectionString;
 
-            if (!connectionStr.Contains("server="))
-                msSql = true;
-            else
+            if (connectionStr.ToLower().Contains("uid=") || connectionStr.ToLower().Contains("pwd="))
                 msSql = false;
+            else
+                msSql = true;
 
             #region migrate if needed
             try
@@ -44,7 +44,7 @@ namespace OutlookSql
                     var match = db.settings.Count();
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 MigrateDb();
             }
@@ -57,7 +57,7 @@ namespace OutlookSql
             sdkSqlCon = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
         }
 
-        private OutlookContextInterface   GetContextO()
+        private OutlookContextInterface     GetContextO()
         {
             if (msSql)
                 return new OutlookDbMs(connectionStr);
@@ -65,7 +65,7 @@ namespace OutlookSql
                 return new OutlookDbMy(connectionStr);
         }
 
-        private MicrotingContextInterface GetContextM()
+        private MicrotingContextInterface   GetContextM()
         {
             if (msSql)
                 return new MicrotingDbMs(SettingRead(Settings.microtingDb));

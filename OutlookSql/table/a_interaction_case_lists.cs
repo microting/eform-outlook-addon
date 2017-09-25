@@ -8,19 +8,19 @@ namespace OutlookSql
 
     public partial class a_interaction_case_lists
     {
+        [Key]
         public int id { get; set; }
 
         [StringLength(255)]
         public string workflow_state { get; set; }
 
         public int? version { get; set; }
-
-        [Column(TypeName = "datetime2")]
+        
         public DateTime? created_at { get; set; }
-
-        [Column(TypeName = "datetime2")]
+        
         public DateTime? updated_at { get; set; }
 
+        [ForeignKey("a_interaction_case")]
         public int? a_interaction_case_id { get; set; }
 
         public int? siteId { get; set; }

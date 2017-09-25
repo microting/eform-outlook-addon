@@ -8,6 +8,7 @@ namespace OutlookSql
 
     public partial class appointment_versions
     {
+        [Key]
         public int id { get; set; }
 
         public int? appointment_id { get; set; }
@@ -16,19 +17,15 @@ namespace OutlookSql
         public string workflow_state { get; set; }
 
         public int? version { get; set; }
-
-        [Column(TypeName = "datetime2")]
+        
         public DateTime? created_at { get; set; }
-
-        [Column(TypeName = "datetime2")]
+        
         public DateTime? updated_at { get; set; }
 
         public string global_id { get; set; }
-
-        [Column(TypeName = "datetime2")]
+        
         public DateTime? start_at { get; set; }
-
-        [Column(TypeName = "datetime2")]
+        
         public DateTime? expire_at { get; set; }
 
         public int? duration { get; set; }

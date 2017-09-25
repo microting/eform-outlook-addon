@@ -8,6 +8,7 @@ namespace OutlookSql
 
     public partial class lookups
     {
+        [Key]
         public int id { get; set; }
         
         public string title { get; set; }
