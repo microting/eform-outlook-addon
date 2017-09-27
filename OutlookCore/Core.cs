@@ -89,7 +89,6 @@ namespace OutlookCore
 
                     //log
                     log = sqlController.StartLog(this);
-
                     log.LogCritical("Not Specified", "###########################################################################");
                     log.LogCritical("Not Specified", t.GetMethodName() + " called");
                     log.LogStandard("Not Specified", "SqlController and Logger started");
@@ -144,6 +143,10 @@ namespace OutlookCore
 
                     log.LogCritical("Not Specified", t.GetMethodName() + " called");
                     Close();
+
+                    if (secondsDelay > 30)
+                        secondsDelay = 30;
+
                     log.LogStandard("Not Specified", "Trying to restart the Core in " + secondsDelay + " seconds");
                     Thread.Sleep(secondsDelay * 1000);
                     Start(connectionString);
