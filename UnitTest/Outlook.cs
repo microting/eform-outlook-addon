@@ -226,6 +226,25 @@ namespace UnitTest
         //        Assert.Equal(checkValueA, checkValueB);
         //    }
         //}
+
+        [Fact]
+        public void Test000_Basics_2d_PrepareAndTeardownTestdata()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool checkValueA = true;
+                bool checkValueB = false;
+
+                //Act
+                checkValueB = true;
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
         #endregion
 
         #region - test 001x core
