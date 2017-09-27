@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OutlookOffice
 {
-    public class OutlookController
+    public class OutlookController : IOutlookController
     {
         #region var
         string calendarName;

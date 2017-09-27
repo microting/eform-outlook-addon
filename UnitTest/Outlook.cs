@@ -85,7 +85,7 @@ namespace UnitTest
         #region var
         eFormCore.Core coreSdk;
         Core coreOut;
-        eFormCore.UnitTestCore core_UT;
+        eFormCore.CoreUnitTest core_UT;
         eFormSqlController.SqlController sqlConSdk;
         SqlController sqlConOut;
         eFormCore.AdminTools adminTool;
@@ -123,7 +123,7 @@ namespace UnitTest
             sqlConOut = new                    SqlController(connectionStringOut);
 
             coreSdk = new eFormCore.Core();
-            core_UT = new eFormCore.UnitTestCore(coreSdk);
+            core_UT = new eFormCore.CoreUnitTest(coreSdk);
             coreOut = new Core();
 
             coreSdk.HandleNotificationNotFound += EventNotificationNotFound;
