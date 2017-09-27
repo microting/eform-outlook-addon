@@ -167,16 +167,36 @@ namespace OutlookCore
 
                     coreThreadAlive = false;
                     log.LogCritical("Not Specified", "Core.Close() at:" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToLongTimeString());
-
-
+                    
+                    int tries = 0;
                     while (coreRunning)
-                        Thread.Sleep(200);
+                    {
+                        Thread.Sleep(100);
+                        tries++;
 
+                        if (tries > 300)
+                            FatalExpection("Failed to close Core correct after 30 secs (coreRunning)", new Exception());
+                    }
+
+                    tries = 0;
                     while (syncOutlookAppsRunning)
-                        Thread.Sleep(200);
+                    {
+                        Thread.Sleep(100);
+                        tries++;
 
+                        if (tries > 300)
+                            FatalExpection("Failed to close Core correct after 30 secs (syncOutlookAppsRunning)", new Exception());
+                    }
+
+                    tries = 0;
                     while (syncInteractionCaseRunning)
-                        Thread.Sleep(200);
+                    {
+                        Thread.Sleep(100);
+                        tries++;
+
+                        if (tries > 300)
+                            FatalExpection("Failed to close Core correct after 30 secs (syncInteractionCaseRunning)", new Exception());
+                    }
 
                     log.LogStandard("Not Specified", "Core closed");
 
