@@ -19,10 +19,10 @@ namespace OutlookSql
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<a_interaction_cases>()
-                .HasMany(e => e.a_interaction_case_lists)
-                .WithOptional(e => e.a_interaction_cases)
-                .HasForeignKey(e => e.a_interaction_case_id);
+            //modelBuilder.Entity<a_interaction_cases>()
+            //    .HasMany(e => e.a_interaction_case_lists)
+            //    .WithOptional(e => e.a_interaction_cases)
+            //    .HasForeignKey(e => e.a_interaction_case_id);
         }
     }
 }

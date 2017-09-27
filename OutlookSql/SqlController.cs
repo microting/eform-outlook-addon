@@ -962,10 +962,21 @@ namespace OutlookSql
             {
                 using (var db = GetContextO())
                 {
-                    db.Database.ExecuteSqlCommand("DELETE FROM [dbo].[" + tableName + "];");
-                    db.Database.ExecuteSqlCommand("DBCC CHECKIDENT('" + tableName + "', RESEED, 0);");
+                    if (msSql)
+                    {
+                        db.Database.ExecuteSqlCommand("DELETE FROM [dbo].[" + tableName + "];");
+                        db.Database.ExecuteSqlCommand("DBCC CHECKIDENT('" + tableName + "', RESEED, 1);");
 
-                    return true;
+                        return true;
+                    }
+                    else
+                    {
+                        db.Database.ExecuteSqlCommand("SET FOREIGN_KEY_CHECKS=0");
+                        db.Database.ExecuteSqlCommand("TRUNCATE TABLE " + tableName + ";");
+                        db.Database.ExecuteSqlCommand("SET FOREIGN_KEY_CHECKS=1");
+
+                        return true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -981,8 +992,39 @@ namespace OutlookSql
             {
                 using (var db = GetContextM())
                 {
-                    db.Database.ExecuteSqlCommand("DELETE FROM [dbo].[" + tableName + "];");
-                    db.Database.ExecuteSqlCommand("DBCC CHECKIDENT('" + tableName + "', RESEED, 0);");
+                    if (msSql)
+                    {
+                        db.Database.ExecuteSqlCommand("DELETE FROM [dbo].[" + tableName + "];");
+                        db.Database.ExecuteSqlCommand("DBCC CHECKIDENT('" + tableName + "', RESEED, 1);");
+
+                        return true;
+                    }
+                    else
+                    {
+                        db.Database.ExecuteSqlCommand("SET FOREIGN_KEY_CHECKS=0");
+                        db.Database.ExecuteSqlCommand("TRUNCATE TABLE " + tableName + ";");
+                        db.Database.ExecuteSqlCommand("SET FOREIGN_KEY_CHECKS=1");
+
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string str = ex.Message;
+                return false;
+            }
+        }
+
+        public bool                 UnitTest_OutlookDatabaseClear()
+        {
+            try
+            {
+                using (var db = GetContextM())
+                {
+                    UnitTest_TruncateTable_Outlook(typeof(appointment_versions).Name);
+                    UnitTest_TruncateTable_Outlook(typeof(appointments).Name);
+                    UnitTest_TruncateTable_Outlook(typeof(lookups).Name);
 
                     return true;
                 }

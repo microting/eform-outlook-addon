@@ -33,6 +33,6 @@ namespace OutlookSql
 
         public int? case_id { get; set; }
 
-        public virtual a_interaction_cases a_interaction_cases { get; set; }
+        public virtual a_interaction_cases a_interaction_case { get; set; }
     }
 }

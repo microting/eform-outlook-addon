@@ -10,7 +10,7 @@
     {
         public a_interaction_cases()
         {
-            a_interaction_case_lists = new HashSet<a_interaction_case_lists>();
+            this.a_interaction_case_lists = new HashSet<a_interaction_case_lists>();
         }
 
         [Key]
