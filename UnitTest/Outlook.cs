@@ -14,8 +14,8 @@ namespace UnitTest
 {
     public class TestContext : IDisposable
     {
-        string connectionStringLocal_SDK = "Persist Security Info=True;server=localhost;database=" + "OutlookUnitTest_" + "Microting"        + ";uid=root;password=1234";
-        string connectionStringLocal_OUT = "Persist Security Info=True;server=localhost;database=" + "OutlookUnitTest_" + "MicrotingOutlook" + ";uid=root;password=1234";
+        string connectionStringLocal_SDK = "Persist Security Info=True;server=localhost;database=" + "Outlook_UnitTest_" + "Microting"        + ";uid=root;password=1234";
+        string connectionStringLocal_OUT = "Persist Security Info=True;server=localhost;database=" + "Outlook_UnitTest_" + "MicrotingOutlook" + ";uid=root;password=1234";
 
         #region content
         #region var
@@ -52,6 +52,7 @@ namespace UnitTest
 
                 sqlCon = new SqlController(serverConnectionString_OUT);
                 sqlCon.SettingUpdate(Settings.microtingDb, serverConnectionString_SDK);
+                sqlCon.SettingUpdate(Settings.calendarName, "unittest");
             }
             catch (Exception ex)
             {
@@ -191,7 +192,7 @@ namespace UnitTest
             lock (_lockTest)
             {
                 //Arrange
-                TestPrepare(t.GetMethodName(), false, false);
+                TestPrepare(t.GetMethodName(), true, false);
                 bool checkValueA = true;
                 bool checkValueB = false;
 
@@ -210,25 +211,6 @@ namespace UnitTest
             lock (_lockTest)
             {
                 //Arrange
-                TestPrepare(t.GetMethodName(), true, false);
-                bool checkValueA = true;
-                bool checkValueB = false;
-
-                //Act
-                checkValueB = true;
-
-                //Assert
-                TestTeardown();
-                Assert.Equal(checkValueA, checkValueB);
-            }
-        }
-
-        [Fact]
-        public void Test000_Basics_2d_PrepareAndTeardownTestdata()
-        {
-            lock (_lockTest)
-            {
-                //Arrange
                 TestPrepare(t.GetMethodName(), false, true);
                 bool checkValueA = true;
                 bool checkValueB = false;
@@ -241,6 +223,166 @@ namespace UnitTest
                 Assert.Equal(checkValueA, checkValueB);
             }
         }
+        #endregion
+
+        #region - test 001x core
+        [Fact]
+        public void Test001_Core_1a_Start_WithNullExpection()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA = "serverConnectionString is not allowed to be null or empty";
+                string checkValueB = "";
+                Core core = new Core();
+
+                //Act
+                try
+                {
+                    checkValueB = core.Start(null) + "";
+                }
+                catch (Exception ex)
+                {
+                    checkValueB = ex.InnerException.Message;
+                }
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test001_Core_1b_Start_WithBlankExpection()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA = "serverConnectionString is not allowed to be null or empty";
+                string checkValueB = "";
+                Core core = new Core();
+
+                //Act
+                try
+                {
+                    checkValueB = core.Start("").ToString();
+                }
+                catch (Exception ex)
+                {
+                    checkValueB = ex.InnerException.Message;
+                }
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test001_Core_3a_Start()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), false, false);
+            string checkValueA = "True";
+            string checkValueB = "";
+            Core core = new Core();
+
+            //Act
+            try
+            {
+                checkValueB = core.Start(connectionStringOut).ToString();
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test001_Core_4a_IsRunning()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), false, false);
+            string checkValueA = "FalseTrue";
+            string checkValueB = "";
+            Core core = new Core();
+
+            //Act
+            try
+            {
+                checkValueB = core.Running().ToString();
+                core.Start(connectionStringOut);
+                checkValueB += core.Running().ToString();
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test001_Core_5a_Close()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), false, false);
+            string checkValueA = "True";
+            string checkValueB = "";
+            Core core = new Core();
+
+            //Act
+            try
+            {
+                checkValueB = core.Close().ToString();
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test001_Core_6a_RunningForWhileThenClose()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), false, false);
+            string checkValueA = "FalseTrueTrue";
+            string checkValueB = "";
+            Core core = new Core();
+
+            //Act
+            try
+            {
+                checkValueB = core.Running().ToString();
+                core.Start(connectionStringOut);
+                Thread.Sleep(30000);
+                checkValueB += core.Running().ToString();
+                Thread.Sleep(05000);
+                checkValueB += core.Close().ToString();
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
         #endregion
 
         #region private

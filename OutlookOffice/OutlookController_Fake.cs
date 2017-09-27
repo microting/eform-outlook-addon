@@ -12,11 +12,11 @@ namespace OutlookOffice
     public class OutlookController_Fake : IOutlookController
     {
         #region var
-        string calendarName;
         SqlController sqlController;
         Log log;
         Tools t = new Tools();
         object _lockOutlook = new object();
+        Random rndm = new Random();
         #endregion
 
         #region con
@@ -30,32 +30,44 @@ namespace OutlookOffice
         #region public
         public bool                 CalendarItemConvertRecurrences()
         {
-            return true;
+            log.LogEverything("Unit test", t.GetMethodName() + " called");
+
+            int temp  = rndm.Next(0, 2);
+            if (temp == 2)
+                temp = 1;
+            bool flag = t.Bool(temp + "");
+
+            log.LogVariable("Unit test", nameof(flag), flag);
+            return flag;
         }
 
         public bool                 CalendarItemIntrepid()
         {
-            return false;
+            log.LogEverything("Unit test", t.GetMethodName() + " called");
+
+            int temp = rndm.Next(0, 2);
+            if (temp == 2)
+                temp = 1;
+            bool flag = t.Bool(temp + "");
+
+            log.LogVariable("Unit test", nameof(flag), flag);
+            return flag;
         }
 
         public bool                 CalendarItemReflecting(string globalId)
         {
+            log.LogStandard("Unit test", t.GetMethodName() + " called");
+            log.LogVariable("Unit test", (nameof(globalId)), globalId);
             return true;
         }
 
         public void                 CalendarItemUpdate(Appointment appointment, WorkflowState workflowState, bool resetBody)
         {
-            log.LogStandard("Not Specified", appointment.GlobalId + " updated to " + workflowState.ToString());
+            log.LogStandard("Unit test", appointment.GlobalId + " updated to " + workflowState.ToString());
         }
         #endregion
 
         #region private
-        private DateTime            RoundTime(DateTime dTime)
-        {
-            dTime = dTime.AddMinutes(1);
-            return new DateTime(dTime.Year, dTime.Month, dTime.Day, dTime.Hour, dTime.Minute, 0);
-        }
-
         private Appointment         CreateAppointment(Appointment appointment)
         {
             return new Appointment();

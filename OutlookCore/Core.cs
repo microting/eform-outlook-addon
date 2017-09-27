@@ -43,7 +43,7 @@ namespace OutlookCore
 
         #region var
         SqlController sqlController;
-        OutlookController outlookController;
+        IOutlookController outlookController;
         Tools t = new Tools();
 
         public Log log;
@@ -99,8 +99,16 @@ namespace OutlookCore
                     log.LogStandard("Not Specified", "Settings read");
 
                     //outlookController
-                    outlookController = new OutlookController(sqlController, log);
-                    log.LogStandard("Not Specified", "OutlookController started");
+                    if (sqlController.SettingRead(Settings.calendarName) == "unittest")
+                    {
+                        outlookController = new OutlookController_Fake(sqlController, log);
+                        log.LogStandard("Not Specified", "OutlookController_Fake started");
+                    }
+                    else
+                    {
+                        outlookController = new OutlookController(sqlController, log);
+                        log.LogStandard("Not Specified", "OutlookController started");
+                    }
 
                     //coreThread
                     Thread coreThread = new Thread(() => CoreThread());

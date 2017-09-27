@@ -80,7 +80,9 @@ namespace OutlookOffice
                             while (startPoint.AddDays(1) <= tLimitFrom)
                                 startPoint = startPoint.AddDays(1);
 
-                            for (DateTime testPoint = startPoint; testPoint <= tLimitTo; testPoint = testPoint.AddMinutes(checkEvery_Mins)) //KEY POINT
+                            log.LogVariable("Not Specified", nameof(startPoint), startPoint);
+
+                            for (DateTime testPoint = RoundTime(startPoint); testPoint <= tLimitTo; testPoint = testPoint.AddMinutes(checkEvery_Mins)) //KEY POINT
                             {
                                 if (testPoint >= tLimitFrom)
                                 {
@@ -235,7 +237,7 @@ namespace OutlookOffice
                 #endregion
 
                 sqlController.SettingUpdate(Settings.checkLast_At, timeOfRun.ToString());
-                log.LogVariable("Not Specified", "Settings.checkLast_At", Settings.checkLast_At.ToString());
+                log.LogVariable("Not Specified", nameof(Settings.checkLast_At), Settings.checkLast_At.ToString());
 
                 return AllIntrepid;
             }
@@ -434,7 +436,9 @@ namespace OutlookOffice
         private DateTime            RoundTime(DateTime dTime)
         {
             dTime = dTime.AddMinutes(1);
-            return new DateTime(dTime.Year, dTime.Month, dTime.Day, dTime.Hour, dTime.Minute, 0);
+            dTime = new DateTime(dTime.Year, dTime.Month, dTime.Day, dTime.Hour, 0, 0);
+            log.LogVariable("Not Specified", nameof(dTime), dTime);
+            return dTime;
         }
 
         private Appointment         CreateAppointment(Appointment appointment)
