@@ -14,8 +14,11 @@ namespace UnitTest
 {
     public class TestContext : IDisposable
     {
-        string connectionStringLocal_SDK = "Persist Security Info=True;server=localhost;database=" + "Outlook_UnitTest_" + "Microting"        + ";uid=root;password=1234";
-        string connectionStringLocal_OUT = "Persist Security Info=True;server=localhost;database=" + "Outlook_UnitTest_" + "MicrotingOutlook" + ";uid=root;password=1234";
+        //string connectionStringLocal_SDK = "Persist Security Info=True;server=localhost;database=" + "Outlook_UnitTest_" + "Microting"        + ";uid=root;password=1234";
+        //string connectionStringLocal_OUT = "Persist Security Info=True;server=localhost;database=" + "Outlook_UnitTest_" + "MicrotingOutlook" + ";uid=root;password=1234";
+
+        string connectionStringLocal_SDK = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "Microting"        + ";Integrated Security=True";
+        string connectionStringLocal_OUT = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "MicrotingOutlook" + ";Integrated Security=True";
 
         #region content
         #region var
@@ -382,7 +385,6 @@ namespace UnitTest
             TestTeardown();
             Assert.Equal(checkValueA, checkValueB);
         }
-
         #endregion
 
         #region private
