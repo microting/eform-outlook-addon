@@ -85,7 +85,7 @@ namespace OutlookSql
 
         #region public
         #region public Outlook
-        public bool                 OutlookEfromCreate(Appointment appointment)
+        public bool                 AppointmentsCreate(Appointment appointment)
         {
             try
             {
@@ -136,7 +136,7 @@ namespace OutlookSql
             }
         }
 
-        public bool                 OutlookEformCancel(Appointment appointment)
+        public bool                 AppointmentsCancel(Appointment appointment)
         {
             try
             {

@@ -208,24 +208,24 @@ namespace UnitTest
             }
         }
 
-        [Fact]
-        public void Test000_Basics_2c_PrepareAndTeardownTestdata()
-        {
-            lock (_lockTest)
-            {
-                //Arrange
-                TestPrepare(t.GetMethodName(), false, true);
-                bool checkValueA = true;
-                bool checkValueB = false;
+        //[Fact]
+        //public void Test000_Basics_2c_PrepareAndTeardownTestdata()
+        //{
+        //    lock (_lockTest)
+        //    {
+        //        //Arrange
+        //        TestPrepare(t.GetMethodName(), false, true);
+        //        bool checkValueA = true;
+        //        bool checkValueB = false;
 
-                //Act
-                checkValueB = true;
+        //        //Act
+        //        checkValueB = true;
 
-                //Assert
-                TestTeardown();
-                Assert.Equal(checkValueA, checkValueB);
-            }
-        }
+        //        //Assert
+        //        TestTeardown();
+        //        Assert.Equal(checkValueA, checkValueB);
+        //    }
+        //}
 
         [Fact]
         public void Test000_Basics_2d_PrepareAndTeardownTestdata()
@@ -414,11 +414,51 @@ namespace UnitTest
         //    {
         //        //Arrange
         //        TestPrepare(t.GetMethodName(), false, false);
-        //        string checkValueA = "created";
-        //        string checkValueB = "created";
+        //        appointments checkValueA = null;
+        //        appointments checkValueB = new appointments();
 
         //        //Act
-        //        var temp = sqlConOut.AppointmentsFind(null);
+        //        sqlConOut.AppointmentsCreate(null);
+
+        //        checkValueB = sqlConOut.AppointmentsFind(null);
+
+        //        //Assert
+        //        TestTeardown();
+        //        Assert.Equal(checkValueA, checkValueB);
+        //    }
+        //}
+
+        //[Fact]
+        //public void Test002_SqlController_2a_TemplateCreateAndRead()
+        //{
+        //    lock (_lockTest)
+        //    {
+        //        //Arrange
+        //        TestPrepare(t.GetMethodName(), false, false);
+        //        appointments checkValueA = null;
+        //        appointments checkValueB = new appointments();
+
+        //        //Act
+        //        checkValueB = sqlConOut.AppointmentsFind(null);
+
+        //        //Assert
+        //        TestTeardown();
+        //        Assert.Equal(checkValueA, checkValueB);
+        //    }
+        //}
+
+        //[Fact]
+        //public void Test002_SqlController_2b_TemplateCreateAndRead()
+        //{
+        //    lock (_lockTest)
+        //    {
+        //        //Arrange
+        //        TestPrepare(t.GetMethodName(), false, false);
+        //        appointments checkValueA = null;
+        //        appointments checkValueB = new appointments();
+
+        //        //Act
+        //        checkValueB = sqlConOut.AppointmentsFind(null);
 
         //        //Assert
         //        TestTeardown();

@@ -189,7 +189,7 @@ namespace OutlookOffice
 
                                 if (appo.Location.ToLower() == "planned")
                                 {
-                                    if (sqlController.OutlookEfromCreate(appo))
+                                    if (sqlController.AppointmentsCreate(appo))
                                         CalendarItemUpdate(appo, WorkflowState.Processed, false);
                                     else
                                         CalendarItemUpdate(appo, WorkflowState.Failed_to_expection, false);
@@ -206,7 +206,7 @@ namespace OutlookOffice
                             {
                                 Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
 
-                                if (sqlController.OutlookEformCancel(appo))
+                                if (sqlController.AppointmentsCancel(appo))
                                     CalendarItemUpdate(appo, WorkflowState.Canceled, false);
                                 else
                                     CalendarItemUpdate(appo, WorkflowState.Failed_to_intrepid, false);
