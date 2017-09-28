@@ -14,9 +14,6 @@ namespace UnitTest
 {
     public class TestContext : IDisposable
     {
-        //string connectionStringLocal_SDK = "Persist Security Info=True;server=localhost;database=" + "Outlook_UnitTest_" + "Microting"        + ";uid=root;password=1234";
-        //string connectionStringLocal_OUT = "Persist Security Info=True;server=localhost;database=" + "Outlook_UnitTest_" + "MicrotingOutlook" + ";uid=root;password=1234";
-
         string connectionStringLocal_SDK = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "Microting"        + ";Integrated Security=True";
         string connectionStringLocal_OUT = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "MicrotingOutlook" + ";Integrated Security=True";
 
@@ -84,7 +81,7 @@ namespace UnitTest
     }
 
     [Collection("Database collection")]
-    public class Outlook
+    public class UnitTest
     {
         #region var
         eFormCore.Core coreSdk;
@@ -108,7 +105,7 @@ namespace UnitTest
         #endregion
 
         #region con
-        public Outlook(TestContext testContext)
+        public UnitTest(TestContext testContext)
         {
             connectionStringOut = testContext.GetConnectionStringOutlook();
             connectionStringSdk     = testContext.GetConnectionStringSdk();
@@ -436,11 +433,32 @@ namespace UnitTest
             {
                 //Arrange
                 TestPrepare(t.GetMethodName(), false, false);
-                bool checkValueA = true;
-                bool checkValueB = false;
+                int checkValueA = 1;
+                int checkValueB = -1;
 
                 //Act
                 Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.Lookup);
+                checkValueB = sqlConOut.AppointmentsCreate(appoBase);
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test002_SqlController_1c_AppointmentsCreateDouble()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                int checkValueA = 2;
+                int checkValueB = -1;
+
+                //Act
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.Lookup);
+                checkValueB = sqlConOut.AppointmentsCreate(appoBase);
                 checkValueB = sqlConOut.AppointmentsCreate(appoBase);
 
                 //Assert
@@ -470,6 +488,46 @@ namespace UnitTest
 
         [Fact]
         public void Test002_SqlController_2b_AppointmentsFind()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA = "Planned Test";
+                string checkValueB = "Not the right reply";
+
+                //Act
+                sqlConOut.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.Lookup));
+                var match = sqlConOut.AppointmentsFind("globalId");
+                checkValueB = match.location + " " + match.subject;
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test002_SqlController_3a_AppointmentsFind_WithNullExpection()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                appointments checkValueA = null;
+                appointments checkValueB = new appointments();
+
+                //Act
+                checkValueB = sqlConOut.AppointmentsFind(null);
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test002_SqlController_3b_AppointmentsFind()
         {
             lock (_lockTest)
             {

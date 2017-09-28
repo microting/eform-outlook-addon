@@ -85,7 +85,7 @@ namespace OutlookSql
 
         #region public
         #region public Outlook
-        public bool                 AppointmentsCreate(Appointment appointment)
+        public int                  AppointmentsCreate(Appointment appointment)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace OutlookSql
                     var match = db.appointments.SingleOrDefault(x => x.global_id == appointment.GlobalId);
 
                     if (match != null)
-                        return false;
+                        return 2;
 
                     appointments newAppo = new appointments();
 
@@ -126,13 +126,13 @@ namespace OutlookSql
                     db.appointment_versions.Add(MapAppointmentVersions(newAppo));
                     db.SaveChanges();
 
-                    return true;
+                    return 1;
                 }
             }
             catch (Exception ex)
             {
                 log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
-                return false;
+                return 0;
             }
         }
 

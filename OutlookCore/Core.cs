@@ -165,40 +165,37 @@ namespace OutlookCore
                     coreStatChanging = true;
 
                     coreThreadAlive = false;
-                    log.LogCritical("Not Specified", "Core.Close() at:" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToLongTimeString());
-                    
+                    log.LogCritical("Not Specified", t.GetMethodName() + " called");
+
                     int tries = 0;
                     while (coreRunning)
                     {
                         Thread.Sleep(100);
                         tries++;
 
-                        if (tries > 300)
-                            FatalExpection("Failed to close Core correct after 30 secs (coreRunning)", new Exception());
+                        if (tries > 600)
+                            FatalExpection("Failed to close Core correct after 60 secs (coreRunning)", new Exception());
                     }
 
-                    tries = 0;
-                    while (syncOutlookAppsRunning)
-                    {
-                        Thread.Sleep(100);
-                        tries++;
+                    //tries = 0;
+                    //while (syncOutlookAppsRunning)
+                    //{
+                    //    Thread.Sleep(100);
+                    //    tries++;
+                    //    if (tries > 300)
+                    //        FatalExpection("Failed to close Core correct after 30 secs (syncOutlookAppsRunning)", new Exception());
+                    //}
 
-                        if (tries > 300)
-                            FatalExpection("Failed to close Core correct after 30 secs (syncOutlookAppsRunning)", new Exception());
-                    }
-
-                    tries = 0;
-                    while (syncInteractionCaseRunning)
-                    {
-                        Thread.Sleep(100);
-                        tries++;
-
-                        if (tries > 300)
-                            FatalExpection("Failed to close Core correct after 30 secs (syncInteractionCaseRunning)", new Exception());
-                    }
+                    //tries = 0;
+                    //while (syncInteractionCaseRunning)
+                    //{
+                    //    Thread.Sleep(100);
+                    //    tries++;
+                    //    if (tries > 300)
+                    //        FatalExpection("Failed to close Core correct after 30 secs (syncInteractionCaseRunning)", new Exception());
+                    //}
 
                     log.LogStandard("Not Specified", "Core closed");
-
                     outlookController = null;
                     sqlController = null;
 
@@ -253,6 +250,7 @@ namespace OutlookCore
             coreRunning = true;
             coreThreadAlive = true;
 
+            log.LogEverything("Not Specified", t.GetMethodName() + " initiated");
             while (coreThreadAlive)
             {
                 try
@@ -312,7 +310,7 @@ namespace OutlookCore
 
                     if (coreRunning)
                     {
-                        while (outlookController.CalendarItemConvertRecurrences()) { }
+                        while (coreRunning && outlookController.CalendarItemConvertRecurrences()) { }
 
                         log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
 

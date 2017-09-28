@@ -106,7 +106,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="Outlook.cs" />
+    <Compile Include="UnitTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

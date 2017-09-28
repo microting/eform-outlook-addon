@@ -189,10 +189,36 @@ namespace OutlookOffice
 
                                 if (appo.Location.ToLower() == "planned")
                                 {
-                                    if (sqlController.AppointmentsCreate(appo))
+                                    int count = sqlController.AppointmentsCreate(appo);
+
+                                    if (count == 1)
                                         CalendarItemUpdate(appo, WorkflowState.Processed, false);
                                     else
-                                        CalendarItemUpdate(appo, WorkflowState.Failed_to_expection, false);
+                                    {
+                                        if (count == 0)
+                                            CalendarItemUpdate(appo, WorkflowState.Failed_to_expection, false);
+
+                                        if (count == 2)
+                                        {
+                                            #region appo.Body = 'text'
+                                            appo.Body =               "<<< Intrepid error: Start >>>" +
+                                                Environment.NewLine + "Global ID already exists in the database." +
+                                                Environment.NewLine + "Indicating that this appointment has already been created." +
+                                                Environment.NewLine + "Likely course, is that you set the Appointment’s location to 'planned'/[blank] again." +
+                                                Environment.NewLine + "" +
+                                                Environment.NewLine + "If you wanted to a create a new appointment in the calendar:" +
+                                                Environment.NewLine + "- Create a new appointment in the calendar" +
+                                                Environment.NewLine + "- Create or copy the wanted details to the new appointment" +
+                                                Environment.NewLine + "" +
+                                                Environment.NewLine + "If you want to restore this appointment’s correct status:" +
+                                                Environment.NewLine + "- Set the appointment’s location to 'check'" +
+                                                Environment.NewLine + "<<< Intrepid error: End >>>" +
+                                                Environment.NewLine + "" +
+                                                Environment.NewLine + appo.Body;
+                                            #endregion
+                                            CalendarItemUpdate(appo, WorkflowState.Failed_to_intrepid, false);
+                                        }
+                                    }
                                 }
                                 else
                                     CalendarItemUpdate(appo, WorkflowState.Failed_to_intrepid, false);
