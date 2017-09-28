@@ -92,7 +92,7 @@ namespace OutlookOffice
 
                                         try
                                         {
-                                            Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false, sqlController.Lookup);
+                                            Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false, sqlController.LookupRead);
                                             appo_Dto = CreateAppointment(appo_Dto);
                                             recur.Delete();
                                             log.LogStandard("Not Specified", recur.GlobalAppointmentID + " / " + recur.Start + " converted to non-recurence appointment");
@@ -177,7 +177,7 @@ namespace OutlookOffice
 
                                 item.Save();
 
-                                Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
+                                Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
 
                                 if (appo.Location == null)
                                 {
@@ -230,7 +230,7 @@ namespace OutlookOffice
                             if (location.ToLower() == "cancel")
                             #region ...
                             {
-                                Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
+                                Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
 
                                 if (sqlController.AppointmentsCancel(appo.GlobalId))
                                     CalendarItemUpdate(appo, WorkflowState.Canceled, false);
@@ -484,7 +484,7 @@ namespace OutlookOffice
                 newAppo.Body = appointment.Body;
 
                 newAppo.Save();
-                Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
+                Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
 
                 Outlook.MAPIFolder calendarFolderDestination = GetCalendarFolder();
                 Outlook.NameSpace mapiNamespace = outlookApp.GetNamespace("MAPI");
@@ -591,7 +591,7 @@ namespace OutlookOffice
                         else
                         {
                             if (startPoint <= item.Start && item.Start <= endPoint)
-                                lstAppoint.Add(new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup));
+                                lstAppoint.Add(new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead));
                         }
                     }
                 }

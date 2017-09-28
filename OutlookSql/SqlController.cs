@@ -266,7 +266,7 @@ namespace OutlookSql
                     if (match == null)
                         return false;
 
-                    short temp = 0;
+                    short? temp = match.completed;
 
                     if (match.completed == 0)
                         temp = 1;
@@ -292,8 +292,51 @@ namespace OutlookSql
                 return false;
             }
         }
+        #endregion
 
-        public string               Lookup(string title)
+        #region public Lookup
+        public bool                 LookupCreateUpdate(string title, string value)
+        {
+            try
+            {
+                using (var db = GetContextO())
+                {
+                    if (string.IsNullOrEmpty(title))
+                        return false;
+                    if (string.IsNullOrEmpty(value))
+                        return false;
+
+                    lookups match = db.lookups.SingleOrDefault(x => x.title == title);
+
+                    if (match == null)
+                    {
+                        match = new lookups();
+                        match.title = title;
+                        match.value = value;
+
+                        db.lookups.Add(match);
+                        db.SaveChanges();
+
+                        return true;
+                    }
+                    else
+                    {
+                        match.value = value;
+
+                        db.SaveChanges();
+
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogEverything("Not Specified", t.PrintException(t.GetMethodName() + " failed, for title:'" + title + "'", ex));
+                return false;
+            }
+        }
+
+        public string               LookupRead(string title)
         {
             try
             {
@@ -307,6 +350,49 @@ namespace OutlookSql
             {
                 log.LogEverything("Not Specified", t.PrintException(t.GetMethodName() + " failed, for title:'" + title + "'", ex));
                 return t.GetMethodName() + " failed, for title:'" + title + "'";
+            }
+        }
+
+        public List<lookups>        LookupReadAll()
+        {
+            try
+            {
+                using (var db = GetContextO())
+                {
+                    List<lookups> lst = db.lookups.ToList();
+                    return lst;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogEverything("Not Specified", t.PrintException(t.GetMethodName() + " failed", ex));
+                return null;
+            }
+        }
+        
+        public bool                 LookupDelete(string title)
+        {
+            try
+            {
+                using (var db = GetContextO())
+                {
+                    lookups match = db.lookups.Single(x => x.title == title);
+               
+                    if (match != null)
+                    {
+                        db.lookups.Remove(match);
+                        db.SaveChanges();
+
+                        return true;
+                    }
+                    else
+                        return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogEverything("Not Specified", t.PrintException(t.GetMethodName() + " failed, for title:'" + title + "'", ex));
+                return false;
             }
         }
         #endregion

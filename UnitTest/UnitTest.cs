@@ -406,7 +406,7 @@ namespace UnitTest
         }
         #endregion
 
-        #region - test 002x - sqlController
+        #region - test 002x - sqlController (Appointments)
         [Fact]
         public void Test002_SqlController_1a_AppointmentsCreate_WithNullExpection()
         {
@@ -437,7 +437,7 @@ namespace UnitTest
                 int checkValueB = -1;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.Lookup);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
                 checkValueB = sqlConOut.AppointmentsCreate(appoBase);
 
                 //Assert
@@ -457,7 +457,7 @@ namespace UnitTest
                 int checkValueB = -1;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.Lookup);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
                 checkValueB = sqlConOut.AppointmentsCreate(appoBase);
                 checkValueB = sqlConOut.AppointmentsCreate(appoBase);
 
@@ -497,7 +497,7 @@ namespace UnitTest
                 bool checkValueB = true;
 
                 //Act
-                sqlConOut.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.Lookup));
+                sqlConOut.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead));
                 checkValueB = sqlConOut.AppointmentsCancel("no match");
 
                 //Assert
@@ -517,7 +517,7 @@ namespace UnitTest
                 bool checkValueB = false;
 
                 //Act
-                var temp = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.Lookup);
+                var temp = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
                 sqlConOut.AppointmentsCreate(temp);
                 checkValueB = sqlConOut.AppointmentsCancel("globalId");
 
@@ -557,7 +557,7 @@ namespace UnitTest
                 string checkValueB = "Not the right reply";
 
                 //Act
-                sqlConOut.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.Lookup));
+                sqlConOut.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead));
                 var match = sqlConOut.AppointmentsFind("globalId");
                 checkValueB = match.location + " " + match.subject;
 
@@ -566,9 +566,254 @@ namespace UnitTest
                 Assert.Equal(checkValueA, checkValueB);
             }
         }
+
+        [Fact]
+        public void Test002_SqlController_4a_AppointmentsFindOne_UnableToFind()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA = "";
+                string checkValueB = "Not the right reply";
+
+                //Act
+                checkValueB = AppointmentsFindAll();
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test002_SqlController_4b_AppointmentsFindOne_Created()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA = "1Processed";
+                string checkValueB = "Not the right reply";
+
+                //Act
+                sqlConOut.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlConOut.LookupRead));
+                sqlConOut.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlConOut.LookupRead));
+                sqlConOut.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlConOut.LookupRead));
+                checkValueB = AppointmentsFindAll();
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test002_SqlController_4c_AppointmentsFindOne_Updated()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA = "0CompletedCreated";
+                string checkValueB = "Not the right reply";
+
+                //Act
+                sqlConOut.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlConOut.LookupRead));
+                sqlConOut.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlConOut.LookupRead));
+                sqlConOut.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlConOut.LookupRead));
+
+                sqlConOut.AppointmentsUpdate("globalId1", WorkflowState.Created, null, "", "");
+                sqlConOut.AppointmentsUpdate("globalId2", WorkflowState.Created, null, "", "");
+                sqlConOut.AppointmentsUpdate("globalId3", WorkflowState.Created, null, "", "");
+
+                sqlConOut.AppointmentsUpdate("globalId3", WorkflowState.Completed, null, "", "");
+
+                checkValueB = AppointmentsFindAll();
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test002_SqlController_4d_AppointmentsFindOne_Reflected()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA1 = "01Created";
+                string checkValueA2 = "012CanceledRetrivedSent";
+                string checkValueB1 = "Not the right reply";
+                string checkValueB2 = "Not the right reply";
+
+                //Act
+                sqlConOut.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlConOut.LookupRead));
+                sqlConOut.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlConOut.LookupRead));
+                sqlConOut.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlConOut.LookupRead));
+
+                sqlConOut.AppointmentsUpdate("globalId1", WorkflowState.Created, null, "", "");
+                sqlConOut.AppointmentsUpdate("globalId2", WorkflowState.Created, null, "", "");
+                sqlConOut.AppointmentsUpdate("globalId3", WorkflowState.Created, null, "", "");
+
+                sqlConOut.AppointmentsReflected("globalId1");
+                sqlConOut.AppointmentsReflected("globalId3");
+
+                checkValueB1 = AppointmentsFindAll();
+
+                sqlConOut.AppointmentsUpdate("globalId1", WorkflowState.Sent, null, "", "");
+                sqlConOut.AppointmentsUpdate("globalId2", WorkflowState.Retrived, null, "", "");
+                sqlConOut.AppointmentsUpdate("globalId3", WorkflowState.Canceled, null, "", "");
+
+                sqlConOut.AppointmentsReflected("globalId1");
+                sqlConOut.AppointmentsReflected("globalId3");
+                sqlConOut.AppointmentsReflected("globalId3");
+                sqlConOut.AppointmentsReflected("globalId3");
+                sqlConOut.AppointmentsReflected("globalId3");
+
+                checkValueB2 = AppointmentsFindAll();
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA1, checkValueB1);
+                Assert.Equal(checkValueA2, checkValueB2);
+            }
+        }
+        #endregion
+
+        #region - test 003x - sqlController (Lookup)
+        [Fact]
+        public void Test003_SqlController_1a_LookupCreate_Withxpection()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool checkValueA = false;
+                bool checkValueB1 = true;
+                bool checkValueB2 = true;
+                bool checkValueB3 = true;
+                bool checkValueB4 = true;
+
+                //Act
+                checkValueB1 = sqlConOut.LookupCreateUpdate(null, null);
+                checkValueB2 = sqlConOut.LookupCreateUpdate("", null);
+                checkValueB3 = sqlConOut.LookupCreateUpdate(null, "");
+                checkValueB4 = sqlConOut.LookupCreateUpdate("", "");
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB1);
+                Assert.Equal(checkValueA, checkValueB2);
+                Assert.Equal(checkValueA, checkValueB3);
+                Assert.Equal(checkValueA, checkValueB4);
+            }
+        }
+
+        [Fact]
+        public void Test003_SqlController_1b_LookupCreate()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool checkValueA = true;
+                bool checkValueB1 = false;
+                bool checkValueB2 = false;
+                bool checkValueB3 = false;
+                bool checkValueB4 = false;
+
+                //Act
+                checkValueB1 = sqlConOut.LookupCreateUpdate("a", "1");
+                checkValueB2 = sqlConOut.LookupCreateUpdate("b", "2");
+                checkValueB3 = sqlConOut.LookupCreateUpdate("c", "3");
+                checkValueB4 = sqlConOut.LookupCreateUpdate("d", "4");
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB1);
+                Assert.Equal(checkValueA, checkValueB2);
+                Assert.Equal(checkValueA, checkValueB3);
+                Assert.Equal(checkValueA, checkValueB4);
+            }
+        }
+
+        [Fact]
+        public void Test003_SqlController_1c_LookupCreateAndUpdate()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+
+                bool checkValueA1 = true;
+                bool checkValueA2 = false;
+
+                bool checkValueB1 = false;
+                bool checkValueB2 = false;
+                bool checkValueB3 = false;
+                bool checkValueB4 = false;
+                bool checkValueB5 = false;
+                bool checkValueB6 = false;
+                bool checkValueB7 = false;
+                bool checkValueB8 = false;
+                bool checkValueB9 = false;
+
+                //Act
+                checkValueB1 = sqlConOut.LookupCreateUpdate("a", "1");
+                checkValueB2 = sqlConOut.LookupCreateUpdate("b", "2");
+                checkValueB3 = sqlConOut.LookupCreateUpdate("c", "3");
+                checkValueB4 = sqlConOut.LookupCreateUpdate("c", "4");
+                checkValueB5 = sqlConOut.LookupCreateUpdate("b", "5");
+                checkValueB6 = sqlConOut.LookupCreateUpdate("d", "6");
+                checkValueB7 = sqlConOut.LookupCreateUpdate("", "4");
+                checkValueB8 = sqlConOut.LookupCreateUpdate("c", null);
+                checkValueB9 = sqlConOut.LookupCreateUpdate("c", "9");
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA1, checkValueB1);
+                Assert.Equal(checkValueA1, checkValueB2);
+                Assert.Equal(checkValueA1, checkValueB3);
+                Assert.Equal(checkValueA1, checkValueB4);
+                Assert.Equal(checkValueA1, checkValueB5);
+                Assert.Equal(checkValueA1, checkValueB6);
+                Assert.Equal(checkValueA2, checkValueB7);
+                Assert.Equal(checkValueA2, checkValueB8);
+                Assert.Equal(checkValueA1, checkValueB9);
+            }
+        }
         #endregion
 
         #region private
+        private string AppointmentsFindAll()
+        {
+            string returnValue = "";
+
+            if (sqlConOut.AppointmentsFindOne(0) != null)                                   returnValue += "0";
+            if (sqlConOut.AppointmentsFindOne(1) != null)                                   returnValue += "1";
+            if (sqlConOut.AppointmentsFindOne(2) != null)                                   returnValue += "2";
+            if (sqlConOut.AppointmentsFindOne(3) != null)                                   returnValue += "3";
+            if (sqlConOut.AppointmentsFindOne(4) != null)                                   returnValue += "4";
+
+            if (sqlConOut.AppointmentsFindOne(WorkflowState.Canceled) != null)              returnValue += "Canceled";
+            if (sqlConOut.AppointmentsFindOne(WorkflowState.Completed) != null)             returnValue += "Completed";
+            if (sqlConOut.AppointmentsFindOne(WorkflowState.Created) != null)               returnValue += "Created";
+            if (sqlConOut.AppointmentsFindOne(WorkflowState.Failed_to_expection) != null)   returnValue += "Failed_to_expection";
+            if (sqlConOut.AppointmentsFindOne(WorkflowState.Failed_to_intrepid) != null)    returnValue += "Failed_to_intrepid";
+            if (sqlConOut.AppointmentsFindOne(WorkflowState.Planned) != null)               returnValue += "Planned";
+            if (sqlConOut.AppointmentsFindOne(WorkflowState.Processed) != null)             returnValue += "Processed";
+            if (sqlConOut.AppointmentsFindOne(WorkflowState.Retrived) != null)              returnValue += "Retrived";
+            if (sqlConOut.AppointmentsFindOne(WorkflowState.Revoked) != null)               returnValue += "Revoked";
+            if (sqlConOut.AppointmentsFindOne(WorkflowState.Sent) != null)                  returnValue += "Sent";
+
+            return returnValue;
+        }
+
+
+
         private List<string> WaitForAvailableDB()
         {
             try
