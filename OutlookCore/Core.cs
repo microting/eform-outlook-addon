@@ -323,6 +323,10 @@ namespace OutlookCore
                     syncOutlookConvertRunning = false;
                 }
             }
+            catch (ThreadAbortException)
+            {
+                log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
+            }
             catch (Exception ex)
             {
                 syncOutlookConvertRunning = false;
@@ -349,6 +353,10 @@ namespace OutlookCore
                     syncOutlookAppsRunning = false;
                 }
             }
+            catch (ThreadAbortException)
+            {
+                log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
+            }
             catch (Exception ex)
             {
                 syncOutlookAppsRunning = false;
@@ -369,6 +377,10 @@ namespace OutlookCore
 
                     syncInteractionCaseRunning = false;
                 }
+            }
+            catch (ThreadAbortException)
+            {
+                log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
             }
             catch (Exception ex)
             {

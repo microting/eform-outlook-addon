@@ -173,24 +173,24 @@ namespace UnitTest
             }
         }
 
-        //[Fact]
-        //public void Test000_Basics_2a_PrepareAndTeardownTestdata_True_True()
-        //{
-        //    lock (_lockTest)
-        //    {
-        //        //Arrange
-        //        TestPrepare(t.GetMethodName(), true, true);
-        //        bool checkValueA = true;
-        //        bool checkValueB = false;
+        [Fact]
+        public void Test000_Basics_2a_PrepareAndTeardownTestdata_True_True()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), true, true);
+                bool checkValueA = true;
+                bool checkValueB = false;
 
-        //        //Act
-        //        checkValueB = true;
+                //Act
+                checkValueB = true;
 
-        //        //Assert
-        //        TestTeardown();
-        //        Assert.Equal(checkValueA, checkValueB);
-        //    }
-        //}
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
 
         [Fact]
         public void Test000_Basics_2b_PrepareAndTeardownTestdata_True_False()
@@ -211,24 +211,24 @@ namespace UnitTest
             }
         }
 
-        //[Fact]
-        //public void Test000_Basics_2c_PrepareAndTeardownTestdata_False_True()
-        //{
-        //    lock (_lockTest)
-        //    {
-        //        //Arrange
-        //        TestPrepare(t.GetMethodName(), false, true);
-        //        bool checkValueA = true;
-        //        bool checkValueB = false;
+        [Fact]
+        public void Test000_Basics_2c_PrepareAndTeardownTestdata_False_True()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, true);
+                bool checkValueA = true;
+                bool checkValueB = false;
 
-        //        //Act
-        //        checkValueB = true;
+                //Act
+                checkValueB = true;
 
-        //        //Assert
-        //        TestTeardown();
-        //        Assert.Equal(checkValueA, checkValueB);
-        //    }
-        //}
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
 
         [Fact]
         public void Test000_Basics_2d_PrepareAndTeardownTestdata_False_False()
