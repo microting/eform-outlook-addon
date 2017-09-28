@@ -136,13 +136,13 @@ namespace OutlookSql
             }
         }
 
-        public bool                 AppointmentsCancel(Appointment appointment)
+        public bool                 AppointmentsCancel(string globalId)
         {
             try
             {
                 using (var db = GetContextO())
                 {
-                    var match = db.appointments.SingleOrDefault(x => x.global_id == appointment.GlobalId);
+                    var match = db.appointments.SingleOrDefault(x => x.global_id == globalId);
 
                     if (match == null)
                         return false;

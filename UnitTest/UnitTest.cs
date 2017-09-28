@@ -376,7 +376,7 @@ namespace UnitTest
             Assert.Equal(checkValueA, checkValueB);
         }
 
-        [Fact]
+//        [Fact]
         public void Test001_Core_6a_RunningForWhileThenClose()
         {
             //Arrange
@@ -468,17 +468,17 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_2a_AppointmentsFind_WithNullExpection()
+        public void Test002_SqlController_2a_AppointmentsCancel_WithNullExpection()
         {
             lock (_lockTest)
             {
                 //Arrange
                 TestPrepare(t.GetMethodName(), false, false);
-                appointments checkValueA = null;
-                appointments checkValueB = new appointments();
+                bool checkValueA = false;
+                bool checkValueB = true;
 
                 //Act
-                checkValueB = sqlConOut.AppointmentsFind(null);
+                checkValueB = sqlConOut.AppointmentsCancel(null);
 
                 //Assert
                 TestTeardown();
@@ -487,19 +487,39 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_2b_AppointmentsFind()
+        public void Test002_SqlController_2b_AppointmentsCancel_NoMatch()
         {
             lock (_lockTest)
             {
                 //Arrange
                 TestPrepare(t.GetMethodName(), false, false);
-                string checkValueA = "Planned Test";
-                string checkValueB = "Not the right reply";
+                bool checkValueA = false;
+                bool checkValueB = true;
 
                 //Act
                 sqlConOut.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.Lookup));
-                var match = sqlConOut.AppointmentsFind("globalId");
-                checkValueB = match.location + " " + match.subject;
+                checkValueB = sqlConOut.AppointmentsCancel("no match");
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test002_SqlController_2c_AppointmentsCancel()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool checkValueA = true;
+                bool checkValueB = false;
+
+                //Act
+                var temp = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.Lookup);
+                sqlConOut.AppointmentsCreate(temp);
+                checkValueB = sqlConOut.AppointmentsCancel("globalId");
 
                 //Assert
                 TestTeardown();
@@ -546,44 +566,6 @@ namespace UnitTest
                 Assert.Equal(checkValueA, checkValueB);
             }
         }
-
-        //[Fact]
-        //public void Test002_SqlController_2a_TemplateCreateAndRead()
-        //{
-        //    lock (_lockTest)
-        //    {
-        //        //Arrange
-        //        TestPrepare(t.GetMethodName(), false, false);
-        //        appointments checkValueA = null;
-        //        appointments checkValueB = new appointments();
-
-        //        //Act
-        //        checkValueB = sqlConOut.AppointmentsFind(null);
-
-        //        //Assert
-        //        TestTeardown();
-        //        Assert.Equal(checkValueA, checkValueB);
-        //    }
-        //}
-
-        //[Fact]
-        //public void Test002_SqlController_2b_TemplateCreateAndRead()
-        //{
-        //    lock (_lockTest)
-        //    {
-        //        //Arrange
-        //        TestPrepare(t.GetMethodName(), false, false);
-        //        appointments checkValueA = null;
-        //        appointments checkValueB = new appointments();
-
-        //        //Act
-        //        checkValueB = sqlConOut.AppointmentsFind(null);
-
-        //        //Assert
-        //        TestTeardown();
-        //        Assert.Equal(checkValueA, checkValueB);
-        //    }
-        //}
         #endregion
 
         #region private

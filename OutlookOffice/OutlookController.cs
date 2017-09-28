@@ -232,7 +232,7 @@ namespace OutlookOffice
                             {
                                 Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.Lookup);
 
-                                if (sqlController.AppointmentsCancel(appo))
+                                if (sqlController.AppointmentsCancel(appo.GlobalId))
                                     CalendarItemUpdate(appo, WorkflowState.Canceled, false);
                                 else
                                     CalendarItemUpdate(appo, WorkflowState.Failed_to_intrepid, false);
