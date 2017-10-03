@@ -52,12 +52,16 @@ namespace OutlookCore
         bool syncOutlookAppsRunning = false;
         bool syncInteractionCaseRunning = false;
 
-        bool coreRunning = false;
+        bool coreThreadRunning = false;
         bool coreRestarting = false;
         bool coreStatChanging = false;
-        bool coreThreadAlive = false;
+        bool coreAvailable = false;
+
+        bool skipRestartDelay = false;
 
         string connectionString;
+
+        int sameExceptionCountTried = 0;
         #endregion
 
         //con
@@ -67,7 +71,7 @@ namespace OutlookCore
         {
             try
             {
-                if (!coreRunning && !coreStatChanging)
+                if (!coreAvailable && !coreStatChanging)
                 {
                     coreStatChanging = true;
 
@@ -88,7 +92,9 @@ namespace OutlookCore
                         throw new ArgumentException("Use AdminTool to setup database correctly. FirstRunDone has not completed");
 
                     //log
-                    log = sqlController.StartLog(this);
+                    if (log == null)
+                        log = sqlController.StartLog(this);
+
                     log.LogCritical("Not Specified", "###########################################################################");
                     log.LogCritical("Not Specified", t.GetMethodName() + " called");
                     log.LogStandard("Not Specified", "SqlController and Logger started");
@@ -115,16 +121,13 @@ namespace OutlookCore
                     log.LogStandard("Not Specified", "CoreThread started");
 
                     log.LogStandard("Not Specified", "Core started");
-                    coreRunning = true;
+                    coreAvailable = true;
                     coreStatChanging = false;
                 }
             }
             #region catch
             catch (Exception ex)
             {
-                coreRunning = false;
-                coreStatChanging = false;
-
                 FatalExpection(t.GetMethodName() + " failed", ex);
                 return false;
             }
@@ -133,20 +136,47 @@ namespace OutlookCore
             return true;
         }
 
-        public override void    Restart(int secondsDelay)
+        public override void    Restart(int sameExceptionCount, int sameExceptionCountMax)
         {
             try
             {
                 if (coreRestarting == false)
                 {
                     coreRestarting = true;
-
                     log.LogCritical("Not Specified", t.GetMethodName() + " called");
-                    Close();
-                    log.LogStandard("Not Specified", "Trying to restart the Core in " + secondsDelay + " seconds");
-                    Thread.Sleep(secondsDelay * 1000);
-                    Start(connectionString);
+                    log.LogVariable("Not Specified", nameof(sameExceptionCount), sameExceptionCount);
+                    log.LogVariable("Not Specified", nameof(sameExceptionCountMax), sameExceptionCountMax);
 
+                    sameExceptionCountTried++;
+
+                    if (sameExceptionCountTried > sameExceptionCountMax)
+                        sameExceptionCountTried = sameExceptionCountMax;
+
+                    if (sameExceptionCountTried > 4)
+                        throw new Exception("The same Exception repeated to many times (5+) within one hour");
+
+                    int secondsDelay = 0;
+                    switch (sameExceptionCountTried)
+                    {
+                        case 1: secondsDelay = 001; break;
+                        case 2: secondsDelay = 008; break;
+                        case 3: secondsDelay = 064; break;
+                        case 4: secondsDelay = 512; break;
+                        default: throw new ArgumentOutOfRangeException("sameExceptionCount should be above 0");
+                    }
+                    log.LogVariable("Not Specified", nameof(sameExceptionCountTried), sameExceptionCountTried);
+                    log.LogVariable("Not Specified", nameof(secondsDelay), secondsDelay);
+
+                    Close();
+
+                    log.LogStandard("Not Specified", "Trying to restart the Core in " + secondsDelay + " seconds");
+
+                    if (!skipRestartDelay)
+                        Thread.Sleep(secondsDelay * 1000);
+                    else
+                        log.LogStandard("Not Specified", "Delay skipped");
+
+                    Start(connectionString);
                     coreRestarting = false;
                 }
             }
@@ -160,15 +190,15 @@ namespace OutlookCore
         {
             try
             {
-                if (coreRunning && !coreStatChanging)
+                if (coreAvailable && !coreStatChanging)
                 {
                     coreStatChanging = true;
 
-                    coreThreadAlive = false;
+                    coreAvailable = false;
                     log.LogCritical("Not Specified", t.GetMethodName() + " called");
 
                     int tries = 0;
-                    while (coreRunning)
+                    while (coreThreadRunning)
                     {
                         Thread.Sleep(100);
                         tries++;
@@ -176,24 +206,6 @@ namespace OutlookCore
                         if (tries > 600)
                             FatalExpection("Failed to close Core correct after 60 secs (coreRunning)", new Exception());
                     }
-
-                    //tries = 0;
-                    //while (syncOutlookAppsRunning)
-                    //{
-                    //    Thread.Sleep(100);
-                    //    tries++;
-                    //    if (tries > 300)
-                    //        FatalExpection("Failed to close Core correct after 30 secs (syncOutlookAppsRunning)", new Exception());
-                    //}
-
-                    //tries = 0;
-                    //while (syncInteractionCaseRunning)
-                    //{
-                    //    Thread.Sleep(100);
-                    //    tries++;
-                    //    if (tries > 300)
-                    //        FatalExpection("Failed to close Core correct after 30 secs (syncInteractionCaseRunning)", new Exception());
-                    //}
 
                     log.LogStandard("Not Specified", "Core closed");
                     outlookController = null;
@@ -216,26 +228,20 @@ namespace OutlookCore
 
         public bool             Running()
         {
-            return coreRunning;
+            return coreAvailable;
         }
 
-        public override void    FatalExpection(string reason, Exception exception)
+        public void             FatalExpection(string reason, Exception exception)
         {
+            coreAvailable = false;
+            coreThreadRunning = false;
+            coreStatChanging = false;
+
             try
             {
                 log.LogFatalException(t.GetMethodName() + " called for reason:'" + reason + "'", exception);
             }
             catch { }
-
-            try
-            {
-                Thread coreRestartThread = new Thread(() => Close());
-                coreRestartThread.Start();
-            }
-            catch { }
-
-            coreRunning = false;
-            coreStatChanging = false;
 
             try { HandleEventException?.Invoke(exception, EventArgs.Empty); } catch { }
             throw new Exception("FATAL exception, Core shutting down, due to:'" + reason + "'", exception);
@@ -246,16 +252,14 @@ namespace OutlookCore
         private void            CoreThread()
         {
             bool firstRun = true;
-
-            coreRunning = true;
-            coreThreadAlive = true;
+            coreThreadRunning = true;
 
             log.LogEverything("Not Specified", t.GetMethodName() + " initiated");
-            while (coreThreadAlive)
+            while (coreAvailable)
             {
                 try
                 {
-                    if (coreRunning)
+                    if (coreThreadRunning)
                     {
                         #region warm up
                         log.LogEverything("Not Specified", t.GetMethodName() + " initiated");
@@ -296,8 +300,7 @@ namespace OutlookCore
             }
             log.LogEverything("Not Specified", t.GetMethodName() + " completed");
 
-            coreRunning = false;
-            coreStatChanging = false;
+            coreThreadRunning = false;
         }
 
         private void            SyncOutlookConvert()
@@ -308,16 +311,16 @@ namespace OutlookCore
                 {
                     syncOutlookConvertRunning = true;
 
-                    if (coreRunning)
+                    if (coreThreadRunning)
                     {
-                        while (coreRunning && outlookController.CalendarItemConvertRecurrences()) { }
+                        while (coreThreadRunning && outlookController.CalendarItemConvertRecurrences()) { }
 
                         log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
 
-                        for (int i = 0; i < 6 && coreRunning; i++)
+                        for (int i = 0; i < 6 && coreThreadRunning; i++)
                             Thread.Sleep(1000);
                     }
-                    
+
                     syncOutlookConvertRunning = false;
                 }
             }
@@ -342,10 +345,10 @@ namespace OutlookCore
                 {
                     syncOutlookAppsRunning = true;
 
-                    while (coreRunning && outlookController.CalendarItemIntrepid())
+                    while (coreThreadRunning && outlookController.CalendarItemIntrepid())
                         log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
 
-                    while (coreRunning && outlookController.CalendarItemReflecting(null))
+                    while (coreThreadRunning && outlookController.CalendarItemReflecting(null))
                         log.LogEverything("Not Specified", "outlookController.CalendarItemReflecting() completed");
 
                     syncOutlookAppsRunning = false;
@@ -370,7 +373,7 @@ namespace OutlookCore
                 {
                     syncInteractionCaseRunning = true;
 
-                    while (coreRunning && sqlController.SyncInteractionCase())
+                    while (coreThreadRunning && sqlController.SyncInteractionCase())
                         log.LogEverything("Not Specified", t.GetMethodName() + " completed");
 
                     syncInteractionCaseRunning = false;
@@ -388,7 +391,13 @@ namespace OutlookCore
         }
         #endregion
 
-        public void             Test_Reset(string connectionString)
+        #region unit test
+        internal void           UnitTest_SetUnittest()
+        {
+            skipRestartDelay = true;
+        }
+
+        public void             UnitTest_Reset(string connectionString)
         {
             sqlController = new SqlController(connectionString);
             Log log = sqlController.StartLog(this);
@@ -397,7 +406,7 @@ namespace OutlookCore
 
             try
             {
-                if (!coreRunning && !coreStatChanging)
+                if (!coreThreadRunning && !coreStatChanging)
                 {
                     coreStatChanging = true;
                     log.LogStandard("Not Specified", "Reset!");
@@ -432,23 +441,6 @@ namespace OutlookCore
             }
             Close();
         }
-    }
-
-    internal class ExceptionClass
-    {
-        private ExceptionClass()
-        {
-
-        }
-
-        internal ExceptionClass(string description, DateTime time)
-        {
-            Description = description;
-            Time = time;
-        }
-
-        public string Description { get; set; }
-
-        public DateTime Time { get; set; }
+        #endregion
     }
 }

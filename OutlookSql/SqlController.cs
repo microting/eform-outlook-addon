@@ -16,17 +16,41 @@ namespace OutlookSql
     public class SqlController : LogWriter
     {
         #region var
-        string connectionStr;
         eFormSqlController.SqlController sdkSqlCon = null;
-        bool msSql = true;
-        Log log;
+        Log log = null;
         Tools t = new Tools();
 
         object _writeLock = new object();
+
+        string connectionStr;
+        bool msSql = true;
         #endregion
 
         #region con
-        public                      SqlController(string connectionString)
+        public                      SqlController(string connectionStringOutlook)
+        {
+            Constructor(connectionStringOutlook);
+        }
+
+        public                      SqlController(string connectionStringOutlook, string connectionStringSdk)
+        {
+            try
+            {
+                using (var db = GetContextO())
+                {
+                    db.Database.CreateIfNotExists();
+                }
+            }
+            catch
+            {
+                throw new Exception("Failed to create Outlook database");
+            }
+
+            sdkSqlCon = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
+            Constructor(connectionStringOutlook);
+        }
+
+        private void                Constructor(string connectionString)
         {
             connectionStr = connectionString;
 
@@ -896,7 +920,8 @@ namespace OutlookSql
             {
                 string logLevel = SettingRead(Settings.logLevel);
                 int logLevelInt = int.Parse(logLevel);
-                log = new Log(core, this, logLevelInt);
+                if (log == null)
+                    log = new Log(core, this, logLevelInt);
                 return log;
             }
             catch (Exception ex)
