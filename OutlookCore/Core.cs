@@ -115,14 +115,14 @@ namespace OutlookCore
                         log.LogStandard("Not Specified", "OutlookController started");
                     }
 
+                    log.LogCritical("Not Specified", t.GetMethodName() + " started");
+                    coreAvailable = true;
+                    coreStatChanging = false;
+
                     //coreThread
                     Thread coreThread = new Thread(() => CoreThread());
                     coreThread.Start();
                     log.LogStandard("Not Specified", "CoreThread started");
-
-                    log.LogStandard("Not Specified", "Core started");
-                    coreAvailable = true;
-                    coreStatChanging = false;
                 }
             }
             #region catch
