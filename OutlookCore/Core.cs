@@ -248,7 +248,7 @@ namespace OutlookCore
         }
         #endregion
 
-        #region private
+        #region intrepidation threads
         private void            CoreThread()
         {
             bool firstRun = true;

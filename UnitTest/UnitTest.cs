@@ -97,8 +97,8 @@ namespace UnitTest
 
         int siteId1 = 2001;
         //int siteId2 = 2002;
-        //int workerMUId = 666;
-        //int unitMUId = 345678;
+        int workerMUId = 666;
+        int unitMUId = 345678;
 
         string connectionStringOut = "";
         string connectionStringSdk = "";
@@ -113,7 +113,7 @@ namespace UnitTest
         #endregion
 
         #region prepare and teardown     
-        private void TestPrepare(string testName, bool startSdk, bool startOut)
+        private void        TestPrepare(string testName, bool startSdk, bool startOut)
         {
             adminTool = new eFormCore.AdminTools(connectionStringSdk);
             string temp = adminTool.DbClear();
@@ -140,7 +140,7 @@ namespace UnitTest
                 coreOut.Start(connectionStringOut);
         }
 
-        private void TestTeardown()
+        private void        TestTeardown()
         {
             if (coreSdk != null)
                 if (coreSdk.Running())
@@ -154,7 +154,7 @@ namespace UnitTest
 
         #region - test 000x virtal basics
         [Fact]
-        public void Test000_Basics_1a_MustAlwaysPass()
+        public void         Test000_Basics_1a_MustAlwaysPass()
         {
             lock (_lockTest)
             {
@@ -171,7 +171,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test000_Basics_2a_PrepareAndTeardownTestdata_True_True()
+        public void         Test000_Basics_2a_PrepareAndTeardownTestdata_True_True()
         {
             lock (_lockTest)
             {
@@ -190,7 +190,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test000_Basics_2b_PrepareAndTeardownTestdata_True_False()
+        public void         Test000_Basics_2b_PrepareAndTeardownTestdata_True_False()
         {
             lock (_lockTest)
             {
@@ -209,7 +209,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test000_Basics_2c_PrepareAndTeardownTestdata_False_True()
+        public void         Test000_Basics_2c_PrepareAndTeardownTestdata_False_True()
         {
             lock (_lockTest)
             {
@@ -228,7 +228,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test000_Basics_2d_PrepareAndTeardownTestdata_False_False()
+        public void         Test000_Basics_2d_PrepareAndTeardownTestdata_False_False()
         {
             lock (_lockTest)
             {
@@ -249,7 +249,7 @@ namespace UnitTest
 
         #region - test 001x core
         [Fact]
-        public void Test001_Core_1a_Start_WithNullExpection()
+        public void         Test001_Core_1a_Start_WithNullExpection()
         {
             lock (_lockTest)
             {
@@ -276,7 +276,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test001_Core_1b_Start_WithBlankExpection()
+        public void         Test001_Core_1b_Start_WithBlankExpection()
         {
             lock (_lockTest)
             {
@@ -303,7 +303,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test001_Core_3a_Start()
+        public void         Test001_Core_3a_Start()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), false, false);
@@ -327,7 +327,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test001_Core_4a_IsRunning()
+        public void         Test001_Core_4a_IsRunning()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), false, false);
@@ -353,7 +353,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test001_Core_5a_Close()
+        public void         Test001_Core_5a_Close()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), false, false);
@@ -376,8 +376,8 @@ namespace UnitTest
             Assert.Equal(checkValueA, checkValueB);
         }
 
-//        [Fact]
-        public void Test001_Core_6a_RunningForWhileThenClose()
+        [Fact]
+        public void         Test001_Core_6a_RunningForWhileThenClose()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), false, false);
@@ -408,7 +408,7 @@ namespace UnitTest
 
         #region - test 002x - sqlController (Appointments)
         [Fact]
-        public void Test002_SqlController_1a_AppointmentsCreate_WithNullExpection()
+        public void         Test002_SqlController_1a_AppointmentsCreate_WithNullExpection()
         {
             lock (_lockTest)
             {
@@ -427,7 +427,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_1b_AppointmentsCreate()
+        public void         Test002_SqlController_1b_AppointmentsCreate()
         {
             lock (_lockTest)
             {
@@ -447,7 +447,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_1c_AppointmentsCreateDouble()
+        public void         Test002_SqlController_1c_AppointmentsCreateDouble()
         {
             lock (_lockTest)
             {
@@ -468,7 +468,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_2a_AppointmentsCancel_WithNullExpection()
+        public void         Test002_SqlController_2a_AppointmentsCancel_WithNullExpection()
         {
             lock (_lockTest)
             {
@@ -487,7 +487,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_2b_AppointmentsCancel_NoMatch()
+        public void         Test002_SqlController_2b_AppointmentsCancel_NoMatch()
         {
             lock (_lockTest)
             {
@@ -507,7 +507,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_2c_AppointmentsCancel()
+        public void         Test002_SqlController_2c_AppointmentsCancel()
         {
             lock (_lockTest)
             {
@@ -528,7 +528,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_3a_AppointmentsFind_WithNullExpection()
+        public void         Test002_SqlController_3a_AppointmentsFind_WithNullExpection()
         {
             lock (_lockTest)
             {
@@ -547,7 +547,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_3b_AppointmentsFind()
+        public void         Test002_SqlController_3b_AppointmentsFind()
         {
             lock (_lockTest)
             {
@@ -568,7 +568,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_4a_AppointmentsFindOne_UnableToFind()
+        public void         Test002_SqlController_4a_AppointmentsFindOne_UnableToFind()
         {
             lock (_lockTest)
             {
@@ -587,7 +587,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_4b_AppointmentsFindOne_Created()
+        public void         Test002_SqlController_4b_AppointmentsFindOne_Created()
         {
             lock (_lockTest)
             {
@@ -609,7 +609,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_4c_AppointmentsFindOne_Updated()
+        public void         Test002_SqlController_4c_AppointmentsFindOne_Updated()
         {
             lock (_lockTest)
             {
@@ -638,7 +638,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test002_SqlController_4d_AppointmentsFindOne_Reflected()
+        public void         Test002_SqlController_4d_AppointmentsFindOne_Reflected()
         {
             lock (_lockTest)
             {
@@ -685,7 +685,7 @@ namespace UnitTest
 
         #region - test 003x - sqlController (Lookup)
         [Fact]
-        public void Test003_SqlController_1a_LookupCreate_Withxpection()
+        public void         Test003_SqlController_1a_LookupCreate_Withxpection()
         {
             lock (_lockTest)
             {
@@ -713,7 +713,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test003_SqlController_1b_LookupCreate()
+        public void         Test003_SqlController_1b_LookupCreate()
         {
             lock (_lockTest)
             {
@@ -741,7 +741,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test003_SqlController_1c_LookupCreateAndUpdate()
+        public void         Test003_SqlController_1c_LookupCreateAndUpdate()
         {
             lock (_lockTest)
             {
@@ -788,7 +788,7 @@ namespace UnitTest
         #endregion
 
         #region private
-        private string AppointmentsFindAll()
+        private string      AppointmentsFindAll()
         {
             string returnValue = "";
 
@@ -811,8 +811,6 @@ namespace UnitTest
 
             return returnValue;
         }
-
-
 
         private List<string> WaitForAvailableDB()
         {
@@ -839,7 +837,7 @@ namespace UnitTest
             }
         }
 
-        private bool WaitForAvailableMicroting(int interactionCaseId)
+        private bool        WaitForAvailableMicroting(int interactionCaseId)
         {
             try
             {
@@ -890,20 +888,20 @@ namespace UnitTest
             }
         }
 
-        private string ClearXml(string inputXmlString)
+        private string      ClearXml(string inputXmlString)
         {
-            inputXmlString = t.LocateReplaceAll(inputXmlString, "<StartDate>", "</StartDate>", "xxx");
-            inputXmlString = t.LocateReplaceAll(inputXmlString, "<EndDate>", "</EndDate>", "xxx");
-            inputXmlString = t.LocateReplaceAll(inputXmlString, "<Language>", "</Language>", "xxx");
-            inputXmlString = t.LocateReplaceAll(inputXmlString, "<Id>", "</Id>", "xxx");
-            inputXmlString = t.LocateReplaceAll(inputXmlString, "<DefaultValue>", "</DefaultValue>", "xxx");
-            inputXmlString = t.LocateReplaceAll(inputXmlString, "<MaxValue>", "</MaxValue>", "xxx");
-            inputXmlString = t.LocateReplaceAll(inputXmlString, "<MinValue>", "</MinValue>", "xxx");
+            inputXmlString = t.ReplaceAtLocationAll(inputXmlString, "<StartDate>", "</StartDate>", "xxx", true);
+            inputXmlString = t.ReplaceAtLocationAll(inputXmlString, "<EndDate>", "</EndDate>", "xxx", true);
+            inputXmlString = t.ReplaceAtLocationAll(inputXmlString, "<Language>", "</Language>", "xxx", true);
+            inputXmlString = t.ReplaceAtLocationAll(inputXmlString, "<Id>", "</Id>", "xxx", true);
+            inputXmlString = t.ReplaceAtLocationAll(inputXmlString, "<DefaultValue>", "</DefaultValue>", "xxx", true);
+            inputXmlString = t.ReplaceAtLocationAll(inputXmlString, "<MaxValue>", "</MaxValue>", "xxx", true);
+            inputXmlString = t.ReplaceAtLocationAll(inputXmlString, "<MinValue>", "</MinValue>", "xxx", true);
 
             return inputXmlString;
         }
 
-        private void CaseComplet(string microtingUId, string checkUId)
+        private void        CaseComplet(string microtingUId, string checkUId)
         {
             sqlConSdk.NotificationCreate(DateTime.Now.ToLongTimeString(), microtingUId, "unit_fetch");
 
@@ -918,10 +916,10 @@ namespace UnitTest
             if (checkUId != null)
                 sqlConSdk.CaseCreate(2, siteId1, microtingUId, checkUId, "", "", DateTime.Now);
 
-            core_UT.CaseComplet(microtingUId, checkUId);
+            core_UT.CaseComplet(microtingUId, checkUId, workerMUId, unitMUId);
         }
 
-        private void InteractionCaseComplet(int interactionCaseId)
+        private void        InteractionCaseComplet(int interactionCaseId)
         {
             var lst = sqlConSdk.UnitTest_FindAllActiveInteractionCaseLists(interactionCaseId);
 
@@ -931,7 +929,7 @@ namespace UnitTest
             }
         }
 
-        private string LoadFil(string path)
+        private string      LoadFil(string path)
         {
             try
             {

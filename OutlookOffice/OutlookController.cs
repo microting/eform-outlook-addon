@@ -170,7 +170,7 @@ namespace OutlookOffice
                                     if (item.Body.Contains("<<< "))
                                         if (item.Body.Contains("End >>>"))
                                         {
-                                            item.Body = t.LocateReplaceAll(item.Body, "<<< ", "End >>>", "");
+                                            item.Body = t.ReplaceAtLocationAll(item.Body, "<<< ", "End >>>", "", true);
                                             item.Body = item.Body.Replace("<<< End >>>", "");
                                             item.Body = item.Body.Trim();
                                         }
@@ -245,7 +245,7 @@ namespace OutlookOffice
                             #region ...
                             {
                                 eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb));
-                                eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting);
+                                eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting, log);
 
                                 var temp = sqlController.AppointmentsFind(item.GlobalAppointmentID);
 

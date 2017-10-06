@@ -104,9 +104,8 @@ namespace SourceCode
                         else
                         {
                             foreach (string error in validationErrors)
-                            {
                                 Console.WriteLine("The following error is stopping us from creating the template: " + error);
-                            }
+
                             Console.WriteLine("Correct the errors in xmlTemplate.txt and try again");
                         }
                     }
