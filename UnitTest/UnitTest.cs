@@ -785,6 +785,362 @@ namespace UnitTest
                 Assert.Equal(checkValueA1, checkValueB9);
             }
         }
+
+        [Fact]
+        public void         Test003_SqlController_2a_LookupRead()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+
+                string checkValueA1 = "1A1b1k";
+                string checkValueA2 = "2C2d2m";
+
+                string checkValueB1 = "";
+                string checkValueB2 = "";
+
+                //Act
+                sqlConOut.LookupCreateUpdate("Ab", "1A1b1k");
+                sqlConOut.LookupCreateUpdate("CD", "2C2d2m");
+
+                checkValueB1 = sqlConOut.LookupRead("aB");
+                checkValueB2 = sqlConOut.LookupRead("Cd");
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA1, checkValueB1);
+                Assert.Equal(checkValueA2, checkValueB2);
+                Assert.NotEqual(checkValueA1, checkValueB2.ToUpper());
+                Assert.NotEqual(checkValueA1, checkValueB2.ToLower());
+                Assert.NotEqual(checkValueA2, checkValueB2.ToUpper());
+                Assert.NotEqual(checkValueA2, checkValueB2.ToLower());
+            }
+        }
+
+        [Fact]
+        public void         Test003_SqlController_3a_LookupReadAll()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA = "1A1b1k2C2d2m3e3F3k4G4H4m";
+                string checkValueB = "";
+
+                //Act
+                sqlConOut.LookupCreateUpdate("Ab", "1A1b1k");
+                sqlConOut.LookupCreateUpdate("CD", "2C2d2m");
+                sqlConOut.LookupCreateUpdate("EF", "3e3F3k");
+                sqlConOut.LookupCreateUpdate("GH", "4G4H4m");
+
+                var lst = sqlConOut.LookupReadAll();
+
+                foreach (var item in lst)
+                    checkValueB += item.value;
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void         Test003_SqlController_4a_LookupDelete()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA = "1A1b1k3e3F3k1A1b1k";
+                string checkValueB = "";
+
+                //Act
+                sqlConOut.LookupCreateUpdate("Ab", "1A1b1k");
+                sqlConOut.LookupCreateUpdate("CD", "2C2d2m");
+                sqlConOut.LookupCreateUpdate("EF", "3e3F3k");
+                sqlConOut.LookupCreateUpdate("GH", "4G4H4m");
+
+                sqlConOut.LookupDelete("Cd");
+                sqlConOut.LookupDelete("gH");
+
+                var lst = sqlConOut.LookupReadAll();
+
+                foreach (var item in lst)
+                    checkValueB += item.value;
+
+                sqlConOut.LookupDelete("ef");
+
+                lst = sqlConOut.LookupReadAll();
+
+                foreach (var item in lst)
+                    checkValueB += item.value;
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+        #endregion
+
+        #region - test 004x - sqlController (SDK)
+        [Fact]
+        public void         Test004_SqlController_1a_SyncInteractionCase()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                int checkValueA = 1;
+                int checkValueB = 1;
+
+                //Act
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
+                sqlConOut.AppointmentsCreate(appoBase);
+                sqlConOut.SyncInteractionCase();
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void         Test004_SqlController_2a_InteractionCaseCreate()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool checkValueA = true;
+                bool checkValueB = false;
+
+                //Act
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
+                int id = sqlConOut.AppointmentsCreate(appoBase);
+                var app = sqlConOut.AppointmentsFind("globalId");
+
+                checkValueB = sqlConOut.InteractionCaseCreate(app);
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void         Test004_SqlController_3a_InteractionCaseDelete()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool checkValueA = true;
+                bool checkValueB = false;
+
+                //Act
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
+                int id = sqlConOut.AppointmentsCreate(appoBase);
+                var app = sqlConOut.AppointmentsFind("globalId");
+
+                checkValueB = sqlConOut.InteractionCaseCreate(app);
+                //checkValueB = sqlConOut.InteractionCaseDelete(app); Lacks to fake a SDK sending, so it can be delete. Needs to make more test, for deletions for different stages
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void         Test004_SqlController_4a_InteractionCaseDelete()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool checkValueA = true;
+                bool checkValueB = false;
+
+                //Act
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
+                int id = sqlConOut.AppointmentsCreate(appoBase);
+                var app = sqlConOut.AppointmentsFind("globalId");
+
+                checkValueB = sqlConOut.InteractionCaseCreate(app);
+                //checkValueB = sqlConOut.InteractionCaseDelete(app); Lacks to fake a SDK sending, so it can be delete. Needs to make more test, for deletions for different stages
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void         Test004_SqlController_5a_InteractionCaseProcessed_NotMade()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool checkValueA = true;
+                bool checkValueB = false;
+
+                //Act
+                checkValueB = true;
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void         Test004_SqlController_6a_SiteLookupName_NotMade()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool checkValueA = true;
+                bool checkValueB = false;
+
+                //Act
+                checkValueB = true;
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+        #endregion
+
+        #region - test 005x - sqlController (Settings)
+        //Not active, as would fuck up the stat of settings
+        //[Fact]
+        //public void         Test005_SqlController_1a_SettingCreateDefaults()
+        //{
+        //    lock (_lockTest)
+        //    {
+        //        //Arrange
+        //        TestPrepare(t.GetMethodName(), false, false);
+        //        bool checkValueA = true;
+        //        bool checkValueB = false;
+
+        //        //Act
+        //        checkValueB = sqlConOut.SettingCreateDefaults();
+
+        //        //Assert
+        //        TestTeardown();
+        //        Assert.Equal(checkValueA, checkValueB);
+        //    }
+        //}
+
+        //[Fact]
+        //public void         Test005_SqlController_2a_SettingCreate()
+        //{
+        //    lock (_lockTest)
+        //    {
+        //        //Arrange
+        //        TestPrepare(t.GetMethodName(), false, false);
+        //        bool checkValueA1 = true;
+        //        bool checkValueA2 = true;
+        //        bool checkValueB1 = false;
+        //        bool checkValueB2 = false;
+
+        //        //Act
+        //        checkValueB1 = sqlConOut.SettingCreate(Settings.firstRunDone);
+        //        checkValueB2 = sqlConOut.SettingCreate(Settings.logLevel);
+
+        //        //Assert
+        //        TestTeardown();
+        //        Assert.Equal(checkValueA1, checkValueB1);
+        //        Assert.Equal(checkValueA2, checkValueB2);
+        //    }
+        //}
+
+        //Not active, as would fuck up the stat of settings
+        [Fact]
+        public void         Test005_SqlController_3a_SettingRead()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA1 = "true";
+                string checkValueA2 = "4";
+                string checkValueB1 = "";
+                string checkValueB2 = "";
+
+                //Act
+                sqlConOut.SettingCreate(Settings.firstRunDone);
+                sqlConOut.SettingCreate(Settings.logLevel);
+
+                checkValueB1 = sqlConOut.SettingRead(Settings.firstRunDone);
+                checkValueB2 = sqlConOut.SettingRead(Settings.logLevel);
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA1, checkValueB1);
+                Assert.Equal(checkValueA2, checkValueB2);
+            }
+        }
+
+        //Not active, as would fuck up the stat of settings
+        //[Fact]
+        //public void         Test005_SqlController_4a_SettingUpdate()
+        //{       
+        //    lock (_lockTest)
+        //    {
+        //        //Arrange
+        //        TestPrepare(t.GetMethodName(), false, false);
+        //        string checkValueA = "tempValuefinalValue";
+        //        string checkValueB1 = "";
+        //        string checkValueB2 = "";
+
+        //        //Act
+        //        sqlConOut.SettingCreate(Settings.firstRunDone);
+        //        sqlConOut.SettingCreate(Settings.logLevel);
+
+        //        sqlConOut.SettingUpdate(Settings.firstRunDone, "tempValue");
+        //        sqlConOut.SettingUpdate(Settings.logLevel, "tempValue");
+
+        //        checkValueB1 = sqlConOut.SettingRead(Settings.firstRunDone);
+        //        checkValueB2 = sqlConOut.SettingRead(Settings.logLevel);
+
+        //        sqlConOut.SettingUpdate(Settings.firstRunDone, "finalValue");
+        //        sqlConOut.SettingUpdate(Settings.logLevel, "finalValue");
+
+        //        checkValueB1 += sqlConOut.SettingRead(Settings.firstRunDone);
+        //        checkValueB2 += sqlConOut.SettingRead(Settings.logLevel);
+
+        //        //Assert
+        //        TestTeardown();
+        //        Assert.Equal(checkValueA, checkValueB1);
+        //        Assert.Equal(checkValueA, checkValueB2);
+        //    }
+        //}
+
+        [Fact]
+        public void         Test005_SqlController_5a_SettingCheckAll()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                int checkValueA = 0;
+                int checkValueB = -1;
+
+                //Act
+                sqlConOut.SettingCreateDefaults();
+                var temp = sqlConOut.SettingCheckAll();
+                checkValueB = temp.Count();
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
         #endregion
 
         #region private
