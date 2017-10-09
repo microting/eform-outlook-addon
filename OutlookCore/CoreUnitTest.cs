@@ -27,8 +27,9 @@ namespace OutlookCore
         {
         }
 
-        public void CaseDelete(string microtingUId)
+        public bool CoreDead()
         {
+            return core.UnitTest_CoreDead();
         }
 
         public void Close()

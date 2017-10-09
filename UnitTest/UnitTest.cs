@@ -17,7 +17,7 @@ namespace UnitTest
     {
         //
 
-        string connectionStringLocal_SDK = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "Microting"        + ";Integrated Security=True";
+        string connectionStringLocal_SDK = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "Microting" + ";Integrated Security=True";
         string connectionStringLocal_OUT = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "MicrotingOutlook" + ";Integrated Security=True";
 
         #region content
@@ -34,7 +34,7 @@ namespace UnitTest
             {
                 if (Environment.MachineName.ToLower().Contains("testing"))
                 {
-                    serverConnectionString_SDK = "Persist Security Info=True;server=localhost;database=" + "OutlookUnitTest_" + "Microting"        + ";uid=root;password="; //Uses travis database
+                    serverConnectionString_SDK = "Persist Security Info=True;server=localhost;database=" + "OutlookUnitTest_" + "Microting" + ";uid=root;password="; //Uses travis database
                     serverConnectionString_OUT = "Persist Security Info=True;server=localhost;database=" + "OutlookUnitTest_" + "MicrotingOutlook" + ";uid=root;password="; //Uses travis database
                 }
                 else
@@ -112,12 +112,12 @@ namespace UnitTest
         public UnitTest(TestContext testContext)
         {
             connectionStringOut = testContext.GetConnectionStringOutlook();
-            connectionStringSdk     = testContext.GetConnectionStringSdk();
+            connectionStringSdk = testContext.GetConnectionStringSdk();
         }
         #endregion
 
         #region prepare and teardown     
-        private void        TestPrepare(string testName, bool startOut, bool startSdk)
+        private void TestPrepare(string testName, bool startOut, bool startSdk)
         {
             adminTool = new eFormCore.AdminTools(connectionStringSdk);
             string temp = adminTool.DbClear();
@@ -126,7 +126,7 @@ namespace UnitTest
 
 
             sqlConSdk = new eFormSqlController.SqlController(connectionStringSdk);
-            sqlController = new                    SqlController(connectionStringOut);
+            sqlController = new SqlController(connectionStringOut);
             sqlConSdk.UnitTest_TruncateTable(nameof(logs));
             sqlConSdk.UnitTest_TruncateTable(nameof(log_exceptions));
             sqlController.UnitTest_TruncateTable(nameof(logs));
@@ -140,8 +140,7 @@ namespace UnitTest
             coreOut = new Core();
             coreOut_UT = new CoreUnitTest(coreOut);
 
-            coreSdk.HandleNotificationNotFound += EventNotificationNotFound;
-            coreSdk.HandleEventException += EventException;
+            coreOut.HandleEventException += EventException;
 
             if (startSdk)
                 coreSdk.Start(connectionStringSdk);
@@ -150,7 +149,7 @@ namespace UnitTest
                 coreOut.Start(connectionStringOut);
         }
 
-        private void        TestTeardown()
+        private void TestTeardown()
         {
             if (coreSdk != null)
                 if (coreSdk.Running())
@@ -164,7 +163,7 @@ namespace UnitTest
 
         #region - test 000x - virtal basics
         [Fact]
-        public void         Test000_Basics_1a_MustAlwaysPass()
+        public void Test000_Basics_1a_MustAlwaysPass()
         {
             lock (_lockTest)
             {
@@ -181,7 +180,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test000_Basics_2a_PrepareAndTeardownTestdata_True_True()
+        public void Test000_Basics_2a_PrepareAndTeardownTestdata_True_True()
         {
             lock (_lockTest)
             {
@@ -200,7 +199,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test000_Basics_2b_PrepareAndTeardownTestdata_True_False()
+        public void Test000_Basics_2b_PrepareAndTeardownTestdata_True_False()
         {
             lock (_lockTest)
             {
@@ -219,7 +218,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test000_Basics_2c_PrepareAndTeardownTestdata_False_True()
+        public void Test000_Basics_2c_PrepareAndTeardownTestdata_False_True()
         {
             lock (_lockTest)
             {
@@ -238,7 +237,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test000_Basics_2d_PrepareAndTeardownTestdata_False_False()
+        public void Test000_Basics_2d_PrepareAndTeardownTestdata_False_False()
         {
             lock (_lockTest)
             {
@@ -259,7 +258,7 @@ namespace UnitTest
 
         #region - test 001x - core
         [Fact]
-        public void         Test001_Core_1a_Start_WithNullExpection()
+        public void Test001_Core_1a_Start_WithNullExpection()
         {
             lock (_lockTest)
             {
@@ -286,7 +285,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test001_Core_1b_Start_WithBlankExpection()
+        public void Test001_Core_1b_Start_WithBlankExpection()
         {
             lock (_lockTest)
             {
@@ -313,7 +312,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test001_Core_3a_Start()
+        public void Test001_Core_3a_Start()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), false, false);
@@ -337,7 +336,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test001_Core_4a_IsRunning()
+        public void Test001_Core_4a_IsRunning()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), false, false);
@@ -363,7 +362,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test001_Core_5a_Close()
+        public void Test001_Core_5a_Close()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), false, false);
@@ -387,7 +386,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test001_Core_6a_RunningForWhileThenClose()
+        public void Test001_Core_6a_RunningForWhileThenClose()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), false, false);
@@ -418,7 +417,7 @@ namespace UnitTest
 
         #region - test 002x - sqlController (Appointments)
         [Fact]
-        public void         Test002_SqlController_1a_AppointmentsCreate_WithNullExpection()
+        public void Test002_SqlController_1a_AppointmentsCreate_WithNullExpection()
         {
             lock (_lockTest)
             {
@@ -437,7 +436,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test002_SqlController_1b_AppointmentsCreate()
+        public void Test002_SqlController_1b_AppointmentsCreate()
         {
             lock (_lockTest)
             {
@@ -457,7 +456,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test002_SqlController_1c_AppointmentsCreateDouble()
+        public void Test002_SqlController_1c_AppointmentsCreateDouble()
         {
             lock (_lockTest)
             {
@@ -478,7 +477,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test002_SqlController_2a_AppointmentsCancel_WithNullExpection()
+        public void Test002_SqlController_2a_AppointmentsCancel_WithNullExpection()
         {
             lock (_lockTest)
             {
@@ -497,7 +496,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test002_SqlController_2b_AppointmentsCancel_NoMatch()
+        public void Test002_SqlController_2b_AppointmentsCancel_NoMatch()
         {
             lock (_lockTest)
             {
@@ -517,7 +516,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test002_SqlController_2c_AppointmentsCancel()
+        public void Test002_SqlController_2c_AppointmentsCancel()
         {
             lock (_lockTest)
             {
@@ -538,7 +537,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test002_SqlController_3a_AppointmentsFind_WithNullExpection()
+        public void Test002_SqlController_3a_AppointmentsFind_WithNullExpection()
         {
             lock (_lockTest)
             {
@@ -557,7 +556,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test002_SqlController_3b_AppointmentsFind()
+        public void Test002_SqlController_3b_AppointmentsFind()
         {
             lock (_lockTest)
             {
@@ -578,7 +577,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test002_SqlController_4a_AppointmentsFindOne_UnableToFind()
+        public void Test002_SqlController_4a_AppointmentsFindOne_UnableToFind()
         {
             lock (_lockTest)
             {
@@ -597,7 +596,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test002_SqlController_4b_AppointmentsFindOne_Created()
+        public void Test002_SqlController_4b_AppointmentsFindOne_Created()
         {
             lock (_lockTest)
             {
@@ -619,7 +618,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test002_SqlController_4c_AppointmentsFindOne_Updated()
+        public void Test002_SqlController_4c_AppointmentsFindOne_Updated()
         {
             lock (_lockTest)
             {
@@ -648,7 +647,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test002_SqlController_4d_AppointmentsFindOne_Reflected()
+        public void Test002_SqlController_4d_AppointmentsFindOne_Reflected()
         {
             lock (_lockTest)
             {
@@ -695,7 +694,7 @@ namespace UnitTest
 
         #region - test 003x - sqlController (Lookup)
         [Fact]
-        public void         Test003_SqlController_1a_LookupCreate_Withxpection()
+        public void Test003_SqlController_1a_LookupCreate_Withxpection()
         {
             lock (_lockTest)
             {
@@ -723,7 +722,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test003_SqlController_1b_LookupCreate()
+        public void Test003_SqlController_1b_LookupCreate()
         {
             lock (_lockTest)
             {
@@ -751,7 +750,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test003_SqlController_1c_LookupCreateAndUpdate()
+        public void Test003_SqlController_1c_LookupCreateAndUpdate()
         {
             lock (_lockTest)
             {
@@ -797,7 +796,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test003_SqlController_2a_LookupRead()
+        public void Test003_SqlController_2a_LookupRead()
         {
             lock (_lockTest)
             {
@@ -829,7 +828,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test003_SqlController_3a_LookupReadAll()
+        public void Test003_SqlController_3a_LookupReadAll()
         {
             lock (_lockTest)
             {
@@ -856,7 +855,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test003_SqlController_4a_LookupDelete()
+        public void Test003_SqlController_4a_LookupDelete()
         {
             lock (_lockTest)
             {
@@ -895,7 +894,7 @@ namespace UnitTest
 
         #region - test 004x - sqlController (SDK)
         [Fact]
-        public void         Test004_SqlController_1a_SyncInteractionCase()
+        public void Test004_SqlController_1a_SyncInteractionCase()
         {
             lock (_lockTest)
             {
@@ -916,7 +915,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test004_SqlController_2a_InteractionCaseCreate()
+        public void Test004_SqlController_2a_InteractionCaseCreate()
         {
             lock (_lockTest)
             {
@@ -939,31 +938,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test004_SqlController_3a_InteractionCaseDelete()
-        {
-            lock (_lockTest)
-            {
-                //Arrange
-                TestPrepare(t.GetMethodName(), false, false);
-                bool checkValueA = true;
-                bool checkValueB = false;
-
-                //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
-                int id = sqlController.AppointmentsCreate(appoBase);
-                var app = sqlController.AppointmentsFind("globalId");
-
-                checkValueB = sqlController.InteractionCaseCreate(app);
-                //checkValueB = sqlConOut.InteractionCaseDelete(app); Lacks to fake a SDK sending, so it can be delete. Needs to make more test, for deletions for different stages
-
-                //Assert
-                TestTeardown();
-                Assert.Equal(checkValueA, checkValueB);
-            }
-        }
-
-        [Fact]
-        public void         Test004_SqlController_4a_InteractionCaseDelete()
+        public void Test004_SqlController_3a_InteractionCaseDelete()
         {
             lock (_lockTest)
             {
@@ -987,7 +962,31 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test004_SqlController_5a_InteractionCaseProcessed_NotMade()
+        public void Test004_SqlController_4a_InteractionCaseDelete()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool checkValueA = true;
+                bool checkValueB = false;
+
+                //Act
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                int id = sqlController.AppointmentsCreate(appoBase);
+                var app = sqlController.AppointmentsFind("globalId");
+
+                checkValueB = sqlController.InteractionCaseCreate(app);
+                //checkValueB = sqlConOut.InteractionCaseDelete(app); Lacks to fake a SDK sending, so it can be delete. Needs to make more test, for deletions for different stages
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test004_SqlController_5a_InteractionCaseProcessed_NotMade()
         {
             lock (_lockTest)
             {
@@ -1006,7 +1005,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void         Test004_SqlController_6a_SiteLookupName_NotMade()
+        public void Test004_SqlController_6a_SiteLookupName_NotMade()
         {
             lock (_lockTest)
             {
@@ -1072,7 +1071,7 @@ namespace UnitTest
         //Not active, as would fuck up the stat of settings
 
         [Fact]
-        public void         Test005_SqlController_3a_SettingRead()
+        public void Test005_SqlController_3a_SettingRead()
         {
             lock (_lockTest)
             {
@@ -1133,7 +1132,7 @@ namespace UnitTest
         //}
 
         [Fact]
-        public void         Test005_SqlController_5a_SettingCheckAll()
+        public void Test005_SqlController_5a_SettingCheckAll()
         {
             lock (_lockTest)
             {
@@ -1169,7 +1168,7 @@ namespace UnitTest
                 //Act
                 bool response;
                 for (int i = 0; i < 10; i++)
-                    response = oCon.CalendarItemConvertRecurrences();                
+                    response = oCon.CalendarItemConvertRecurrences();
                 checkValueB = "true";
 
                 //Assert
@@ -1281,14 +1280,13 @@ namespace UnitTest
             TestPrepare(t.GetMethodName(), true, false);
             string checkValueA = "1:100000/100000/10000/0\r\n1:010000/010000/01000/0\r\n1:001000/001000/00100/0\r\n1:000100/000100/00010/0\r\n";
             string checkValueB = "";
-      
+
             //Act
             try
             {
                 for (int i = 0; i < 4; i++)
                 {
                     coreOut.outlookController.UnitTest_ForceException("throw new Exception");
-
                     checkValueB += WaitForRestart();
                 }
             }
@@ -1302,37 +1300,27 @@ namespace UnitTest
             Assert.Equal(checkValueA.Replace("\r", "").Replace("\n", ""), checkValueB.Replace("\r", "").Replace("\n", ""));
         }
 
-        //[Fact]
+        [Fact]
         public void Test007_Core_2a_DoubleExceptionHandling()
         {
             //Arrange
-            TestPrepare(t.GetMethodName(), false, true);
-            string checkValueA = "10:100000/100000/10000/0\r\n10:010000/010000/01000/0\r\n01:010000/010000/01000/0\r\n10:001000/001000/00100/0\r\n01:001000/001000/00100/0\r\n10:000100/000100/00010/0\r\n01:000100/000100/00010/0\r\n";
+            TestPrepare(t.GetMethodName(), true, false);
+            string checkValueA = "1:100000/100000/10000/0\r\n1:010000/010000/01000/0\r\n1:010000/010000/01000/0\r\n1:001000/001000/00100/0\r\n1:001000/001000/00100/0\r\n1:000100/000100/00010/0\r\n1:000100/000100/00010/0\r\n";
             string checkValueB = "";
 
             //Act
             try
             {
-                coreOut.outlookController.CalendarItemUpdate(null, WorkflowState.Failed_to_expection, false);
-
-                checkValueB += PrintLogLine();
-
-                sqlController.UnitTest_TruncateTable(nameof(logs));
-                sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+                coreOut.outlookController.UnitTest_ForceException("throw new Exception");
+                checkValueB += WaitForRestart();
 
                 for (int i = 0; i < 3; i++)
                 {
-                    coreOut.outlookController.CalendarItemReflecting("throw new Expection");
+                    coreOut.outlookController.UnitTest_ForceException("throw new Exception");
+                    checkValueB += WaitForRestart();
 
-                    checkValueB += PrintLogLine();
-                    sqlController.UnitTest_TruncateTable(nameof(logs));
-                    sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
-
-                    coreOut.outlookController.CalendarItemReflecting("throw other Expection");
-
-                    checkValueB += PrintLogLine();
-                    sqlController.UnitTest_TruncateTable(nameof(logs));
-                    sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+                    coreOut.outlookController.UnitTest_ForceException("throw other Exception");
+                    checkValueB += WaitForRestart();
                 }
             }
             catch (Exception ex)
@@ -1345,11 +1333,11 @@ namespace UnitTest
             Assert.Equal(checkValueA.Replace("\r", "").Replace("\n", ""), checkValueB.Replace("\r", "").Replace("\n", ""));
         }
 
-        //[Fact]
+        [Fact]
         public void Test007_Core_3a_FatalExceptionHandling()
         {
             //Arrange
-            TestPrepare(t.GetMethodName(), false, true);
+            TestPrepare(t.GetMethodName(), true, false);
             string checkValueA = "1:100000/100000/10000/0\r\n1:010000/010000/01000/0\r\n1:010000/010000/01000/0\r\n1:001000/001000/00100/0\r\n1:001000/001000/00100/0\r\n1:000100/000100/00010/0\r\n1:000100/000100/00010/0\r\n2:000000/000020/00001/1\r\n";
             string checkValueB = "";
 
@@ -1359,11 +1347,8 @@ namespace UnitTest
                 #region core.CaseCreate(main1, null, siteId1);
                 for (int i = 0; i < 2; i++)
                 {
-                    coreOut.outlookController.CalendarItemReflecting("throw new expection");
-
-                    checkValueB += PrintLogLine();
-                    sqlController.UnitTest_TruncateTable(nameof(logs));
-                    sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+                    coreOut.outlookController.UnitTest_ForceException("throw new Exception");
+                    checkValueB += WaitForRestart();
                 }
                 #endregion
 
@@ -1372,17 +1357,11 @@ namespace UnitTest
                 #region core.CaseCreate(main1, null, siteId1);
                 for (int i = 0; i < 3; i++)
                 {
-                    coreOut.outlookController.CalendarItemReflecting("throw new expection");
+                    coreOut.outlookController.UnitTest_ForceException("throw other Exception");
+                    checkValueB += WaitForRestart();
 
-                    checkValueB += PrintLogLine();
-                    sqlController.UnitTest_TruncateTable(nameof(logs));
-                    sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
-
-                    coreOut.outlookController.CalendarItemReflecting("throw new expection");
-
-                    checkValueB += PrintLogLine();
-                    sqlController.UnitTest_TruncateTable(nameof(logs));
-                    sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+                    coreOut.outlookController.UnitTest_ForceException("throw new Exception");
+                    checkValueB += WaitForRestart();
                 }
                 #endregion
             }
@@ -1398,26 +1377,26 @@ namespace UnitTest
         #endregion
 
         #region private
-        private string      AppointmentsFindAll()
+        private string AppointmentsFindAll()
         {
             string returnValue = "";
 
-            if (sqlController.AppointmentsFindOne(0) != null)                                   returnValue += "0";
-            if (sqlController.AppointmentsFindOne(1) != null)                                   returnValue += "1";
-            if (sqlController.AppointmentsFindOne(2) != null)                                   returnValue += "2";
-            if (sqlController.AppointmentsFindOne(3) != null)                                   returnValue += "3";
-            if (sqlController.AppointmentsFindOne(4) != null)                                   returnValue += "4";
+            if (sqlController.AppointmentsFindOne(0) != null) returnValue += "0";
+            if (sqlController.AppointmentsFindOne(1) != null) returnValue += "1";
+            if (sqlController.AppointmentsFindOne(2) != null) returnValue += "2";
+            if (sqlController.AppointmentsFindOne(3) != null) returnValue += "3";
+            if (sqlController.AppointmentsFindOne(4) != null) returnValue += "4";
 
-            if (sqlController.AppointmentsFindOne(WorkflowState.Canceled) != null)              returnValue += "Canceled";
-            if (sqlController.AppointmentsFindOne(WorkflowState.Completed) != null)             returnValue += "Completed";
-            if (sqlController.AppointmentsFindOne(WorkflowState.Created) != null)               returnValue += "Created";
-            if (sqlController.AppointmentsFindOne(WorkflowState.Failed_to_expection) != null)   returnValue += "Failed_to_expection";
-            if (sqlController.AppointmentsFindOne(WorkflowState.Failed_to_intrepid) != null)    returnValue += "Failed_to_intrepid";
-            if (sqlController.AppointmentsFindOne(WorkflowState.Planned) != null)               returnValue += "Planned";
-            if (sqlController.AppointmentsFindOne(WorkflowState.Processed) != null)             returnValue += "Processed";
-            if (sqlController.AppointmentsFindOne(WorkflowState.Retrived) != null)              returnValue += "Retrived";
-            if (sqlController.AppointmentsFindOne(WorkflowState.Revoked) != null)               returnValue += "Revoked";
-            if (sqlController.AppointmentsFindOne(WorkflowState.Sent) != null)                  returnValue += "Sent";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Canceled) != null) returnValue += "Canceled";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Completed) != null) returnValue += "Completed";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Created) != null) returnValue += "Created";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Failed_to_expection) != null) returnValue += "Failed_to_expection";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Failed_to_intrepid) != null) returnValue += "Failed_to_intrepid";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Planned) != null) returnValue += "Planned";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Processed) != null) returnValue += "Processed";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Retrived) != null) returnValue += "Retrived";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Revoked) != null) returnValue += "Revoked";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Sent) != null) returnValue += "Sent";
 
             return returnValue;
         }
@@ -1447,7 +1426,7 @@ namespace UnitTest
             }
         }
 
-        private bool        WaitForAvailableMicroting(int interactionCaseId)
+        private bool WaitForAvailableMicroting(int interactionCaseId)
         {
             try
             {
@@ -1498,7 +1477,7 @@ namespace UnitTest
             }
         }
 
-        private string      ClearXml(string inputXmlString)
+        private string ClearXml(string inputXmlString)
         {
             inputXmlString = t.ReplaceAtLocationAll(inputXmlString, "<StartDate>", "</StartDate>", "xxx", true);
             inputXmlString = t.ReplaceAtLocationAll(inputXmlString, "<EndDate>", "</EndDate>", "xxx", true);
@@ -1511,7 +1490,7 @@ namespace UnitTest
             return inputXmlString;
         }
 
-        private void        CaseComplet(string microtingUId, string checkUId)
+        private void CaseComplet(string microtingUId, string checkUId)
         {
             sqlConSdk.NotificationCreate(DateTime.Now.ToLongTimeString(), microtingUId, "unit_fetch");
 
@@ -1529,7 +1508,7 @@ namespace UnitTest
             coreSdk_UT.CaseComplet(microtingUId, checkUId, workerMUId, unitMUId);
         }
 
-        private void        InteractionCaseComplet(int interactionCaseId)
+        private void InteractionCaseComplet(int interactionCaseId)
         {
             var lst = sqlConSdk.UnitTest_FindAllActiveInteractionCaseLists(interactionCaseId);
 
@@ -1539,15 +1518,15 @@ namespace UnitTest
             }
         }
 
-        private string      WaitForRestart()
+        private string WaitForRestart()
         {
             int count = 0;
             while (count < 600)
             {
                 if (PrintLogLine().Contains("1:"))
                     break;
-                else
-                    Thread.Sleep(100);
+
+                Thread.Sleep(100);
                 count++;
             }
             if (count == 600)
@@ -1560,8 +1539,11 @@ namespace UnitTest
             {
                 if (coreOut.Running())
                     break;
-                else
-                    Thread.Sleep(100);
+
+                if (coreOut_UT.CoreDead())
+                    break;
+
+                Thread.Sleep(100);
                 count++;
             }
             if (count == 600)
@@ -1575,7 +1557,7 @@ namespace UnitTest
             return rtrn;
         }
 
-        private string      PrintLogLine()
+        private string PrintLogLine()
         {
             string str = "";
             str += sqlController.UnitTest_FindLog(1000, "Exception as per request");
@@ -1605,7 +1587,7 @@ namespace UnitTest
             return str;
         }
 
-        private string      LoadFil(string path)
+        private string LoadFil(string path)
         {
             try
             {
@@ -1627,19 +1609,14 @@ namespace UnitTest
         #endregion
 
         #region events
-        public void EventNotificationNotFound(object sender, EventArgs args)
-        {
-
-        }
-
         public void EventException(object sender, EventArgs args)
         {
             lock (_lockFil)
             {
-                File.AppendAllText(@"log\\exception.txt", sender + Environment.NewLine);
+                sqlController.WriteLogEntry(new LogEntry(-4, "FATAL ERROR", "Core triggered Exception event"));
             }
 
-            throw (Exception)sender;
+            throw (Exception)sender; //Core need to be able that the external code crashed
         }
         #endregion
     }

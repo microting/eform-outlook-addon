@@ -239,6 +239,7 @@ namespace OutlookCore
             coreAvailable = false;
             coreThreadRunning = false;
             coreStatChanging = false;
+            coreRestarting = false;
 
             try
             {
@@ -393,6 +394,16 @@ namespace OutlookCore
         internal void           UnitTest_SetUnittest()
         {
             skipRestartDelay = true;
+        }
+
+        internal bool           UnitTest_CoreDead()
+        {
+            if (!coreAvailable)
+                if (!coreStatChanging)
+                    if (!coreRestarting)
+                        if (!coreThreadRunning)
+                            return true;
+            return false;
         }
 
         public void             UnitTest_Reset(string connectionString)
