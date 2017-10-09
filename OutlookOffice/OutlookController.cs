@@ -93,7 +93,7 @@ namespace OutlookOffice
                                         try
                                         {
                                             Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false, sqlController.LookupRead);
-                                            appo_Dto = CreateAppointment(appo_Dto);
+                                            appo_Dto = AppointmentCreate(appo_Dto);
                                             recur.Delete();
                                             log.LogStandard("Not Specified", recur.GlobalAppointmentID + " / " + recur.Start + " converted to non-recurence appointment");
                                         }
@@ -379,34 +379,6 @@ namespace OutlookOffice
             }
         }
 
-        private Outlook.AppointmentItem AppointmentItemFind(string globalId, DateTime start)
-        {
-            try
-            {
-                string filter = "[Start] = '" + start.ToString("g") + "'";
-                log.LogVariable("Not Specified", nameof(filter), filter.ToString());
-
-                Outlook.MAPIFolder calendarFolder = GetCalendarFolder();
-                Outlook.Items calendarItemsAll = calendarFolder.Items;
-                calendarItemsAll.IncludeRecurrences = false;
-                Outlook.Items calendarItemsRes = calendarItemsAll.Restrict(filter);
-
-                foreach (Outlook.AppointmentItem item in calendarItemsRes)
-                    if (item.GlobalAppointmentID == globalId)
-                        return item;
-
-                foreach (Outlook.AppointmentItem item in calendarItemsAll)
-                    if (item.GlobalAppointmentID == globalId)
-                        return item;
-
-                throw new Exception(t.GetMethodName() + " failed. Due to no match found global id:" + globalId);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(t.GetMethodName() + " failed", ex);
-            }
-        }
-
         public void                 CalendarItemUpdate(Appointment appointment, WorkflowState workflowState, bool resetBody)
         {
             Outlook.AppointmentItem item = AppointmentItemFind(appointment.GlobalId, appointment.Start);
@@ -454,7 +426,7 @@ namespace OutlookOffice
 
             item.Save();
 
-            log.LogStandard("Not Specified", PrintAppointment(item) + " updated to " + workflowState.ToString());
+            log.LogStandard("Not Specified", AppointmentPrint(item) + " updated to " + workflowState.ToString());
         }
         #endregion
 
@@ -467,7 +439,7 @@ namespace OutlookOffice
             return dTime;
         }
 
-        private Appointment         CreateAppointment(Appointment appointment)
+        private Appointment         AppointmentCreate(Appointment appointment)
         {
             try
             {
@@ -501,7 +473,35 @@ namespace OutlookOffice
             }
         }
 
-        private string              PrintAppointment(Outlook.AppointmentItem appItem)
+        private Outlook.AppointmentItem AppointmentItemFind(string globalId, DateTime start)
+        {
+            try
+            {
+                string filter = "[Start] = '" + start.ToString("g") + "'";
+                log.LogVariable("Not Specified", nameof(filter), filter.ToString());
+
+                Outlook.MAPIFolder calendarFolder = GetCalendarFolder();
+                Outlook.Items calendarItemsAll = calendarFolder.Items;
+                calendarItemsAll.IncludeRecurrences = false;
+                Outlook.Items calendarItemsRes = calendarItemsAll.Restrict(filter);
+
+                foreach (Outlook.AppointmentItem item in calendarItemsRes)
+                    if (item.GlobalAppointmentID == globalId)
+                        return item;
+
+                foreach (Outlook.AppointmentItem item in calendarItemsAll)
+                    if (item.GlobalAppointmentID == globalId)
+                        return item;
+
+                throw new Exception(t.GetMethodName() + " failed. Due to no match found global id:" + globalId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(t.GetMethodName() + " failed", ex);
+            }
+        }
+
+        private string              AppointmentPrint(Outlook.AppointmentItem appItem)
         {
             return "GlobalId:" + appItem.GlobalAppointmentID + " / Start:" + appItem.Start + " / Title:" + appItem.Subject;
         }
@@ -604,13 +604,18 @@ namespace OutlookOffice
             }
         }
 
+        public bool                 UnitTest_ForceException(string exceptionType)
+        {
+            throw new NotImplementedException();
+        }
+
         private string              UnitTest_CalendarBody()
         {
             return
-                                            "TempLate# "+ "’Besked’"
-                    + Environment.NewLine + "Sites# "   + "’All’"
-                    + Environment.NewLine + "title# "   + "Outlook appointment eForm test"
-                    + Environment.NewLine + "info# "    + "Tekst fra Outlook appointment";
+                                            "TempLate# " + "’Besked’"
+                    + Environment.NewLine + "Sites# " + "’All’"
+                    + Environment.NewLine + "title# " + "Outlook appointment eForm test"
+                    + Environment.NewLine + "info# " + "Tekst fra Outlook appointment";
         }
     }
 }

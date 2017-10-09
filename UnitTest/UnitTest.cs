@@ -9,11 +9,14 @@ using System.Linq;
 
 using Xunit;
 using System.Threading;
+using OutlookOffice;
 
 namespace UnitTest
 {
     public class TestContext : IDisposable
     {
+        //
+
         string connectionStringLocal_SDK = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "Microting"        + ";Integrated Security=True";
         string connectionStringLocal_OUT = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "MicrotingOutlook" + ";Integrated Security=True";
 
@@ -84,11 +87,12 @@ namespace UnitTest
     public class UnitTest
     {
         #region var
-        eFormCore.Core coreSdk;
         Core coreOut;
-        eFormCore.CoreUnitTest core_UT;
+        CoreUnitTest coreOut_UT;
+        eFormCore.Core coreSdk;
+        eFormCore.CoreUnitTest coreSdk_UT;
         eFormSqlController.SqlController sqlConSdk;
-        SqlController sqlConOut;
+        SqlController sqlController;
         eFormCore.AdminTools adminTool;
         Tools t = new Tools();
 
@@ -113,22 +117,28 @@ namespace UnitTest
         #endregion
 
         #region prepare and teardown     
-        private void        TestPrepare(string testName, bool startSdk, bool startOut)
+        private void        TestPrepare(string testName, bool startOut, bool startSdk)
         {
             adminTool = new eFormCore.AdminTools(connectionStringSdk);
             string temp = adminTool.DbClear();
             if (temp != "")
                 throw new Exception("CleanUp failed (SDK)");
 
-            sqlConSdk = new eFormSqlController.SqlController(connectionStringSdk);
-            sqlConOut = new                    SqlController(connectionStringOut);
 
-            if (!sqlConOut.UnitTest_OutlookDatabaseClear())
+            sqlConSdk = new eFormSqlController.SqlController(connectionStringSdk);
+            sqlController = new                    SqlController(connectionStringOut);
+            sqlConSdk.UnitTest_TruncateTable(nameof(logs));
+            sqlConSdk.UnitTest_TruncateTable(nameof(log_exceptions));
+            sqlController.UnitTest_TruncateTable(nameof(logs));
+            sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+
+            if (!sqlController.UnitTest_OutlookDatabaseClear())
                 throw new Exception("CleanUp failed (Outlook)");
 
             coreSdk = new eFormCore.Core();
-            core_UT = new eFormCore.CoreUnitTest(coreSdk);
+            coreSdk_UT = new eFormCore.CoreUnitTest(coreSdk);
             coreOut = new Core();
+            coreOut_UT = new CoreUnitTest(coreOut);
 
             coreSdk.HandleNotificationNotFound += EventNotificationNotFound;
             coreSdk.HandleEventException += EventException;
@@ -144,15 +154,15 @@ namespace UnitTest
         {
             if (coreSdk != null)
                 if (coreSdk.Running())
-                    core_UT.Close();
+                    coreSdk_UT.Close();
 
             if (coreOut != null)
                 if (coreOut.Running())
-                    coreOut.Close();
+                    coreOut_UT.Close();
         }
         #endregion
 
-        #region - test 000x virtal basics
+        #region - test 000x - virtal basics
         [Fact]
         public void         Test000_Basics_1a_MustAlwaysPass()
         {
@@ -195,7 +205,7 @@ namespace UnitTest
             lock (_lockTest)
             {
                 //Arrange
-                TestPrepare(t.GetMethodName(), true, false);
+                TestPrepare(t.GetMethodName(), false, true);
                 bool checkValueA = true;
                 bool checkValueB = false;
 
@@ -214,7 +224,7 @@ namespace UnitTest
             lock (_lockTest)
             {
                 //Arrange
-                TestPrepare(t.GetMethodName(), false, true);
+                TestPrepare(t.GetMethodName(), true, false);
                 bool checkValueA = true;
                 bool checkValueB = false;
 
@@ -247,7 +257,7 @@ namespace UnitTest
         }
         #endregion
 
-        #region - test 001x core
+        #region - test 001x - core
         [Fact]
         public void         Test001_Core_1a_Start_WithNullExpection()
         {
@@ -418,7 +428,7 @@ namespace UnitTest
                 appointments checkValueB = new appointments();
 
                 //Act
-                checkValueB = sqlConOut.AppointmentsFind(null);
+                checkValueB = sqlController.AppointmentsFind(null);
 
                 //Assert
                 TestTeardown();
@@ -437,8 +447,8 @@ namespace UnitTest
                 int checkValueB = -1;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
-                checkValueB = sqlConOut.AppointmentsCreate(appoBase);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                checkValueB = sqlController.AppointmentsCreate(appoBase);
 
                 //Assert
                 TestTeardown();
@@ -457,9 +467,9 @@ namespace UnitTest
                 int checkValueB = -1;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
-                checkValueB = sqlConOut.AppointmentsCreate(appoBase);
-                checkValueB = sqlConOut.AppointmentsCreate(appoBase);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                checkValueB = sqlController.AppointmentsCreate(appoBase);
+                checkValueB = sqlController.AppointmentsCreate(appoBase);
 
                 //Assert
                 TestTeardown();
@@ -478,7 +488,7 @@ namespace UnitTest
                 bool checkValueB = true;
 
                 //Act
-                checkValueB = sqlConOut.AppointmentsCancel(null);
+                checkValueB = sqlController.AppointmentsCancel(null);
 
                 //Assert
                 TestTeardown();
@@ -497,8 +507,8 @@ namespace UnitTest
                 bool checkValueB = true;
 
                 //Act
-                sqlConOut.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead));
-                checkValueB = sqlConOut.AppointmentsCancel("no match");
+                sqlController.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead));
+                checkValueB = sqlController.AppointmentsCancel("no match");
 
                 //Assert
                 TestTeardown();
@@ -517,9 +527,9 @@ namespace UnitTest
                 bool checkValueB = false;
 
                 //Act
-                var temp = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
-                sqlConOut.AppointmentsCreate(temp);
-                checkValueB = sqlConOut.AppointmentsCancel("globalId");
+                var temp = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                sqlController.AppointmentsCreate(temp);
+                checkValueB = sqlController.AppointmentsCancel("globalId");
 
                 //Assert
                 TestTeardown();
@@ -538,7 +548,7 @@ namespace UnitTest
                 appointments checkValueB = new appointments();
 
                 //Act
-                checkValueB = sqlConOut.AppointmentsFind(null);
+                checkValueB = sqlController.AppointmentsFind(null);
 
                 //Assert
                 TestTeardown();
@@ -557,8 +567,8 @@ namespace UnitTest
                 string checkValueB = "Not the right reply";
 
                 //Act
-                sqlConOut.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead));
-                var match = sqlConOut.AppointmentsFind("globalId");
+                sqlController.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead));
+                var match = sqlController.AppointmentsFind("globalId");
                 checkValueB = match.location + " " + match.subject;
 
                 //Assert
@@ -597,9 +607,9 @@ namespace UnitTest
                 string checkValueB = "Not the right reply";
 
                 //Act
-                sqlConOut.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlConOut.LookupRead));
-                sqlConOut.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlConOut.LookupRead));
-                sqlConOut.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlConOut.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlController.LookupRead));
                 checkValueB = AppointmentsFindAll();
 
                 //Assert
@@ -619,15 +629,15 @@ namespace UnitTest
                 string checkValueB = "Not the right reply";
 
                 //Act
-                sqlConOut.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlConOut.LookupRead));
-                sqlConOut.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlConOut.LookupRead));
-                sqlConOut.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlConOut.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlController.LookupRead));
 
-                sqlConOut.AppointmentsUpdate("globalId1", WorkflowState.Created, null, "", "");
-                sqlConOut.AppointmentsUpdate("globalId2", WorkflowState.Created, null, "", "");
-                sqlConOut.AppointmentsUpdate("globalId3", WorkflowState.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId1", WorkflowState.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId2", WorkflowState.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId3", WorkflowState.Created, null, "", "");
 
-                sqlConOut.AppointmentsUpdate("globalId3", WorkflowState.Completed, null, "", "");
+                sqlController.AppointmentsUpdate("globalId3", WorkflowState.Completed, null, "", "");
 
                 checkValueB = AppointmentsFindAll();
 
@@ -650,28 +660,28 @@ namespace UnitTest
                 string checkValueB2 = "Not the right reply";
 
                 //Act
-                sqlConOut.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlConOut.LookupRead));
-                sqlConOut.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlConOut.LookupRead));
-                sqlConOut.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlConOut.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlController.LookupRead));
 
-                sqlConOut.AppointmentsUpdate("globalId1", WorkflowState.Created, null, "", "");
-                sqlConOut.AppointmentsUpdate("globalId2", WorkflowState.Created, null, "", "");
-                sqlConOut.AppointmentsUpdate("globalId3", WorkflowState.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId1", WorkflowState.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId2", WorkflowState.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId3", WorkflowState.Created, null, "", "");
 
-                sqlConOut.AppointmentsReflected("globalId1");
-                sqlConOut.AppointmentsReflected("globalId3");
+                sqlController.AppointmentsReflected("globalId1");
+                sqlController.AppointmentsReflected("globalId3");
 
                 checkValueB1 = AppointmentsFindAll();
 
-                sqlConOut.AppointmentsUpdate("globalId1", WorkflowState.Sent, null, "", "");
-                sqlConOut.AppointmentsUpdate("globalId2", WorkflowState.Retrived, null, "", "");
-                sqlConOut.AppointmentsUpdate("globalId3", WorkflowState.Canceled, null, "", "");
+                sqlController.AppointmentsUpdate("globalId1", WorkflowState.Sent, null, "", "");
+                sqlController.AppointmentsUpdate("globalId2", WorkflowState.Retrived, null, "", "");
+                sqlController.AppointmentsUpdate("globalId3", WorkflowState.Canceled, null, "", "");
 
-                sqlConOut.AppointmentsReflected("globalId1");
-                sqlConOut.AppointmentsReflected("globalId3");
-                sqlConOut.AppointmentsReflected("globalId3");
-                sqlConOut.AppointmentsReflected("globalId3");
-                sqlConOut.AppointmentsReflected("globalId3");
+                sqlController.AppointmentsReflected("globalId1");
+                sqlController.AppointmentsReflected("globalId3");
+                sqlController.AppointmentsReflected("globalId3");
+                sqlController.AppointmentsReflected("globalId3");
+                sqlController.AppointmentsReflected("globalId3");
 
                 checkValueB2 = AppointmentsFindAll();
 
@@ -698,10 +708,10 @@ namespace UnitTest
                 bool checkValueB4 = true;
 
                 //Act
-                checkValueB1 = sqlConOut.LookupCreateUpdate(null, null);
-                checkValueB2 = sqlConOut.LookupCreateUpdate("", null);
-                checkValueB3 = sqlConOut.LookupCreateUpdate(null, "");
-                checkValueB4 = sqlConOut.LookupCreateUpdate("", "");
+                checkValueB1 = sqlController.LookupCreateUpdate(null, null);
+                checkValueB2 = sqlController.LookupCreateUpdate("", null);
+                checkValueB3 = sqlController.LookupCreateUpdate(null, "");
+                checkValueB4 = sqlController.LookupCreateUpdate("", "");
 
                 //Assert
                 TestTeardown();
@@ -726,10 +736,10 @@ namespace UnitTest
                 bool checkValueB4 = false;
 
                 //Act
-                checkValueB1 = sqlConOut.LookupCreateUpdate("a", "1");
-                checkValueB2 = sqlConOut.LookupCreateUpdate("b", "2");
-                checkValueB3 = sqlConOut.LookupCreateUpdate("c", "3");
-                checkValueB4 = sqlConOut.LookupCreateUpdate("d", "4");
+                checkValueB1 = sqlController.LookupCreateUpdate("a", "1");
+                checkValueB2 = sqlController.LookupCreateUpdate("b", "2");
+                checkValueB3 = sqlController.LookupCreateUpdate("c", "3");
+                checkValueB4 = sqlController.LookupCreateUpdate("d", "4");
 
                 //Assert
                 TestTeardown();
@@ -762,15 +772,15 @@ namespace UnitTest
                 bool checkValueB9 = false;
 
                 //Act
-                checkValueB1 = sqlConOut.LookupCreateUpdate("a", "1");
-                checkValueB2 = sqlConOut.LookupCreateUpdate("b", "2");
-                checkValueB3 = sqlConOut.LookupCreateUpdate("c", "3");
-                checkValueB4 = sqlConOut.LookupCreateUpdate("c", "4");
-                checkValueB5 = sqlConOut.LookupCreateUpdate("b", "5");
-                checkValueB6 = sqlConOut.LookupCreateUpdate("d", "6");
-                checkValueB7 = sqlConOut.LookupCreateUpdate("", "4");
-                checkValueB8 = sqlConOut.LookupCreateUpdate("c", null);
-                checkValueB9 = sqlConOut.LookupCreateUpdate("c", "9");
+                checkValueB1 = sqlController.LookupCreateUpdate("a", "1");
+                checkValueB2 = sqlController.LookupCreateUpdate("b", "2");
+                checkValueB3 = sqlController.LookupCreateUpdate("c", "3");
+                checkValueB4 = sqlController.LookupCreateUpdate("c", "4");
+                checkValueB5 = sqlController.LookupCreateUpdate("b", "5");
+                checkValueB6 = sqlController.LookupCreateUpdate("d", "6");
+                checkValueB7 = sqlController.LookupCreateUpdate("", "4");
+                checkValueB8 = sqlController.LookupCreateUpdate("c", null);
+                checkValueB9 = sqlController.LookupCreateUpdate("c", "9");
 
                 //Assert
                 TestTeardown();
@@ -801,11 +811,11 @@ namespace UnitTest
                 string checkValueB2 = "";
 
                 //Act
-                sqlConOut.LookupCreateUpdate("Ab", "1A1b1k");
-                sqlConOut.LookupCreateUpdate("CD", "2C2d2m");
+                sqlController.LookupCreateUpdate("Ab", "1A1b1k");
+                sqlController.LookupCreateUpdate("CD", "2C2d2m");
 
-                checkValueB1 = sqlConOut.LookupRead("aB");
-                checkValueB2 = sqlConOut.LookupRead("Cd");
+                checkValueB1 = sqlController.LookupRead("aB");
+                checkValueB2 = sqlController.LookupRead("Cd");
 
                 //Assert
                 TestTeardown();
@@ -829,12 +839,12 @@ namespace UnitTest
                 string checkValueB = "";
 
                 //Act
-                sqlConOut.LookupCreateUpdate("Ab", "1A1b1k");
-                sqlConOut.LookupCreateUpdate("CD", "2C2d2m");
-                sqlConOut.LookupCreateUpdate("EF", "3e3F3k");
-                sqlConOut.LookupCreateUpdate("GH", "4G4H4m");
+                sqlController.LookupCreateUpdate("Ab", "1A1b1k");
+                sqlController.LookupCreateUpdate("CD", "2C2d2m");
+                sqlController.LookupCreateUpdate("EF", "3e3F3k");
+                sqlController.LookupCreateUpdate("GH", "4G4H4m");
 
-                var lst = sqlConOut.LookupReadAll();
+                var lst = sqlController.LookupReadAll();
 
                 foreach (var item in lst)
                     checkValueB += item.value;
@@ -856,22 +866,22 @@ namespace UnitTest
                 string checkValueB = "";
 
                 //Act
-                sqlConOut.LookupCreateUpdate("Ab", "1A1b1k");
-                sqlConOut.LookupCreateUpdate("CD", "2C2d2m");
-                sqlConOut.LookupCreateUpdate("EF", "3e3F3k");
-                sqlConOut.LookupCreateUpdate("GH", "4G4H4m");
+                sqlController.LookupCreateUpdate("Ab", "1A1b1k");
+                sqlController.LookupCreateUpdate("CD", "2C2d2m");
+                sqlController.LookupCreateUpdate("EF", "3e3F3k");
+                sqlController.LookupCreateUpdate("GH", "4G4H4m");
 
-                sqlConOut.LookupDelete("Cd");
-                sqlConOut.LookupDelete("gH");
+                sqlController.LookupDelete("Cd");
+                sqlController.LookupDelete("gH");
 
-                var lst = sqlConOut.LookupReadAll();
+                var lst = sqlController.LookupReadAll();
 
                 foreach (var item in lst)
                     checkValueB += item.value;
 
-                sqlConOut.LookupDelete("ef");
+                sqlController.LookupDelete("ef");
 
-                lst = sqlConOut.LookupReadAll();
+                lst = sqlController.LookupReadAll();
 
                 foreach (var item in lst)
                     checkValueB += item.value;
@@ -895,9 +905,9 @@ namespace UnitTest
                 int checkValueB = 1;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
-                sqlConOut.AppointmentsCreate(appoBase);
-                sqlConOut.SyncInteractionCase();
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                sqlController.AppointmentsCreate(appoBase);
+                sqlController.SyncInteractionCase();
 
                 //Assert
                 TestTeardown();
@@ -916,11 +926,11 @@ namespace UnitTest
                 bool checkValueB = false;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
-                int id = sqlConOut.AppointmentsCreate(appoBase);
-                var app = sqlConOut.AppointmentsFind("globalId");
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                int id = sqlController.AppointmentsCreate(appoBase);
+                var app = sqlController.AppointmentsFind("globalId");
 
-                checkValueB = sqlConOut.InteractionCaseCreate(app);
+                checkValueB = sqlController.InteractionCaseCreate(app);
 
                 //Assert
                 TestTeardown();
@@ -939,11 +949,11 @@ namespace UnitTest
                 bool checkValueB = false;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
-                int id = sqlConOut.AppointmentsCreate(appoBase);
-                var app = sqlConOut.AppointmentsFind("globalId");
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                int id = sqlController.AppointmentsCreate(appoBase);
+                var app = sqlController.AppointmentsFind("globalId");
 
-                checkValueB = sqlConOut.InteractionCaseCreate(app);
+                checkValueB = sqlController.InteractionCaseCreate(app);
                 //checkValueB = sqlConOut.InteractionCaseDelete(app); Lacks to fake a SDK sending, so it can be delete. Needs to make more test, for deletions for different stages
 
                 //Assert
@@ -963,11 +973,11 @@ namespace UnitTest
                 bool checkValueB = false;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlConOut.LookupRead);
-                int id = sqlConOut.AppointmentsCreate(appoBase);
-                var app = sqlConOut.AppointmentsFind("globalId");
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                int id = sqlController.AppointmentsCreate(appoBase);
+                var app = sqlController.AppointmentsFind("globalId");
 
-                checkValueB = sqlConOut.InteractionCaseCreate(app);
+                checkValueB = sqlController.InteractionCaseCreate(app);
                 //checkValueB = sqlConOut.InteractionCaseDelete(app); Lacks to fake a SDK sending, so it can be delete. Needs to make more test, for deletions for different stages
 
                 //Assert
@@ -1016,7 +1026,7 @@ namespace UnitTest
         #endregion
 
         #region - test 005x - sqlController (Settings)
-        //Not active, as would fuck up the stat of settings
+        //Not active, as would fuck up the stat of settings. Don't run unless settings stat is not improtant
         //[Fact]
         //public void         Test005_SqlController_1a_SettingCreateDefaults()
         //{
@@ -1060,6 +1070,7 @@ namespace UnitTest
         //}
 
         //Not active, as would fuck up the stat of settings
+
         [Fact]
         public void         Test005_SqlController_3a_SettingRead()
         {
@@ -1073,11 +1084,11 @@ namespace UnitTest
                 string checkValueB2 = "";
 
                 //Act
-                sqlConOut.SettingCreate(Settings.firstRunDone);
-                sqlConOut.SettingCreate(Settings.logLevel);
+                sqlController.SettingCreate(Settings.firstRunDone);
+                sqlController.SettingCreate(Settings.logLevel);
 
-                checkValueB1 = sqlConOut.SettingRead(Settings.firstRunDone);
-                checkValueB2 = sqlConOut.SettingRead(Settings.logLevel);
+                checkValueB1 = sqlController.SettingRead(Settings.firstRunDone);
+                checkValueB2 = sqlController.SettingRead(Settings.logLevel);
 
                 //Assert
                 TestTeardown();
@@ -1086,7 +1097,7 @@ namespace UnitTest
             }
         }
 
-        //Not active, as would fuck up the stat of settings
+        //Not active, as would fuck up the stat of settings. Don't run unless settings stat is not improtant
         //[Fact]
         //public void         Test005_SqlController_4a_SettingUpdate()
         //{       
@@ -1132,8 +1143,8 @@ namespace UnitTest
                 int checkValueB = -1;
 
                 //Act
-                sqlConOut.SettingCreateDefaults();
-                var temp = sqlConOut.SettingCheckAll();
+                sqlController.SettingCreateDefaults();
+                var temp = sqlController.SettingCheckAll();
                 checkValueB = temp.Count();
 
                 //Assert
@@ -1143,27 +1154,270 @@ namespace UnitTest
         }
         #endregion
 
+        #region - test 006x - outlookController
+        [Fact]
+        public void Test006_OutlookController_1a_CalendarItemConvertRecurrences()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA = "true";
+                string checkValueB = "";
+                IOutlookController oCon = new OutlookController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
+
+                //Act
+                bool response;
+                for (int i = 0; i < 10; i++)
+                    response = oCon.CalendarItemConvertRecurrences();                
+                checkValueB = "true";
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test006_OutlookController_2a_CalendarItemIntrepid()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                string checkValueA = "true";
+                string checkValueB = "";
+                IOutlookController oCon = new OutlookController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
+
+                //Act
+                bool response;
+                for (int i = 0; i < 10; i++)
+                    response = oCon.CalendarItemIntrepid();
+                checkValueB = "true";
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
+        [Fact]
+        public void Test006_OutlookController_3a_CalendarItemReflecting()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool? checkValueA1 = true;
+                bool? checkValueA2 = false;
+                bool? checkValueA3 = true;
+                bool? checkValueA4 = null;
+                bool? checkValueA5 = true;
+
+                bool? checkValueB1 = false;
+                bool? checkValueB2 = true;
+                bool? checkValueB3 = false;
+                bool? checkValueB4 = true;
+                bool? checkValueB5 = false;
+                IOutlookController oCon = new OutlookController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
+
+                //Act
+                checkValueB1 = oCon.CalendarItemReflecting(null);
+                checkValueB2 = oCon.CalendarItemReflecting("");
+                checkValueB3 = oCon.CalendarItemReflecting("pass");
+                try
+                {
+                    checkValueB4 = oCon.CalendarItemReflecting("throw new expection");
+                }
+                catch
+                {
+                    checkValueB4 = null;
+                }
+                checkValueB5 = oCon.CalendarItemReflecting("other");
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA1, checkValueB1);
+                Assert.Equal(checkValueA2, checkValueB2);
+                Assert.Equal(checkValueA3, checkValueB3);
+                Assert.Equal(checkValueA4, checkValueB4);
+                Assert.Equal(checkValueA5, checkValueB5);
+            }
+        }
+
+        [Fact]
+        public void Test006_OutlookController_4a_CalendarItemUpdate()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                TestPrepare(t.GetMethodName(), false, false);
+                bool checkValueA = true;
+                bool checkValueB = false;
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                IOutlookController oCon = new OutlookController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
+
+                //Act
+                oCon.CalendarItemUpdate(appoBase, WorkflowState.Processed, false);
+                oCon.CalendarItemUpdate(appoBase, WorkflowState.Processed, true);
+                oCon.CalendarItemUpdate(appoBase, WorkflowState.Created, false);
+                oCon.CalendarItemUpdate(appoBase, WorkflowState.Created, true);
+                oCon.CalendarItemUpdate(appoBase, WorkflowState.Failed_to_expection, false);
+                oCon.CalendarItemUpdate(appoBase, WorkflowState.Failed_to_intrepid, true);
+                checkValueB = true;
+
+                //Assert
+                TestTeardown();
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+        #endregion
+
+        #region - test 007x - core (Exception handling)
+        [Fact]
+        public void Test007_Core_1a_ExceptionHandling()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), true, false);
+            string checkValueA = "1:100000/100000/10000/0\r\n1:010000/010000/01000/0\r\n1:001000/001000/00100/0\r\n1:000100/000100/00010/0\r\n";
+            string checkValueB = "";
+      
+            //Act
+            try
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    coreOut.outlookController.UnitTest_ForceException("throw new Exception");
+
+                    checkValueB += WaitForRestart();
+                }
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA.Replace("\r", "").Replace("\n", ""), checkValueB.Replace("\r", "").Replace("\n", ""));
+        }
+
+        //[Fact]
+        public void Test007_Core_2a_DoubleExceptionHandling()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), false, true);
+            string checkValueA = "10:100000/100000/10000/0\r\n10:010000/010000/01000/0\r\n01:010000/010000/01000/0\r\n10:001000/001000/00100/0\r\n01:001000/001000/00100/0\r\n10:000100/000100/00010/0\r\n01:000100/000100/00010/0\r\n";
+            string checkValueB = "";
+
+            //Act
+            try
+            {
+                coreOut.outlookController.CalendarItemUpdate(null, WorkflowState.Failed_to_expection, false);
+
+                checkValueB += PrintLogLine();
+
+                sqlController.UnitTest_TruncateTable(nameof(logs));
+                sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+
+                for (int i = 0; i < 3; i++)
+                {
+                    coreOut.outlookController.CalendarItemReflecting("throw new Expection");
+
+                    checkValueB += PrintLogLine();
+                    sqlController.UnitTest_TruncateTable(nameof(logs));
+                    sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+
+                    coreOut.outlookController.CalendarItemReflecting("throw other Expection");
+
+                    checkValueB += PrintLogLine();
+                    sqlController.UnitTest_TruncateTable(nameof(logs));
+                    sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+                }
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA.Replace("\r", "").Replace("\n", ""), checkValueB.Replace("\r", "").Replace("\n", ""));
+        }
+
+        //[Fact]
+        public void Test007_Core_3a_FatalExceptionHandling()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), false, true);
+            string checkValueA = "1:100000/100000/10000/0\r\n1:010000/010000/01000/0\r\n1:010000/010000/01000/0\r\n1:001000/001000/00100/0\r\n1:001000/001000/00100/0\r\n1:000100/000100/00010/0\r\n1:000100/000100/00010/0\r\n2:000000/000020/00001/1\r\n";
+            string checkValueB = "";
+
+            //Act
+            try
+            {
+                #region core.CaseCreate(main1, null, siteId1);
+                for (int i = 0; i < 2; i++)
+                {
+                    coreOut.outlookController.CalendarItemReflecting("throw new expection");
+
+                    checkValueB += PrintLogLine();
+                    sqlController.UnitTest_TruncateTable(nameof(logs));
+                    sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+                }
+                #endregion
+
+                #region core.CaseCreate(main2, null, siteId1);
+                #endregion
+                #region core.CaseCreate(main1, null, siteId1);
+                for (int i = 0; i < 3; i++)
+                {
+                    coreOut.outlookController.CalendarItemReflecting("throw new expection");
+
+                    checkValueB += PrintLogLine();
+                    sqlController.UnitTest_TruncateTable(nameof(logs));
+                    sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+
+                    coreOut.outlookController.CalendarItemReflecting("throw new expection");
+
+                    checkValueB += PrintLogLine();
+                    sqlController.UnitTest_TruncateTable(nameof(logs));
+                    sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+                }
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA.Replace("\r", "").Replace("\n", ""), checkValueB.Replace("\r", "").Replace("\n", ""));
+        }
+        #endregion
+
         #region private
         private string      AppointmentsFindAll()
         {
             string returnValue = "";
 
-            if (sqlConOut.AppointmentsFindOne(0) != null)                                   returnValue += "0";
-            if (sqlConOut.AppointmentsFindOne(1) != null)                                   returnValue += "1";
-            if (sqlConOut.AppointmentsFindOne(2) != null)                                   returnValue += "2";
-            if (sqlConOut.AppointmentsFindOne(3) != null)                                   returnValue += "3";
-            if (sqlConOut.AppointmentsFindOne(4) != null)                                   returnValue += "4";
+            if (sqlController.AppointmentsFindOne(0) != null)                                   returnValue += "0";
+            if (sqlController.AppointmentsFindOne(1) != null)                                   returnValue += "1";
+            if (sqlController.AppointmentsFindOne(2) != null)                                   returnValue += "2";
+            if (sqlController.AppointmentsFindOne(3) != null)                                   returnValue += "3";
+            if (sqlController.AppointmentsFindOne(4) != null)                                   returnValue += "4";
 
-            if (sqlConOut.AppointmentsFindOne(WorkflowState.Canceled) != null)              returnValue += "Canceled";
-            if (sqlConOut.AppointmentsFindOne(WorkflowState.Completed) != null)             returnValue += "Completed";
-            if (sqlConOut.AppointmentsFindOne(WorkflowState.Created) != null)               returnValue += "Created";
-            if (sqlConOut.AppointmentsFindOne(WorkflowState.Failed_to_expection) != null)   returnValue += "Failed_to_expection";
-            if (sqlConOut.AppointmentsFindOne(WorkflowState.Failed_to_intrepid) != null)    returnValue += "Failed_to_intrepid";
-            if (sqlConOut.AppointmentsFindOne(WorkflowState.Planned) != null)               returnValue += "Planned";
-            if (sqlConOut.AppointmentsFindOne(WorkflowState.Processed) != null)             returnValue += "Processed";
-            if (sqlConOut.AppointmentsFindOne(WorkflowState.Retrived) != null)              returnValue += "Retrived";
-            if (sqlConOut.AppointmentsFindOne(WorkflowState.Revoked) != null)               returnValue += "Revoked";
-            if (sqlConOut.AppointmentsFindOne(WorkflowState.Sent) != null)                  returnValue += "Sent";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Canceled) != null)              returnValue += "Canceled";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Completed) != null)             returnValue += "Completed";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Created) != null)               returnValue += "Created";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Failed_to_expection) != null)   returnValue += "Failed_to_expection";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Failed_to_intrepid) != null)    returnValue += "Failed_to_intrepid";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Planned) != null)               returnValue += "Planned";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Processed) != null)             returnValue += "Processed";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Retrived) != null)              returnValue += "Retrived";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Revoked) != null)               returnValue += "Revoked";
+            if (sqlController.AppointmentsFindOne(WorkflowState.Sent) != null)                  returnValue += "Sent";
 
             return returnValue;
         }
@@ -1272,7 +1526,7 @@ namespace UnitTest
             if (checkUId != null)
                 sqlConSdk.CaseCreate(2, siteId1, microtingUId, checkUId, "", "", DateTime.Now);
 
-            core_UT.CaseComplet(microtingUId, checkUId, workerMUId, unitMUId);
+            coreSdk_UT.CaseComplet(microtingUId, checkUId, workerMUId, unitMUId);
         }
 
         private void        InteractionCaseComplet(int interactionCaseId)
@@ -1283,6 +1537,72 @@ namespace UnitTest
             {
                 CaseComplet(item.microting_uid, null);
             }
+        }
+
+        private string      WaitForRestart()
+        {
+            int count = 0;
+            while (count < 600)
+            {
+                if (PrintLogLine().Contains("1:"))
+                    break;
+                else
+                    Thread.Sleep(100);
+                count++;
+            }
+            if (count == 600)
+                throw new Exception("if (PrintLogLine().Contains(\"1:\")) failed 600 times");
+
+            Thread.Sleep(1000);
+
+            count = 0;
+            while (count < 600)
+            {
+                if (coreOut.Running())
+                    break;
+                else
+                    Thread.Sleep(100);
+                count++;
+            }
+            if (count == 600)
+                throw new Exception("if (coreOut.Running()) failed 600 times");
+
+            string rtrn = PrintLogLine();
+
+            sqlController.UnitTest_TruncateTable(nameof(logs));
+            sqlController.UnitTest_TruncateTable(nameof(log_exceptions));
+
+            return rtrn;
+        }
+
+        private string      PrintLogLine()
+        {
+            string str = "";
+            str += sqlController.UnitTest_FindLog(1000, "Exception as per request");
+            str += ":";
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountTried / Content:1");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountTried / Content:2");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountTried / Content:3");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountTried / Content:4");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountTried / Content:5");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountTried / Content:6");
+            str += "/";
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountMax / Content:1");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountMax / Content:2");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountMax / Content:3");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountMax / Content:4");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountMax / Content:5");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:sameExceptionCountMax / Content:6");
+            str += "/";
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:secondsDelay / Content:1");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:secondsDelay / Content:8");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:secondsDelay / Content:64");
+            str += sqlController.UnitTest_FindLog(1000, "Variable Name:secondsDelay / Content:512");
+            str += sqlController.UnitTest_FindLog(1000, "FatalExpection called for reason:'Restartfailed. Core failed to restart'");
+            str += "/";
+            str += sqlController.UnitTest_FindLog(1000, "Core triggered Exception event");
+            str += Environment.NewLine;
+            return str;
         }
 
         private string      LoadFil(string path)
@@ -1307,68 +1627,6 @@ namespace UnitTest
         #endregion
 
         #region events
-        public void EventCaseCreated(object sender, EventArgs args)
-        {
-            ////DOSOMETHING: changed to fit your wishes and needs 
-            //Case_Dto temp = (Case_Dto)sender;
-            //int siteId = temp.SiteId;
-            //string caseType = temp.CaseType;
-            //string caseUid = temp.CaseUId;
-            //string mUId = temp.MicrotingUId;
-            //string checkUId = temp.CheckUId;
-        }
-
-        public void EventCaseRetrived(object sender, EventArgs args)
-        {
-            ////DOSOMETHING: changed to fit your wishes and needs 
-            //Case_Dto temp = (Case_Dto)sender;
-            //int siteId = temp.SiteId;
-            //string caseType = temp.CaseType;
-            //string caseUid = temp.CaseUId;
-            //string mUId = temp.MicrotingUId;
-            //string checkUId = temp.CheckUId;
-        }
-
-        public void EventCaseCompleted(object sender, EventArgs args)
-        {
-            ////DOSOMETHING: changed to fit your wishes and needs
-            //Case_Dto temp = (Case_Dto)sender;
-            //int siteId = temp.SiteId;
-            //string caseType = temp.CaseType;
-            //string caseUid = temp.CaseUId;
-            //string mUId = temp.MicrotingUId;
-            //string checkUId = temp.CheckUId;
-        }
-
-        public void EventCaseDeleted(object sender, EventArgs args)
-        {
-            ////DOSOMETHING: changed to fit your wishes and needs
-            //Case_Dto temp = (Case_Dto)sender;
-            //int siteId = temp.SiteId;
-            //string caseType = temp.CaseType;
-            //string caseUid = temp.CaseUId;
-            //string mUId = temp.MicrotingUId;
-            //string checkUId = temp.CheckUId;
-        }
-
-        public void EventFileDownloaded(object sender, EventArgs args)
-        {
-            ////DOSOMETHING: changed to fit your wishes and needs 
-            //File_Dto temp = (File_Dto)sender;
-            //int siteId = temp.SiteId;
-            //string caseType = temp.CaseType;
-            //string caseUid = temp.CaseUId;
-            //string mUId = temp.MicrotingUId;
-            //string checkUId = temp.CheckUId;
-            //string fileLocation = temp.FileLocation;
-        }
-
-        public void EventSiteActivated(object sender, EventArgs args)
-        {
-            ////DOSOMETHING: changed to fit your wishes and needs 
-            //int siteId = int.Parse(sender.ToString());
-        }
-
         public void EventNotificationNotFound(object sender, EventArgs args)
         {
 

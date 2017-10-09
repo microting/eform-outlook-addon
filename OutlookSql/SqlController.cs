@@ -1067,7 +1067,7 @@ namespace OutlookSql
         #endregion
 
         #region unit test
-        public bool                 UnitTest_TruncateTable_Outlook(string tableName)
+        public bool                 UnitTest_TruncateTable(string tableName)
         {
             try
             {
@@ -1133,9 +1133,9 @@ namespace OutlookSql
             {
                 using (var db = GetContextM())
                 {
-                    UnitTest_TruncateTable_Outlook(typeof(appointment_versions).Name);
-                    UnitTest_TruncateTable_Outlook(typeof(appointments).Name);
-                    UnitTest_TruncateTable_Outlook(typeof(lookups).Name);
+                    UnitTest_TruncateTable(typeof(appointment_versions).Name);
+                    UnitTest_TruncateTable(typeof(appointments).Name);
+                    UnitTest_TruncateTable(typeof(lookups).Name);
 
                     return true;
                 }
@@ -1144,6 +1144,28 @@ namespace OutlookSql
             {
                 string str = ex.Message;
                 return false;
+            }
+        }
+
+        public int                  UnitTest_FindLog(int checkCount, string checkValue)
+        {
+            try
+            {
+                using (var db = GetContextO())
+                {
+                    List<logs> lst = db.logs.OrderByDescending(x => x.id).Take(checkCount).ToList();
+                    int count = 0;
+
+                    foreach (logs item in lst)
+                        if (item.message.Contains(checkValue))
+                            count++;
+
+                    return count;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("UnitTest_FindAllActiveEntities failed", ex);
             }
         }
         #endregion

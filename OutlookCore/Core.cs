@@ -43,9 +43,8 @@ namespace OutlookCore
 
         #region var
         SqlController sqlController;
-        IOutlookController outlookController;
         Tools t = new Tools();
-
+        public IOutlookController outlookController;
         public Log log;
 
         bool syncOutlookConvertRunning = false;
@@ -207,6 +206,10 @@ namespace OutlookCore
                             FatalExpection("Failed to close Core correct after 60 secs (coreRunning)", new Exception());
                     }
 
+                    syncOutlookConvertRunning = false;
+                    syncOutlookAppsRunning = false;
+                    syncInteractionCaseRunning = false;
+
                     log.LogStandard("Not Specified", "Core closed");
                     outlookController = null;
                     sqlController = null;
@@ -330,10 +333,7 @@ namespace OutlookCore
             }
             catch (Exception ex)
             {
-                syncOutlookConvertRunning = false;
-
-                if (Running())
-                    log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
             }
         }
 
@@ -360,7 +360,6 @@ namespace OutlookCore
             }
             catch (Exception ex)
             {
-                syncOutlookAppsRunning = false;
                 log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
             }
         }
@@ -385,7 +384,6 @@ namespace OutlookCore
             }
             catch (Exception ex)
             {
-                syncInteractionCaseRunning = false;
                 log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
             }
         }
@@ -425,8 +423,8 @@ namespace OutlookCore
 
                     at.RetractEforms();
 
-                    sqlController.UnitTest_TruncateTable_Outlook("appointment_versions");
-                    sqlController.UnitTest_TruncateTable_Outlook("appointments");
+                    sqlController.UnitTest_TruncateTable("appointment_versions");
+                    sqlController.UnitTest_TruncateTable("appointments");
                     sqlController.UnitTest_TruncateTable_Microting("a_interaction_case_lists");
                     sqlController.UnitTest_TruncateTable_Microting("a_interaction_cases");
                     sqlController.UnitTest_TruncateTable_Microting("notifications");

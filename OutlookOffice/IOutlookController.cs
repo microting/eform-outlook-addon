@@ -15,5 +15,7 @@ namespace OutlookOffice
         void CalendarItemUpdate(Appointment appointment, WorkflowState workflowState, bool resetBody);
 
         List<Appointment> UnitTest_CalendarItemGetAllNonRecurring(DateTime startPoint, DateTime endPoint);
+
+        bool UnitTest_ForceException(string exceptionType);
     }
 }

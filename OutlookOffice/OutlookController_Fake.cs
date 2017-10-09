@@ -17,6 +17,8 @@ namespace OutlookOffice
         Tools t = new Tools();
         object _lockOutlook = new object();
         Random rndm = new Random();
+
+        string forceException = "";
         #endregion
 
         #region con
@@ -45,6 +47,13 @@ namespace OutlookOffice
         {
             log.LogEverything("Unit test", t.GetMethodName() + " called");
 
+            if (forceException != "")
+            {
+                string exceptionString = forceException + ". Exception as per request";
+                forceException = "";
+                throw new Exception(exceptionString);
+            }
+
             int temp = rndm.Next(0, 2);
             if (temp == 2)
                 temp = 1;
@@ -58,6 +67,22 @@ namespace OutlookOffice
         {
             log.LogStandard("Unit test", t.GetMethodName() + " called");
             log.LogVariable("Unit test", (nameof(globalId)), globalId);
+
+            if (globalId == null)
+            {
+                int temp = rndm.Next(0, 2);
+                if (temp == 2)
+                    temp = 1;
+                bool flag = t.Bool(temp + "");
+
+                log.LogVariable("Unit test", nameof(flag), flag);
+                return flag;
+            }
+            if (globalId == "")
+                return false;
+            if (globalId == "throw new expection")
+                throw new Exception(t.GetMethodName() + " failed (Exception as per request)");
+
             return true;
         }
 
@@ -77,6 +102,12 @@ namespace OutlookOffice
         public List<Appointment>    UnitTest_CalendarItemGetAllNonRecurring(DateTime startPoint, DateTime endPoint)
         {
             return new List<Appointment>();
+        }
+
+        public bool                 UnitTest_ForceException(string exceptionType)
+        {
+            forceException = exceptionType;
+            return true;
         }
 
         private string              UnitTest_CalendarBody()
