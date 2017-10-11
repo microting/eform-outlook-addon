@@ -1297,7 +1297,11 @@ namespace UnitTest
 
             //Assert
             TestTeardown();
-            Assert.Equal(checkValueA.Replace("\r", "").Replace("\n", ""), checkValueB.Replace("\r", "").Replace("\n", ""));
+
+            checkValueA = checkValueA.Replace("\r", "").Replace("\n", "");
+            checkValueB = checkValueB.Replace("\r", "").Replace("\n", "");
+
+            Assert.Equal(checkValueA, checkValueB);
         }
 
         [Fact]
@@ -1330,7 +1334,11 @@ namespace UnitTest
 
             //Assert
             TestTeardown();
-            Assert.Equal(checkValueA.Replace("\r", "").Replace("\n", ""), checkValueB.Replace("\r", "").Replace("\n", ""));
+
+            checkValueA = checkValueA.Replace("\r", "").Replace("\n", "");
+            checkValueB = checkValueB.Replace("\r", "").Replace("\n", "");
+
+            Assert.Equal(checkValueA, checkValueB);
         }
 
         [Fact]
@@ -1372,7 +1380,11 @@ namespace UnitTest
 
             //Assert
             TestTeardown();
-            Assert.Equal(checkValueA.Replace("\r", "").Replace("\n", ""), checkValueB.Replace("\r", "").Replace("\n", ""));
+
+            checkValueA = checkValueA.Replace("\r", "").Replace("\n", "");
+            checkValueB = checkValueB.Replace("\r", "").Replace("\n", "");
+
+            Assert.Equal(checkValueA, checkValueB);
         }
         #endregion
 
