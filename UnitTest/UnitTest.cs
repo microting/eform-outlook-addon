@@ -17,7 +17,7 @@ namespace UnitTest
     {
         //
 
-        string connectionStringLocal_SDK = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "Microting" + ";Integrated Security=True";
+        string connectionStringLocal_SDK = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "Microting"        + ";Integrated Security=True";
         string connectionStringLocal_OUT = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "MicrotingOutlook" + ";Integrated Security=True";
 
         #region content
@@ -1207,13 +1207,13 @@ namespace UnitTest
             {
                 //Arrange
                 TestPrepare(t.GetMethodName(), false, false);
-                bool? checkValueA1 = true;
+                bool? checkValueA1 = null;
                 bool? checkValueA2 = false;
                 bool? checkValueA3 = true;
                 bool? checkValueA4 = null;
                 bool? checkValueA5 = true;
 
-                bool? checkValueB1 = false;
+                bool? checkValueB1 = null;
                 bool? checkValueB2 = true;
                 bool? checkValueB3 = false;
                 bool? checkValueB4 = true;
@@ -1236,7 +1236,7 @@ namespace UnitTest
 
                 //Assert
                 TestTeardown();
-                Assert.Equal(checkValueA1, checkValueB1);
+                Assert.NotEqual(checkValueA1, checkValueB1);
                 Assert.Equal(checkValueA2, checkValueB2);
                 Assert.Equal(checkValueA3, checkValueB3);
                 Assert.Equal(checkValueA4, checkValueB4);
