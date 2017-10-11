@@ -1276,10 +1276,18 @@ namespace UnitTest
         [Fact]
         public void Test007_Core_1a_ExceptionHandling()
         {
-            //Arrange
+            #region //Arrange
             TestPrepare(t.GetMethodName(), true, false);
-            string checkValueA = "1:100000/100000/10000/0\r\n1:010000/010000/01000/0\r\n1:001000/001000/00100/0\r\n1:000100/000100/00010/0\r\n";
-            string checkValueB = "";
+            string checkValueA1 = "1:100000/100000/10000/0";
+            string checkValueA2 = "1:010000/010000/01000/0";
+            string checkValueA3 = "1:001000/001000/00100/0";
+            string checkValueA4 = "1:000100/000100/00010/0";
+            string checkValueB1 = "";
+            string checkValueB2 = "";
+            string checkValueB3 = "";
+            string checkValueB4 = "";
+            string tempValue = "";
+            #endregion
 
             //Act
             try
@@ -1287,67 +1295,117 @@ namespace UnitTest
                 for (int i = 0; i < 4; i++)
                 {
                     coreOut.outlookController.UnitTest_ForceException("throw new Exception");
-                    checkValueB += WaitForRestart();
+                    tempValue += WaitForRestart();
                 }
             }
             catch (Exception ex)
             {
-                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+                tempValue = t.PrintException(t.GetMethodName() + " failed", ex);
             }
 
-            //Assert
+            #region //Assert
             TestTeardown();
 
-            checkValueA = checkValueA.Replace("\r", "").Replace("\n", "");
-            checkValueB = checkValueB.Replace("\r", "").Replace("\n", "");
+            tempValue = tempValue.Replace("\r", "").Replace("\n", "");
+            checkValueB1 = tempValue.Substring(0, 23);
+            checkValueB2 = tempValue.Substring(23, 23);
+            checkValueB3 = tempValue.Substring(46, 23);
+            checkValueB4 = tempValue.Substring(69, 23);
 
-            Assert.Equal(checkValueA, checkValueB);
+            Assert.Equal(checkValueA1, checkValueB1);
+            Assert.Equal(checkValueA2, checkValueB2);
+            Assert.Equal(checkValueA3, checkValueB3);
+            Assert.Equal(checkValueA4, checkValueB4);
+            #endregion
         }
 
         [Fact]
         public void Test007_Core_2a_DoubleExceptionHandling()
         {
-            //Arrange
+            #region //Arrange
             TestPrepare(t.GetMethodName(), true, false);
-            string checkValueA = "1:100000/100000/10000/0\r\n1:010000/010000/01000/0\r\n1:010000/010000/01000/0\r\n1:001000/001000/00100/0\r\n1:001000/001000/00100/0\r\n1:000100/000100/00010/0\r\n1:000100/000100/00010/0\r\n";
-            string checkValueB = "";
+            string checkValueA1 = "1:100000/100000/10000/0";
+            string checkValueA2 = "1:010000/010000/01000/0";
+            string checkValueA3 = "1:010000/010000/01000/0";
+            string checkValueA4 = "1:001000/001000/00100/0";
+            string checkValueA5 = "1:001000/001000/00100/0";
+            string checkValueA6 = "1:000100/000100/00010/0";
+            string checkValueA7 = "1:000100/000100/00010/0";
+            string checkValueB1 = "";
+            string checkValueB2 = "";
+            string checkValueB3 = "";
+            string checkValueB4 = "";
+            string checkValueB5 = "";
+            string checkValueB6 = "";
+            string checkValueB7 = "";
+            string tempValue = "";
+            #endregion
 
             //Act
             try
             {
                 coreOut.outlookController.UnitTest_ForceException("throw new Exception");
-                checkValueB += WaitForRestart();
+                tempValue += WaitForRestart();
 
                 for (int i = 0; i < 3; i++)
                 {
                     coreOut.outlookController.UnitTest_ForceException("throw new Exception");
-                    checkValueB += WaitForRestart();
+                    tempValue += WaitForRestart();
 
                     coreOut.outlookController.UnitTest_ForceException("throw other Exception");
-                    checkValueB += WaitForRestart();
+                    tempValue += WaitForRestart();
                 }
             }
             catch (Exception ex)
             {
-                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+                tempValue = t.PrintException(t.GetMethodName() + " failed", ex);
             }
 
-            //Assert
+            #region //Assert
             TestTeardown();
 
-            checkValueA = checkValueA.Replace("\r", "").Replace("\n", "");
-            checkValueB = checkValueB.Replace("\r", "").Replace("\n", "");
-
-            Assert.Equal(checkValueA, checkValueB);
+            tempValue = tempValue.Replace("\r", "").Replace("\n", "");
+            checkValueB1 = tempValue.Substring(0, 23);
+            checkValueB2 = tempValue.Substring(23, 23);
+            checkValueB3 = tempValue.Substring(46, 23);
+            checkValueB4 = tempValue.Substring(69, 23);
+            checkValueB5 = tempValue.Substring(92, 23);
+            checkValueB6 = tempValue.Substring(115, 23);
+            checkValueB7 = tempValue.Substring(138, 23);
+            
+            Assert.Equal(checkValueA1, checkValueB1);
+            Assert.Equal(checkValueA2, checkValueB2);
+            Assert.Equal(checkValueA3, checkValueB3);
+            Assert.Equal(checkValueA4, checkValueB4);
+            Assert.Equal(checkValueA5, checkValueB5);
+            Assert.Equal(checkValueA6, checkValueB6);
+            Assert.Equal(checkValueA7, checkValueB7);
+            #endregion
         }
 
         [Fact]
         public void Test007_Core_3a_FatalExceptionHandling()
         {
-            //Arrange
+            #region //Arrange
             TestPrepare(t.GetMethodName(), true, false);
-            string checkValueA = "1:100000/100000/10000/0\r\n1:010000/010000/01000/0\r\n1:010000/010000/01000/0\r\n1:001000/001000/00100/0\r\n1:001000/001000/00100/0\r\n1:000100/000100/00010/0\r\n1:000100/000100/00010/0\r\n2:000000/000020/00001/1\r\n";
-            string checkValueB = "";
+            string checkValueA1 = "1:100000/100000/10000/0";
+            string checkValueA2 = "1:010000/010000/01000/0";
+            string checkValueA3 = "1:010000/010000/01000/0";
+            string checkValueA4 = "1:001000/001000/00100/0";
+            string checkValueA5 = "1:001000/001000/00100/0";
+            string checkValueA6 = "1:000100/000100/00010/0";
+            string checkValueA7 = "1:000100/000100/00010/0";
+            string checkValueA8 = "2:000000/000020/00001/1";
+            string checkValueB1 = "";
+            string checkValueB2 = "";
+            string checkValueB3 = "";
+            string checkValueB4 = "";
+            string checkValueB5 = "";
+            string checkValueB6 = "";
+            string checkValueB7 = "";
+            string checkValueB8 = "";
+            string tempValue = "";
+            #endregion
 
             //Act
             try
@@ -1356,7 +1414,7 @@ namespace UnitTest
                 for (int i = 0; i < 2; i++)
                 {
                     coreOut.outlookController.UnitTest_ForceException("throw new Exception");
-                    checkValueB += WaitForRestart();
+                    tempValue += WaitForRestart();
                 }
                 #endregion
 
@@ -1366,25 +1424,40 @@ namespace UnitTest
                 for (int i = 0; i < 3; i++)
                 {
                     coreOut.outlookController.UnitTest_ForceException("throw other Exception");
-                    checkValueB += WaitForRestart();
+                    tempValue += WaitForRestart();
 
                     coreOut.outlookController.UnitTest_ForceException("throw new Exception");
-                    checkValueB += WaitForRestart();
+                    tempValue += WaitForRestart();
                 }
                 #endregion
             }
             catch (Exception ex)
             {
-                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+                tempValue = t.PrintException(t.GetMethodName() + " failed", ex);
             }
 
-            //Assert
+            #region //Assert
             TestTeardown();
 
-            checkValueA = checkValueA.Replace("\r", "").Replace("\n", "");
-            checkValueB = checkValueB.Replace("\r", "").Replace("\n", "");
-
-            Assert.Equal(checkValueA, checkValueB);
+            tempValue = tempValue.Replace("\r", "").Replace("\n", "");
+            checkValueB1 = tempValue.Substring(0, 23);
+            checkValueB2 = tempValue.Substring(23, 23);
+            checkValueB3 = tempValue.Substring(46, 23);
+            checkValueB4 = tempValue.Substring(69, 23);
+            checkValueB5 = tempValue.Substring(92, 23);
+            checkValueB6 = tempValue.Substring(115, 23);
+            checkValueB7 = tempValue.Substring(138, 23);
+            checkValueB8 = tempValue.Substring(161, 23);
+            
+            Assert.Equal(checkValueA1, checkValueB1);
+            Assert.Equal(checkValueA2, checkValueB2);
+            Assert.Equal(checkValueA3, checkValueB3);
+            Assert.Equal(checkValueA4, checkValueB4);
+            Assert.Equal(checkValueA5, checkValueB5);
+            Assert.Equal(checkValueA6, checkValueB6);
+            Assert.Equal(checkValueA7, checkValueB7);
+            Assert.Equal(checkValueA8, checkValueB8);
+            #endregion
         }
         #endregion
 
@@ -1535,7 +1608,7 @@ namespace UnitTest
             int count = 0;
             while (count < 600)
             {
-                if (PrintLogLine().Contains("1:"))
+                if (!PrintLogLine().Contains("0:"))
                     break;
 
                 Thread.Sleep(100);
