@@ -523,20 +523,36 @@ namespace OutlookOffice
 
         private Outlook.MAPIFolder  GetCalendarFolder()
         {
+            log.LogStandard("Not Specified", "GetCalendarFolder called");
             if (calendarName == sqlController.SettingRead(Settings.calendarName))
+            {
+                log.LogStandard("Not Specified", "calendarName is :" + calendarName);
                 return calendarFolder;
+            }
             else
             {
+                log.LogStandard("Not Specified", "GetCalendarFolder called else");
                 calendarName = sqlController.SettingRead(Settings.calendarName);
+                log.LogStandard("Not Specified", "else calendarName is :" + calendarName);
 
                 Outlook.Application oApp = new Outlook.Application();
+                log.LogStandard("Not Specified", "GetCalendarFolder called oApp");
                 Outlook.NameSpace mapiNamespace = oApp.GetNamespace("MAPI");
-                Outlook.MAPIFolder oDefault = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox).Parent;
+                log.LogStandard("Not Specified", "GetCalendarFolder called mapiNamespace");
+                Outlook.MAPIFolder oDefault = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
+                log.LogStandard("Not Specified", "GetCalendarFolder called oDefault");
 
                 try
                 {
+                    log.LogStandard("Not Specified", "GetCalendarFolder called try 548");
                     calendarFolder = GetCalendarFolderByName(oDefault.Folders, calendarName);
+                    log.LogStandard("Not Specified", "GetCalendarFolder called try 550");
 
+                    if (calendarFolder == null) {
+                        log.LogStandard("Not Specified", "GetCalendarFolderByName called");
+                        calendarFolder = GetCalendarFolderByName(mapiNamespace.Folders, calendarName);
+                    }
+                    
                     if (calendarFolder == null)
                         throw new Exception(t.GetMethodName() + " failed, for calendarName:'" + calendarName + "'. No such calendar found");
                 }
@@ -551,8 +567,10 @@ namespace OutlookOffice
 
         private Outlook.MAPIFolder  GetCalendarFolderByName(Outlook._Folders folder, string name)
         {
+            log.LogStandard("Not Specified", "GetCalendarFolderByName called");
             foreach (Outlook.MAPIFolder Folder in folder)
             {
+                log.LogStandard("Not Specified", "current folder is : " + Folder.Name);
                 if (Folder.Name == name)
                     return Folder;
                 else
