@@ -17,8 +17,8 @@ namespace UnitTest
     {
         //
 
-        string connectionStringLocal_SDK = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "Microting"        + ";Integrated Security=True";
-        string connectionStringLocal_OUT = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "Outlook_UnitTest_" + "MicrotingOutlook" + ";Integrated Security=True";
+        string connectionStringLocal_SDK = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "UnitTest_Outlook_" + "Microting"        + ";Integrated Security=True";
+        string connectionStringLocal_OUT = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "UnitTest_Outlook_" + "MicrotingOutlook" + ";Integrated Security=True";
 
         #region content
         #region var
@@ -34,8 +34,8 @@ namespace UnitTest
             {
                 if (Environment.MachineName.ToLower().Contains("testing"))
                 {
-                    serverConnectionString_SDK = "Persist Security Info=True;server=localhost;database=" + "OutlookUnitTest_" + "Microting" + ";uid=root;password="; //Uses travis database
-                    serverConnectionString_OUT = "Persist Security Info=True;server=localhost;database=" + "OutlookUnitTest_" + "MicrotingOutlook" + ";uid=root;password="; //Uses travis database
+                    serverConnectionString_SDK = "Persist Security Info=True;server=localhost;database=" + "UnitTest_Outlook_" + "Microting"        + ";uid=root;password="; //Uses travis database
+                    serverConnectionString_OUT = "Persist Security Info=True;server=localhost;database=" + "UnitTest_Outlook_" + "MicrotingOutlook" + ";uid=root;password="; //Uses travis database
                 }
                 else
                 {
@@ -162,6 +162,22 @@ namespace UnitTest
         #endregion
 
         #region - test 000x - virtal basics
+        [Fact]
+        public void Test000_Basics_0a_EnvironmentMachineName()
+        {
+            lock (_lockTest)
+            {
+                //Arrange
+                string checkValueA = "";
+                string checkValueB = Environment.MachineName;
+
+                //Act
+
+                //Assert
+                Assert.Equal(checkValueA, checkValueB);
+            }
+        }
+
         [Fact]
         public void Test000_Basics_1a_MustAlwaysPass()
         {
