@@ -106,6 +106,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="UnitTest2.cs" />
     <Compile Include="UnitTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
