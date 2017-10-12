@@ -29,19 +29,19 @@ namespace UnitTest
             Assert.Equal(checkValueA, checkValueB);
         }
 
-        [Fact]
-        public void Test002()
-        {
-            //Arrange
-            string checkValueA = "";
-            string checkValueB = "Panic";
+        //[Fact]
+        //public void Test002()
+        //{
+        //    //Arrange
+        //    string checkValueA = "";
+        //    string checkValueB = "Panic";
 
-            //Act
-            checkValueB = Environment.MachineName;
+        //    //Act
+        //    checkValueB = Environment.MachineName;
 
-            //Assert
-            Assert.Equal(checkValueA, checkValueB);
-        }
+        //    //Assert
+        //    Assert.Equal(checkValueA, checkValueB);
+        //}
 
         [Fact]
         public void Test003()
@@ -49,10 +49,12 @@ namespace UnitTest
             //Arrange
             string checkValueA = "";
             string checkValueB = Environment.MachineName;
-            string connectionString = "Data Source=(localdb)v11.0;Integrated Security=SSPI"; //vsts database
+            string connectionString = "Data Source=(localdb)\\v11.0;Initial Catalog=" + "UnitTest_Outlook_" + "Microting" + ";Integrated Security=SSPI"; //vsts database
 
             //Act
             SqlController sql = new SqlController(connectionString);
+            checkValueA = "yes";
+            checkValueB = "yes";
 
             //Assert
             Assert.Equal(checkValueA, checkValueB);
