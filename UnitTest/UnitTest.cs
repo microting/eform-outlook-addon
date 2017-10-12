@@ -32,7 +32,7 @@ namespace UnitTest
         {
             try
             {
-                if (Environment.MachineName.ToLower().Contains("testing"))
+                if (Environment.MachineName.ToLower().Contains("testing") || Environment.MachineName.ToLower().Contains("travis"))
                 {
                     serverConnectionString_SDK = "Persist Security Info=True;server=localhost;database=" + "UnitTest_Outlook_" + "Microting"        + ";uid=root;password="; //Uses travis database
                     serverConnectionString_OUT = "Persist Security Info=True;server=localhost;database=" + "UnitTest_Outlook_" + "MicrotingOutlook" + ";uid=root;password="; //Uses travis database
