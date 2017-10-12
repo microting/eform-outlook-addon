@@ -49,7 +49,7 @@ namespace UnitTest
             //Arrange
             string checkValueA = "";
             string checkValueB = Environment.MachineName;
-            string connectionString = "Data Source=(localdb)\\v12.0;Initial Catalog=" + "UnitTest_Outlook_" + "Microting" + ";Integrated Security=True"; //vsts database
+            string connectionString = "Data Source=(localdb)v11.0;Integrated Security=SSPI"; //vsts database
 
             //Act
             SqlController sql = new SqlController(connectionString);
