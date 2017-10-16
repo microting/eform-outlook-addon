@@ -139,7 +139,12 @@ namespace OutlookSql
                     newAppo.title = appointment.Title;
                     newAppo.description = appointment.Description;
                     newAppo.color_rule = t.Bool(appointment.ColorRule);
-                    newAppo.workflow_state = "Processed";
+                    #region                     newAppo.workflow_state = ...;
+                    if (appointment.GlobalId != "Appointment requested to be created")
+                        newAppo.workflow_state = "Processed";
+                    else
+                        newAppo.workflow_state = "Pre_created";
+                    #endregion
                     newAppo.created_at = DateTime.Now;
                     newAppo.updated_at = DateTime.Now;
                     newAppo.version = 1;
@@ -305,6 +310,39 @@ namespace OutlookSql
                     db.SaveChanges();
 
                     db.appointment_versions.Add(MapAppointmentVersions(match));
+                    db.SaveChanges();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                return false;
+            }
+        }
+
+        public bool                 AppointmentsDelete(int id)
+        {
+            try
+            {
+                using (var db = GetContextO())
+                {
+                    //WARNING - not like others
+
+                    var match = db.appointments.SingleOrDefault(x => x.id == id);
+
+                    if (match == null)
+                        return false;
+
+                    match.updated_at = DateTime.Now;
+                    match.workflow_state = "removed";
+                    match.version = match.version + 1;
+
+                    db.appointment_versions.Add(MapAppointmentVersions(match));
+                    db.SaveChanges();
+
+                    db.appointments.Remove(match);
                     db.SaveChanges();
 
                     return true;

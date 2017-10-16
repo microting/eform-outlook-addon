@@ -15,19 +15,19 @@ namespace UnitTest
 {
     public class UnitTest2
     {
-        [Fact]
-        public void Test001()
-        {
-            //Arrange
-            bool checkValueA = true;
-            bool checkValueB = false;
+        //[Fact]
+        //public void Test001()
+        //{
+        //    //Arrange
+        //    bool checkValueA = true;
+        //    bool checkValueB = false;
 
-            //Act
-            checkValueB = true;
+        //    //Act
+        //    checkValueB = true;
 
-            //Assert
-            Assert.Equal(checkValueA, checkValueB);
-        }
+        //    //Assert
+        //    Assert.Equal(checkValueA, checkValueB);
+        //}
 
         //[Fact]
         //public void Test002()
@@ -43,21 +43,21 @@ namespace UnitTest
         //    Assert.Equal(checkValueA, checkValueB);
         //}
 
-        [Fact]
-        public void Test003()
-        {
-            //Arrange
-            string checkValueA = "";
-            string checkValueB = Environment.MachineName;
-            string connectionString = "Data Source=(localdb)\\v11.0;Initial Catalog=" + "UnitTest_Outlook_" + "Microting" + ";Integrated Security=SSPI"; //vsts database
+        //[Fact]
+        //public void Test003()
+        //{
+        //    //Arrange
+        //    string checkValueA = "";
+        //    string checkValueB = Environment.MachineName;
+        //    string connectionString = "Data Source=(localdb)\\v11.0;Initial Catalog=" + "UnitTest_Outlook_" + "Microting" + ";Integrated Security=SSPI"; //vsts database
 
-            //Act
-            SqlController sql = new SqlController(connectionString);
-            checkValueA = "yes";
-            checkValueB = "yes";
+        //    //Act
+        //    SqlController sql = new SqlController(connectionString);
+        //    checkValueA = "yes";
+        //    checkValueB = "yes";
 
-            //Assert
-            Assert.Equal(checkValueA, checkValueB);
-        }
+        //    //Assert
+        //    Assert.Equal(checkValueA, checkValueB);
+        //}
     }
 }

@@ -252,6 +252,94 @@ namespace OutlookCore
         }
         #endregion
 
+        /// <summary>
+        /// IMPORTANT: templateId, sites, startTime, duration, outlookTitle and eFormConnected are mandatory. Rest are optional, and should be passed 'null' if not wanted to use
+        /// </summary>
+        public bool             AppointmentCreate(int templateId, List<int> sites, DateTime startTime, int duration,
+            string outlookTitle, string outlookCommentary, bool? outlookColorRuleOverride, 
+            bool eFormConnected, string eFormTitle, string eFormDescription, string eFormInfo, int? eFormDaysToExpire, List<string> eFormReplacements)
+        {
+            try
+            {
+                #region needed
+                if (templateId < 1)
+                    throw new ArgumentException("templateId needs to be minimum 1");
+
+                if (sites == null)
+                    throw new ArgumentException("sites needs to be not null");
+                if (sites.Count < 1)
+                    throw new ArgumentException("sites.Count needs to be minimum 1");
+
+                //---
+
+                string globalId = "Appointment requested to be created" + " - uid:" + t.GetRandomInt(8);
+
+                if (startTime == null)
+                    throw new ArgumentException("startTime needs to be not null");
+                if (startTime < DateTime.Now)
+                    throw new ArgumentException("startTime needs to be a future DateTime");
+
+                if (duration < 1)
+                    throw new ArgumentException("duration needs to be minimum 1");
+
+                if (string.IsNullOrWhiteSpace(outlookTitle))
+                    throw new ArgumentException("outlookTitle needs to be not empty");
+
+                if (eFormDaysToExpire != null)
+                    if (eFormDaysToExpire < 1)
+                        throw new ArgumentException("eFormDaysToExpire needs to be minimum 1");
+
+                if (eFormReplacements != null)
+                    foreach (var item in eFormReplacements)
+                        if (!item.Contains("=="))
+                            throw new ArgumentException("All eFormReplacements needs to contain '=='");
+                #endregion
+
+                #region body = ...
+                string body = "Template# " + templateId + Environment.NewLine + "Sites# " + string.Join(",", sites);
+
+
+                if (!string.IsNullOrWhiteSpace(outlookCommentary))
+                    body = outlookCommentary + Environment.NewLine + Environment.NewLine + body;
+
+                if (!string.IsNullOrWhiteSpace(eFormTitle))
+                    body = body + Environment.NewLine + Environment.NewLine + "Title# "         + eFormTitle;
+
+                if (!string.IsNullOrWhiteSpace(eFormDescription))
+                    body = body + Environment.NewLine + Environment.NewLine + "Description# "   + eFormDescription;
+
+                if (!string.IsNullOrWhiteSpace(eFormInfo))
+                    body = body + Environment.NewLine + Environment.NewLine + "Info# "          + eFormInfo;
+
+                if (eFormDaysToExpire != null)
+                    body = body + Environment.NewLine + Environment.NewLine + "Expire# "        + eFormDaysToExpire;
+
+                if (false)
+                {
+                    body = body + Environment.NewLine + Environment.NewLine + eFormReplacements; //MISSING
+                }
+                #endregion
+
+                #region colorRule
+                bool colorRule;
+                if (outlookColorRuleOverride != null)
+                    colorRule = (bool)outlookColorRuleOverride;
+                else
+                    colorRule = t.Bool(sqlController.SettingRead(Settings.colorsRule));
+                #endregion
+
+                Appointment appo = new Appointment(globalId, startTime, duration, outlookTitle, "Planned", body, colorRule, false, null);
+                if (sqlController.AppointmentsCreate(appo) == 1)
+                    return true;
+                else
+                    return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #region intrepidation threads
         private void            CoreThread()
         {

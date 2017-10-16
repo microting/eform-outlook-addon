@@ -92,8 +92,9 @@ namespace OutlookOffice
 
                                         try
                                         {
-                                            Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false, sqlController.LookupRead);
-                                            appo_Dto = AppointmentCreate(appo_Dto);
+//                                            Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false, sqlController.LookupRead);
+//                                            appo_Dto = CalendarItemCreate(recur.Location, recur.Start, item.Duration, recur.Subject, recur.Body);
+                                            CalendarItemCreate(recur.Location, recur.Start, item.Duration, recur.Subject, recur.Body);
                                             recur.Delete();
                                             log.LogStandard("Not Specified", recur.GlobalAppointmentID + " / " + recur.Start + " converted to non-recurence appointment");
                                         }
@@ -291,6 +292,22 @@ namespace OutlookOffice
                 if (appointment == null)
                     return false;
                 #endregion
+
+                #region if Outlook SDK requested to create a new appointment in the calendar
+                if (appointment.global_id.Contains("Appointment requested to be created"))
+                {
+                    CalendarItemCreate(appointment.location, (DateTime)appointment.start_at, (int)appointment.duration, appointment.subject, appointment.body);
+                    log.LogCritical("Not Specified", "CalendarItemCreate(d)");
+
+                    bool response = sqlController.AppointmentsDelete(appointment.id);
+                    if (response)
+                        log.LogCritical("Not Specified", "sqlController.AppointmentsDelete(d)");
+                    else
+                        log.LogWarning("Not Specified", "sqlController.AppointmentsDelete failed to delete the entry");
+                    return true;
+                }
+                #endregion
+
                 Outlook.AppointmentItem item = AppointmentItemFind(appointment.global_id, appointment.start_at.Value);
 
                 item.Location = appointment.workflow_state;
@@ -379,6 +396,40 @@ namespace OutlookOffice
             }
         }
 
+        public Appointment          CalendarItemCreate(string location, DateTime start, int duration, string subject, string body)
+        {
+            try
+            {
+                Outlook.Application outlookApp = new Outlook.Application();                                                             // creates new outlook app
+                Outlook.AppointmentItem newAppo = (Outlook.AppointmentItem)outlookApp.CreateItem(Outlook.OlItemType.olAppointmentItem); // creates a new appointment
+
+                newAppo.AllDayEvent = false;
+                newAppo.ReminderSet = false;
+
+                newAppo.Location = location;
+                newAppo.Start = start;
+                newAppo.Duration = duration;
+                newAppo.Subject = subject;
+                newAppo.Body = body;
+
+                newAppo.Save();
+                Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
+
+                Outlook.MAPIFolder calendarFolderDestination = GetCalendarFolder();
+                Outlook.NameSpace mapiNamespace = outlookApp.GetNamespace("MAPI");
+                Outlook.MAPIFolder oDefault = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
+
+                if (calendarFolderDestination.Name != oDefault.Name)
+                    newAppo.Move(calendarFolderDestination);
+
+                return returnAppo;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("The following error occurred: " + ex.Message);
+            }
+        }
+
         public void                 CalendarItemUpdate(Appointment appointment, WorkflowState workflowState, bool resetBody)
         {
             Outlook.AppointmentItem item = AppointmentItemFind(appointment.GlobalId, appointment.Start);
@@ -437,40 +488,6 @@ namespace OutlookOffice
             dTime = new DateTime(dTime.Year, dTime.Month, dTime.Day, dTime.Hour, 0, 0);
             log.LogVariable("Not Specified", nameof(dTime), dTime);
             return dTime;
-        }
-
-        private Appointment         AppointmentCreate(Appointment appointment)
-        {
-            try
-            {
-                Outlook.Application outlookApp = new Outlook.Application(); // creates new outlook app
-                Outlook.AppointmentItem newAppo = (Outlook.AppointmentItem)outlookApp.CreateItem(Outlook.OlItemType.olAppointmentItem); // creates a new appointment
-
-                newAppo.AllDayEvent = false;
-                newAppo.ReminderSet = false;
-
-                newAppo.Location = appointment.Location;
-                newAppo.Start = appointment.Start;
-                newAppo.Duration = appointment.Duration;
-                newAppo.Subject = appointment.Subject;
-                newAppo.Body = appointment.Body;
-
-                newAppo.Save();
-                Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
-
-                Outlook.MAPIFolder calendarFolderDestination = GetCalendarFolder();
-                Outlook.NameSpace mapiNamespace = outlookApp.GetNamespace("MAPI");
-                Outlook.MAPIFolder oDefault = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
-
-                if (calendarFolderDestination.Name != oDefault.Name)
-                    newAppo.Move(calendarFolderDestination);
-
-                return returnAppo;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("The following error occurred: " + ex.Message);
-            }
         }
 
         private Outlook.AppointmentItem AppointmentItemFind(string globalId, DateTime start)
@@ -586,6 +603,7 @@ namespace OutlookOffice
         }
         #endregion
 
+        #region unit test
         public List<Appointment>    UnitTest_CalendarItemGetAllNonRecurring(DateTime startPoint, DateTime endPoint)
         {
             try
@@ -635,5 +653,6 @@ namespace OutlookOffice
                     + Environment.NewLine + "title# " + "Outlook appointment eForm test"
                     + Environment.NewLine + "info# " + "Tekst fra Outlook appointment";
         }
+        #endregion
     }
 }
