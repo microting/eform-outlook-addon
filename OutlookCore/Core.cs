@@ -296,35 +296,41 @@ namespace OutlookCore
                 #endregion
 
                 #region body = ...
-                string body = "Template# " + templateId + Environment.NewLine + "Sites# " + string.Join(",", sites);
+                string body = "";
 
                 if (!string.IsNullOrWhiteSpace(outlookCommentary))
-                    body = outlookCommentary + Environment.NewLine + Environment.NewLine + body;
+                    body = outlookCommentary + Environment.NewLine + Environment.NewLine;
+
+                if (true)
+                    body = body                     + "Template# "      + templateId 
+                    + Environment.NewLine           + "Sites# "         + string.Join(",", sites)
+                    + Environment.NewLine;
 
                 if (!string.IsNullOrWhiteSpace(eFormTitle))
-                    body = body + Environment.NewLine + Environment.NewLine + "Title# "         + eFormTitle;
+                    body +=     Environment.NewLine + "Title# "         + eFormTitle;
 
                 if (!string.IsNullOrWhiteSpace(eFormDescription))
-                    body = body + Environment.NewLine + Environment.NewLine + "Description# "   + eFormDescription;
+                    body +=     Environment.NewLine + "Description# "   + eFormDescription;
 
                 if (!string.IsNullOrWhiteSpace(eFormInfo))
-                    body = body + Environment.NewLine + Environment.NewLine + "Info# "          + eFormInfo;
+                    body +=     Environment.NewLine + "Info# "          + eFormInfo;
+
+                if (eFormConnected)
+                    body +=     Environment.NewLine + "Connected# "     + eFormConnected;
 
                 if (eFormDaysToExpire != null)
-                    body = body + Environment.NewLine + Environment.NewLine + "Expire# "        + eFormDaysToExpire;
+                    body +=     Environment.NewLine + "Expire# "        + eFormDaysToExpire;
 
-                if (false)
-                {
-                    body = body + Environment.NewLine + Environment.NewLine + eFormReplacements; //MISSING
-                }
-                #endregion
-
-                #region colorRule
-                bool colorRule;
+                bool colorRule = t.Bool(sqlController.SettingRead(Settings.colorsRule));
                 if (outlookColorRuleOverride != null)
+                {
                     colorRule = (bool)outlookColorRuleOverride;
-                else
-                    colorRule = t.Bool(sqlController.SettingRead(Settings.colorsRule));
+                    body +=     Environment.NewLine + "Color# "         + colorRule.ToString();
+                }
+            
+                if (eFormReplacements.Count > 0)
+                    foreach (var replacement in eFormReplacements)
+                        body += Environment.NewLine + "Replacements# "  + replacement;
                 #endregion
 
                 Appointment appo = new Appointment(globalId, startTime, duration, outlookTitle, "Planned", body, colorRule, false, null);
