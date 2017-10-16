@@ -62,5 +62,27 @@ namespace OutlookSql
         public string response { get; set; }
 
         public short? color_rule { get; set; }
+
+        public override string ToString()
+        {
+            string globalId = "";
+            string start = "";
+            string _title = "";
+            string _location = "";
+
+            if (global_id != null)
+                globalId = global_id;
+
+            if (start_at != null)
+                start = start_at.ToString();
+
+            if (title != null)
+                _title = title;
+
+            if (location != null)
+                _location = location;
+
+            return "GlobalId:" + globalId + " / Start:" + start + " / Title:" + _title + " / Location:" + _location;
+        }
     }
 }

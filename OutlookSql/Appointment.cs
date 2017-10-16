@@ -179,7 +179,13 @@ namespace OutlookSql
                     check = "description#";
                     if (input.Contains(check))
                     {
-                        Description = line.Remove(0, check.Length).Trim();
+                        string temp = line.Remove(0, check.Length).Trim();
+
+                        if (Description == "")
+                            Description = temp;
+                        else
+                            Description += "<br>" + temp;
+
                         continue;
                     }
 

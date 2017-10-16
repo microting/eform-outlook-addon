@@ -140,10 +140,10 @@ namespace OutlookSql
                     newAppo.description = appointment.Description;
                     newAppo.color_rule = t.Bool(appointment.ColorRule);
                     #region                     newAppo.workflow_state = ...;
-                    if (appointment.GlobalId != "Appointment requested to be created")
-                        newAppo.workflow_state = "Processed";
-                    else
+                    if (appointment.GlobalId.Contains("Appointment requested to be created"))
                         newAppo.workflow_state = "Pre_created";
+                    else
+                        newAppo.workflow_state = "Processed";
                     #endregion
                     newAppo.created_at = DateTime.Now;
                     newAppo.updated_at = DateTime.Now;
@@ -336,7 +336,7 @@ namespace OutlookSql
                         return false;
 
                     match.updated_at = DateTime.Now;
-                    match.workflow_state = "removed";
+                    match.workflow_state = "Removed";
                     match.version = match.version + 1;
 
                     db.appointment_versions.Add(MapAppointmentVersions(match));

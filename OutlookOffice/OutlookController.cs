@@ -79,21 +79,16 @@ namespace OutlookOffice
                                 startPoint = startPoint.AddMonths(1);
                             while (startPoint.AddDays(1) <= tLimitFrom)
                                 startPoint = startPoint.AddDays(1);
-
                             log.LogVariable("Not Specified", nameof(startPoint), startPoint);
 
                             for (DateTime testPoint = RoundTime(startPoint); testPoint <= tLimitTo; testPoint = testPoint.AddMinutes(checkEvery_Mins)) //KEY POINT
-                            {
                                 if (testPoint >= tLimitFrom)
-                                {
                                     try
                                     {
                                         recur = rp.GetOccurrence(testPoint);
 
                                         try
                                         {
-//                                            Appointment appo_Dto = new Appointment(recur.GlobalAppointmentID, recur.Start, item.Duration, recur.Subject, recur.Location, recur.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), false, sqlController.LookupRead);
-//                                            appo_Dto = CalendarItemCreate(recur.Location, recur.Start, item.Duration, recur.Subject, recur.Body);
                                             CalendarItemCreate(recur.Location, recur.Start, item.Duration, recur.Subject, recur.Body);
                                             recur.Delete();
                                             log.LogStandard("Not Specified", recur.GlobalAppointmentID + " / " + recur.Start + " converted to non-recurence appointment");
@@ -105,8 +100,6 @@ namespace OutlookOffice
                                         ConvertedAny = true;
                                     }
                                     catch { }
-                                }
-                            }
                         }
                         #endregion
                     }
@@ -163,10 +156,12 @@ namespace OutlookOffice
 
                             location = location.ToLower();
                             #endregion
-
+  
                             if (location.ToLower() == "planned")
                             #region ...
                             {
+                                log.LogVariable("Not Specified", nameof(location), location);
+
                                 if (item.Body != null)
                                     if (item.Body.Contains("<<< "))
                                         if (item.Body.Contains("End >>>"))
@@ -175,7 +170,6 @@ namespace OutlookOffice
                                             item.Body = item.Body.Replace("<<< End >>>", "");
                                             item.Body = item.Body.Trim();
                                         }
-
                                 item.Save();
 
                                 Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
@@ -231,6 +225,8 @@ namespace OutlookOffice
                             if (location.ToLower() == "cancel")
                             #region ...
                             {
+                                log.LogVariable("Not Specified", nameof(location), location);
+
                                 Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
 
                                 if (sqlController.AppointmentsCancel(appo.GlobalId))
@@ -245,6 +241,8 @@ namespace OutlookOffice
                             if (location.ToLower() == "check")
                             #region ...
                             {
+                                log.LogVariable("Not Specified", nameof(location), location);
+
                                 eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb));
                                 eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting, log);
 
@@ -286,12 +284,13 @@ namespace OutlookOffice
                 else
                     appointment = sqlController.AppointmentsFind(globalId);
 
-                if (appointment == null) //double check status if no new found
+                if (appointment == null) //double checks status if no new found
                     appointment = sqlController.AppointmentsFindOne(1);
-     
+                #endregion
+
                 if (appointment == null)
                     return false;
-                #endregion
+                log.LogVariable("Not Specified", nameof(appointments), appointment.ToString());
 
                 #region if Outlook SDK requested to create a new appointment in the calendar
                 if (appointment.global_id.Contains("Appointment requested to be created"))
@@ -301,7 +300,7 @@ namespace OutlookOffice
 
                     bool response = sqlController.AppointmentsDelete(appointment.id);
                     if (response)
-                        log.LogCritical("Not Specified", "sqlController.AppointmentsDelete(d)");
+                        log.LogEverything("Not Specified", "sqlController.AppointmentsDelete(d)");
                     else
                         log.LogWarning("Not Specified", "sqlController.AppointmentsDelete failed to delete the entry");
                     return true;
@@ -310,84 +309,91 @@ namespace OutlookOffice
 
                 Outlook.AppointmentItem item = AppointmentItemFind(appointment.global_id, appointment.start_at.Value);
 
-                item.Location = appointment.workflow_state;
-                #region item.Categories = 'workflowState'...
-                switch (appointment.workflow_state)
+                if (item != null)
                 {
-                    case "Planned":
-                        item.Categories = null;
-                        break;
-                    case "Processed":
-                        item.Categories = "Processing";
-                        break;
-                    case "Created":
-                        item.Categories = "Processing";
-                        break;
-                    case "Sent":
-                        item.Categories = "Sent";
-                        break;
-                    case "Retrived":
-                        item.Categories = "Retrived";
-                        break;
-                    case "Completed":
-                        item.Categories = "Completed";
-                        break;
-                    case "Canceled":
-                        item.Categories = "Canceled";
-                        break;
-                    case "Revoked":
-                        item.Categories = "Revoked";
-                        break;
-                    case "Failed_to_expection":
-                        item.Categories = "Error";
-                        break;
-                    case "Failed_to_intrepid":
-                        item.Categories = "Error";
-                        break;
-                    default:
-                        item.Categories = "Error";
-                        break;
-                }
-                #endregion
-                item.Body = appointment.body;
-                #region item.Body = appointment.expectionString + item.Body + appointment.response ...
-                if (!string.IsNullOrEmpty(appointment.response))
-                {
-                    if (t.Bool(sqlController.SettingRead(Settings.responseBeforeBody)))
+                    item.Location = appointment.workflow_state;
+                    #region item.Categories = 'workflowState'...
+                    switch (appointment.workflow_state)
                     {
-                        item.Body =           "<<< Response: Start >>>" + 
+                        case "Planned":
+                            item.Categories = null;
+                            break;
+                        case "Processed":
+                            item.Categories = "Processing";
+                            break;
+                        case "Created":
+                            item.Categories = "Processing";
+                            break;
+                        case "Sent":
+                            item.Categories = "Sent";
+                            break;
+                        case "Retrived":
+                            item.Categories = "Retrived";
+                            break;
+                        case "Completed":
+                            item.Categories = "Completed";
+                            break;
+                        case "Canceled":
+                            item.Categories = "Canceled";
+                            break;
+                        case "Revoked":
+                            item.Categories = "Revoked";
+                            break;
+                        case "Failed_to_expection":
+                            item.Categories = "Error";
+                            break;
+                        case "Failed_to_intrepid":
+                            item.Categories = "Error";
+                            break;
+                        default:
+                            item.Categories = "Error";
+                            break;
+                    }
+                    #endregion
+                    item.Body = appointment.body;
+                    #region item.Body = appointment.expectionString + item.Body + appointment.response ...
+                    if (!string.IsNullOrEmpty(appointment.response))
+                    {
+                        if (t.Bool(sqlController.SettingRead(Settings.responseBeforeBody)))
+                        {
+                            item.Body = "<<< Response: Start >>>" +
+                            Environment.NewLine +
+                            Environment.NewLine + appointment.response +
+                            Environment.NewLine +
+                            Environment.NewLine + "<<< Response: End >>>" +
+                            Environment.NewLine +
+                            Environment.NewLine + item.Body;
+                        }
+                        else
+                        {
+                            item.Body = item.Body +
+                            Environment.NewLine +
+                            Environment.NewLine + "<<< Response: Start >>>" +
+                            Environment.NewLine +
+                            Environment.NewLine + appointment.response +
+                            Environment.NewLine +
+                            Environment.NewLine + "<<< Response: End >>>";
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(appointment.expectionString))
+                    {
+                        item.Body = "<<< Exception: Start >>>" +
                         Environment.NewLine +
-                        Environment.NewLine + appointment.response + 
+                        Environment.NewLine + appointment.expectionString +
                         Environment.NewLine +
-                        Environment.NewLine + "<<< Response: End >>>" + 
+                        Environment.NewLine + "<<< Exception: End >>>" +
                         Environment.NewLine +
                         Environment.NewLine + item.Body;
                     }
-                    else
-                    {
-                        item.Body =           item.Body + 
-                        Environment.NewLine +
-                        Environment.NewLine + "<<< Response: Start >>>" + 
-                        Environment.NewLine +
-                        Environment.NewLine + appointment.response + 
-                        Environment.NewLine +
-                        Environment.NewLine + "<<< Response: End >>>";
-                    }
+                    #endregion
+                    item.Save();
+                    log.LogStandard("Not Specified", globalId + " reflected in calendar");
                 }
-                if (!string.IsNullOrEmpty(appointment.expectionString))
-                {
-                    item.Body =           "<<< Exception: Start >>>" + 
-                    Environment.NewLine +
-                    Environment.NewLine + appointment.expectionString + 
-                    Environment.NewLine +
-                    Environment.NewLine + "<<< Exception: End >>>" + 
-                    Environment.NewLine +
-                    Environment.NewLine + item.Body;
-                }
-                #endregion
-                item.Save();
+                else
+                    log.LogWarning("Not Specified", globalId + " no longer in calendar, so hence is considered reflected in calendar");
 
                 sqlController.AppointmentsReflected(appointment.global_id);
+                log.LogStandard("Not Specified", globalId + " reflected in database");
                 return true;
             }
             catch (Exception ex)
@@ -396,7 +402,7 @@ namespace OutlookOffice
             }
         }
 
-        public Appointment          CalendarItemCreate(string location, DateTime start, int duration, string subject, string body)
+        public bool                 CalendarItemCreate(string location, DateTime start, int duration, string subject, string body)
         {
             try
             {
@@ -405,28 +411,30 @@ namespace OutlookOffice
 
                 newAppo.AllDayEvent = false;
                 newAppo.ReminderSet = false;
-
                 newAppo.Location = location;
                 newAppo.Start = start;
                 newAppo.Duration = duration;
                 newAppo.Subject = subject;
                 newAppo.Body = body;
-
                 newAppo.Save();
-                Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
+                log.LogStandard("Not Specified", "Calendar item created in default folder"); //Only place for .Com class to create, hence the need for the move
 
                 Outlook.MAPIFolder calendarFolderDestination = GetCalendarFolder();
                 Outlook.NameSpace mapiNamespace = outlookApp.GetNamespace("MAPI");
                 Outlook.MAPIFolder oDefault = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
-
                 if (calendarFolderDestination.Name != oDefault.Name)
+                {
                     newAppo.Move(calendarFolderDestination);
+                    log.LogStandard("Not Specified", "Calendar item moved to " + calendarFolderDestination.Name);
+                }
 
-                return returnAppo;
+                return true;
+                //Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
+                //return returnAppo;
             }
             catch (Exception ex)
             {
-                throw new Exception("The following error occurred: " + ex.Message);
+                throw new Exception(t.GetMethodName() + " failed", ex);
             }
         }
 
@@ -510,11 +518,12 @@ namespace OutlookOffice
                     if (item.GlobalAppointmentID == globalId)
                         return item;
 
-                throw new Exception(t.GetMethodName() + " failed. Due to no match found global id:" + globalId);
+                log.LogEverything("Not Specified", "No match found for " + nameof(globalId) + ":" + globalId);
+                return null;
             }
             catch (Exception ex)
             {
-                throw new Exception(t.GetMethodName() + " failed", ex);
+                throw new Exception(t.GetMethodName() + " failed. Due to no match found global id:" + globalId, ex);
             }
         }
 
@@ -540,36 +549,31 @@ namespace OutlookOffice
 
         private Outlook.MAPIFolder  GetCalendarFolder()
         {
-            log.LogStandard("Not Specified", "GetCalendarFolder called");
-            if (calendarName == sqlController.SettingRead(Settings.calendarName))
+            log.LogEverything("Not Specified", "GetCalendarFolder called");
+
+            if (calendarFolder != null)
             {
-                log.LogStandard("Not Specified", "calendarName is :" + calendarName);
                 return calendarFolder;
             }
             else
             {
-                log.LogStandard("Not Specified", "GetCalendarFolder called else");
                 calendarName = sqlController.SettingRead(Settings.calendarName);
-                log.LogStandard("Not Specified", "else calendarName is :" + calendarName);
+                log.LogVariable("Not Specified", nameof(calendarName), calendarName);
 
                 Outlook.Application oApp = new Outlook.Application();
-                log.LogStandard("Not Specified", "GetCalendarFolder called oApp");
+                log.LogEverything("Not Specified", "Found oApp");
+
                 Outlook.NameSpace mapiNamespace = oApp.GetNamespace("MAPI");
-                log.LogStandard("Not Specified", "GetCalendarFolder called mapiNamespace");
+                log.LogEverything("Not Specified", "Found mapiNamespace");
+
                 Outlook.MAPIFolder oDefault = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
-                log.LogStandard("Not Specified", "GetCalendarFolder called oDefault");
+                log.LogEverything("Not Specified", "Found oDefault");
 
                 try
                 {
-                    log.LogStandard("Not Specified", "GetCalendarFolder called try 548");
-                    calendarFolder = GetCalendarFolderByName(oDefault.Folders, calendarName);
-                    log.LogStandard("Not Specified", "GetCalendarFolder called try 550");
+                    calendarFolder = GetCalendarFolderByName(mapiNamespace.Folders, calendarName);
+                    log.LogVariable("Not Specified", nameof(calendarFolder), calendarFolder.FolderPath);
 
-                    if (calendarFolder == null) {
-                        log.LogStandard("Not Specified", "GetCalendarFolderByName called");
-                        calendarFolder = GetCalendarFolderByName(mapiNamespace.Folders, calendarName);
-                    }
-                    
                     if (calendarFolder == null)
                         throw new Exception(t.GetMethodName() + " failed, for calendarName:'" + calendarName + "'. No such calendar found");
                 }
@@ -584,10 +588,10 @@ namespace OutlookOffice
 
         private Outlook.MAPIFolder  GetCalendarFolderByName(Outlook._Folders folder, string name)
         {
-            log.LogStandard("Not Specified", "GetCalendarFolderByName called");
+            log.LogEverything("Not Specified", "GetCalendarFolderByName called");
             foreach (Outlook.MAPIFolder Folder in folder)
             {
-                log.LogStandard("Not Specified", "current folder is : " + Folder.Name);
+                log.LogEverything("Not Specified", "current folder is : " + Folder.Name);
                 if (Folder.Name == name)
                     return Folder;
                 else
@@ -617,9 +621,7 @@ namespace OutlookOffice
                 #endregion
 
                 foreach (Outlook.AppointmentItem item in outlookCalendarItems)
-                {
                     if (item.Location != null)
-                    {
                         if (item.IsRecurring)
                         {
                             //ignore
@@ -629,9 +631,7 @@ namespace OutlookOffice
                             if (startPoint <= item.Start && item.Start <= endPoint)
                                 lstAppoint.Add(new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead));
                         }
-                    }
-                }
-
+         
                 return lstAppoint;
             }
             catch (Exception ex)
