@@ -304,6 +304,7 @@ namespace OutlookSql
 
     public enum WorkflowState
     {
+        Pre_created,
         Planned,
         Processed,
         Created,

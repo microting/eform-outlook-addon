@@ -1467,6 +1467,166 @@ namespace UnitTest
         }
         #endregion
 
+        #region - test 008x - core (Public Methods)
+        [Fact]
+        public void Test008_Core_1a_AppointmentCreate_MissingParameters_Exceptions()
+        {
+            #region //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+            DateTime plusOne = DateTime.Now.AddHours(1);
+
+            int template = 2;
+            List<int> sites = new List<int> { siteId1 };
+            DateTime start = new DateTime(plusOne.Year, plusOne.Month, plusOne.Day, plusOne.Hour, 0, 0);
+            int duration = 30;
+            string title = "Faked title";
+
+            string checkValueA = "TrueTrueTrueTrueTrue";
+            string checkValueB = "";
+            #endregion
+
+            //Act
+            try {
+                coreOut.AppointmentCreate(0, sites, start, duration, title, null, null, false, null, null, null, null, null);
+            } catch (Exception ex) {
+                checkValueB += t.PrintException(t.GetMethodName() + " failed", ex).Contains("templateId needs to be minimum 1").ToString();
+            }
+ 
+            try {
+                coreOut.AppointmentCreate(template, null, DateTime.MinValue, duration, title, null, null, false, null, null, null, null, null);
+            } catch (Exception ex) {
+                checkValueB += t.PrintException(t.GetMethodName() + " failed", ex).Contains("sites needs to be not null").ToString();
+            }
+
+            try {
+                coreOut.AppointmentCreate(template, sites, DateTime.MinValue, duration, title, null, null, false, null, null, null, null, null);
+            } catch (Exception ex) {
+                checkValueB += t.PrintException(t.GetMethodName() + " failed", ex).Contains("startTime needs to be a future DateTime").ToString();
+            }
+
+            try {
+                coreOut.AppointmentCreate(template, sites, start, 0, title, null, null, false, null, null, null, null, null);
+            } catch (Exception ex) {
+                checkValueB += t.PrintException(t.GetMethodName() + " failed", ex).Contains("duration needs to be minimum 1").ToString();
+            }
+
+            try {
+                coreOut.AppointmentCreate(template, sites, start, duration, null, null, null, false, null, null, null, null, null);
+            } catch (Exception ex) {
+                checkValueB += t.PrintException(t.GetMethodName() + " failed", ex).Contains("outlookTitle needs to be not empty").ToString();
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test008_Core_1b_AppointmentCreate_Simple()
+        {
+            #region //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+            DateTime plusOne = DateTime.Now.AddHours(1);
+
+            int         template = 2;
+            List<int>   sites = new List<int> { siteId1 };
+            DateTime    start = new DateTime(plusOne.Year, plusOne.Month, plusOne.Day, plusOne.Hour, 0, 0);
+            int         duration = 30;
+            string      title = "Faked title";
+    
+            string checkValueA = "TrueTrue";
+            string checkValueB = "";
+            #endregion
+
+            //Act
+            try
+            {
+                for (int i = 0; i < 2; i++)
+                    checkValueB += coreOut.AppointmentCreate(template, sites, start, duration, title, null, null, false, null, null, null, null, null);
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test008_Core_1c_AppointmentCreate_Advanced()
+        {
+            #region //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+
+            int template = 2;
+            List<int> sites = new List<int> { siteId1 };
+            DateTime start = DateTime.Now.AddHours(1);
+            start = new DateTime(start.Year, start.Month, start.Day, start.Hour, 0, 0);
+
+            int duration = 30;
+            string title = "Faked title";
+            List<string> replace = new List<string>();
+            replace.Add("somethingthatisnotreallythere==doesnotmatter");
+            replace.Add("somethingthatisnotreallytherealso==doesnotmatter");
+
+            string checkValueA = "TrueTrueTrue";
+            string checkValueB = "";
+            #endregion
+
+            //Act
+            try
+            {
+                for (int i = 0; i < 3; i++)
+                    checkValueB += coreOut.AppointmentCreate(template, sites, start, duration, title, "random comment", true, true, "eForm Title", "des crip tion", "more info", 5, replace);
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test008_Core_2a_AppointmentCreated_Pre_created()
+        {
+            #region //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+            DateTime plusOne = DateTime.Now.AddHours(1);
+
+            int template = 2;
+            List<int> sites = new List<int> { siteId1 };
+            DateTime start = new DateTime(plusOne.Year, plusOne.Month, plusOne.Day, plusOne.Hour, 0, 0);
+            int duration = 30;
+            string title = "Faked title";
+
+            string checkValueA = "GlobalId:Appointment requested to be created";
+            string checkValueB = "";
+            #endregion
+
+            //Act
+            try
+            {
+                coreOut.AppointmentCreate(template, sites, start, duration, title, null, null, false, null, null, null, null, null);
+                var appo = sqlController.AppointmentsFindOne(1);
+                if (appo.global_id.Contains("Appointment requested to be created"))
+                    checkValueB = "GlobalId:Appointment requested to be created";
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+        #endregion
+
         #region private
         private string AppointmentsFindAll()
         {

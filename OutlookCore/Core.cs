@@ -327,10 +327,11 @@ namespace OutlookCore
                     colorRule = (bool)outlookColorRuleOverride;
                     body +=     Environment.NewLine + "Color# "         + colorRule.ToString();
                 }
-            
-                if (eFormReplacements.Count > 0)
-                    foreach (var replacement in eFormReplacements)
-                        body += Environment.NewLine + "Replacements# "  + replacement;
+
+                if (eFormReplacements != null)
+                    if (eFormReplacements.Count > 0)
+                        foreach (var replacement in eFormReplacements)
+                            body += Environment.NewLine + "Replacements# "  + replacement;
                 #endregion
 
                 Appointment appo = new Appointment(globalId, startTime, duration, outlookTitle, "Planned", body, colorRule, false, null);
