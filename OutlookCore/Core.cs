@@ -298,7 +298,6 @@ namespace OutlookCore
                 #region body = ...
                 string body = "Template# " + templateId + Environment.NewLine + "Sites# " + string.Join(",", sites);
 
-
                 if (!string.IsNullOrWhiteSpace(outlookCommentary))
                     body = outlookCommentary + Environment.NewLine + Environment.NewLine + body;
 
