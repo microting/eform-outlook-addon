@@ -261,6 +261,19 @@ namespace OutlookCore
         {
             try
             {
+                log.LogStandard("Not Specified", t.GetMethodName() + " called");
+                log.LogVariable("Not Specified", nameof(templateId), templateId.ToString());
+                log.LogVariable("Not Specified", nameof(startTime), startTime);
+                log.LogVariable("Not Specified", nameof(duration), duration);
+                log.LogVariable("Not Specified", nameof(outlookTitle), outlookTitle);
+                log.LogVariable("Not Specified", nameof(outlookCommentary), outlookCommentary);
+                log.LogVariable("Not Specified", nameof(outlookColorRuleOverride), outlookColorRuleOverride);
+                log.LogVariable("Not Specified", nameof(eFormConnected), eFormConnected);
+                log.LogVariable("Not Specified", nameof(eFormTitle), eFormTitle);
+                log.LogVariable("Not Specified", nameof(eFormDescription), eFormDescription);
+                log.LogVariable("Not Specified", nameof(eFormInfo), eFormInfo);
+                log.LogVariable("Not Specified", nameof(eFormDaysToExpire), eFormDaysToExpire);
+       
                 #region needed
                 if (templateId < 1)
                     throw new ArgumentException("templateId needs to be minimum 1");

@@ -1592,7 +1592,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test008_Core_2a_AppointmentCreated_Pre_created()
+        public void Test008_Core_1d_AppointmentCreated_Pre_created()
         {
             #region //Arrange
             TestPrepare(t.GetMethodName(), true, true);
