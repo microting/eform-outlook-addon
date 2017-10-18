@@ -335,7 +335,7 @@ namespace OutlookOffice
                             item.Categories = "Completed";
                             break;
                         case "Canceled":
-                            item.Categories = "Canceled";
+                            item.Categories = "Revoked";
                             break;
                         case "Revoked":
                             item.Categories = "Revoked";
