@@ -12,7 +12,11 @@ namespace OutlookOffice
 
         bool CalendarItemReflecting(string globalId);
 
-        void CalendarItemUpdate(Appointment appointment, WorkflowState workflowState, bool resetBody);
+        string CalendarItemCreate(string location, DateTime start, int duration, string subject, string body);
+        
+        bool CalendarItemUpdate(string globalId, DateTime start, WorkflowState workflowState, string body);
+
+        bool CalendarItemDelete(string globalId, DateTime start);
 
         List<Appointment> UnitTest_CalendarItemGetAllNonRecurring(DateTime startPoint, DateTime endPoint);
 

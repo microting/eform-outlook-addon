@@ -70,6 +70,27 @@ namespace OutlookOffice
 
             if (globalId == null)
             {
+                //Copied
+                var appointment = sqlController.AppointmentsFindOne(1);
+
+                if (appointment != null)
+                {
+                    if (appointment.global_id.Contains("Appointment requested to be created"))
+                    {
+                        appointment.location = "Created";
+                        string newGlobalId = CalendarItemCreate(appointment.location, (DateTime)appointment.start_at, (int)appointment.duration, appointment.subject, appointment.body);
+                        log.LogCritical("Not Specified", "CalendarItemCreate successful");
+                        log.LogVariable("Not Specified", nameof(newGlobalId), newGlobalId);
+
+                        sqlController.AppointmentsUpdate(appointment.global_id, WorkflowState.Created, null, null, null);
+                        sqlController.AppointmentsUpdate(appointment.global_id, newGlobalId);
+                        log.LogEverything("Not Specified", "AppointmentsUpdate successful");
+
+                        return true;
+                    }
+                }
+                //Copied
+
                 int temp = rndm.Next(0, 2);
                 if (temp == 2)
                     temp = 1;
@@ -86,9 +107,19 @@ namespace OutlookOffice
             return true;
         }
 
-        public void                 CalendarItemUpdate(Appointment appointment, WorkflowState workflowState, bool resetBody)
+        public string               CalendarItemCreate(string location, DateTime start, int duration, string subject, string body)
         {
-            log.LogStandard("Unit test", appointment.GlobalId + " updated to " + workflowState.ToString());
+            return "Faked GlobalId:" + t.GetRandomInt(8);
+        }
+
+        public bool                 CalendarItemUpdate(string globalId, DateTime start, WorkflowState workflowState, string body)
+        {
+             return true;
+        }
+
+        public bool                 CalendarItemDelete(string globalId, DateTime start)
+        {
+            return true;
         }
         #endregion
 
@@ -99,6 +130,7 @@ namespace OutlookOffice
         }
         #endregion
 
+        #region unit test
         public List<Appointment>    UnitTest_CalendarItemGetAllNonRecurring(DateTime startPoint, DateTime endPoint)
         {
             return new List<Appointment>();
@@ -118,5 +150,6 @@ namespace OutlookOffice
                     + Environment.NewLine + "title# "   + "Outlook appointment eForm test"
                     + Environment.NewLine + "info# "    + "Tekst fra Outlook appointment";
         }
+        #endregion
     }
 }

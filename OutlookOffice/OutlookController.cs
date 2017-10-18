@@ -187,13 +187,13 @@ namespace OutlookOffice
                                     int count = sqlController.AppointmentsCreate(appo);
 
                                     if (count == 1)
-                                        CalendarItemUpdate(appo, WorkflowState.Processed, false);
+                                        CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Processed, appo.Body);
                                     else
                                     {
                                         if (count == 0)
-                                            CalendarItemUpdate(appo, WorkflowState.Failed_to_expection, false);
+                                            CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Failed_to_expection, appo.Body);
 
-                                        if (count == 2)
+                                        if (count == -1)
                                         {
                                             #region appo.Body = 'text'
                                             appo.Body =               "<<< Intrepid error: Start >>>" +
@@ -211,12 +211,12 @@ namespace OutlookOffice
                                                 Environment.NewLine + "" +
                                                 Environment.NewLine + appo.Body;
                                             #endregion
-                                            CalendarItemUpdate(appo, WorkflowState.Failed_to_intrepid, false);
+                                            CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Failed_to_intrepid, appo.Body);
                                         }
                                     }
                                 }
                                 else
-                                    CalendarItemUpdate(appo, WorkflowState.Failed_to_intrepid, false);
+                                    CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Failed_to_intrepid, appo.Body);
 
                                 AllIntrepid = true;
                             }
@@ -230,9 +230,9 @@ namespace OutlookOffice
                                 Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
 
                                 if (sqlController.AppointmentsCancel(appo.GlobalId))
-                                    CalendarItemUpdate(appo, WorkflowState.Canceled, false);
+                                    CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Canceled, appo.Body);
                                 else
-                                    CalendarItemUpdate(appo, WorkflowState.Failed_to_intrepid, false);
+                                    CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Failed_to_intrepid, appo.Body);
 
                                 AllIntrepid = true;
                             }
@@ -295,14 +295,15 @@ namespace OutlookOffice
                 #region if Outlook SDK requested to create a new appointment in the calendar
                 if (appointment.global_id.Contains("Appointment requested to be created"))
                 {
-                    CalendarItemCreate(appointment.location, (DateTime)appointment.start_at, (int)appointment.duration, appointment.subject, appointment.body);
-                    log.LogCritical("Not Specified", "CalendarItemCreate(d)");
+                    appointment.location = "Created";
+                    string newGlobalId = CalendarItemCreate(appointment.location, (DateTime)appointment.start_at, (int)appointment.duration, appointment.subject, appointment.body);
+                    log.LogCritical("Not Specified", "CalendarItemCreate successful");
+                    log.LogVariable("Not Specified", nameof(newGlobalId), newGlobalId);
 
-                    bool response = sqlController.AppointmentsDelete(appointment.id);
-                    if (response)
-                        log.LogEverything("Not Specified", "sqlController.AppointmentsDelete(d)");
-                    else
-                        log.LogWarning("Not Specified", "sqlController.AppointmentsDelete failed to delete the entry");
+                    sqlController.AppointmentsUpdate(appointment.global_id, WorkflowState.Created, null, null, null);
+                    sqlController.AppointmentsUpdate(appointment.global_id, newGlobalId);
+                    log.LogEverything("Not Specified", "AppointmentsUpdate successful");
+
                     return true;
                 }
                 #endregion
@@ -402,7 +403,7 @@ namespace OutlookOffice
             }
         }
 
-        public bool                 CalendarItemCreate(string location, DateTime start, int duration, string subject, string body)
+        public string               CalendarItemCreate(string location, DateTime start, int duration, string subject, string body)
         {
             try
             {
@@ -412,6 +413,8 @@ namespace OutlookOffice
                 newAppo.AllDayEvent = false;
                 newAppo.ReminderSet = false;
                 newAppo.Location = location;
+                if (location == "Created")
+                    newAppo.Categories = "Processing";
                 newAppo.Start = start;
                 newAppo.Duration = duration;
                 newAppo.Subject = subject;
@@ -428,9 +431,7 @@ namespace OutlookOffice
                     log.LogStandard("Not Specified", "Calendar item moved to " + calendarFolderDestination.Name);
                 }
 
-                return true;
-                //Appointment returnAppo = new Appointment(newAppo.GlobalAppointmentID, newAppo.Start, newAppo.Duration, newAppo.Subject, newAppo.Location, newAppo.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
-                //return returnAppo;
+                return newAppo.GlobalAppointmentID;
             }
             catch (Exception ex)
             {
@@ -438,11 +439,11 @@ namespace OutlookOffice
             }
         }
 
-        public void                 CalendarItemUpdate(Appointment appointment, WorkflowState workflowState, bool resetBody)
+        public bool                 CalendarItemUpdate(string globalId, DateTime start, WorkflowState workflowState, string body)
         {
-            Outlook.AppointmentItem item = AppointmentItemFind(appointment.GlobalId, appointment.Start);
+            Outlook.AppointmentItem item = AppointmentItemFind(globalId, start);
 
-            item.Body = appointment.Body;
+            item.Body = body;
             item.Location = workflowState.ToString();
             #region item.Categories = 'workflowState'...
             switch (workflowState)
@@ -480,12 +481,19 @@ namespace OutlookOffice
             }
             #endregion
 
-            if (resetBody)
-                item.Body = UnitTest_CalendarBody();
-
             item.Save();
 
             log.LogStandard("Not Specified", AppointmentPrint(item) + " updated to " + workflowState.ToString());
+            return true;
+        }
+
+        public bool                 CalendarItemDelete(string globalId, DateTime start)
+        {
+            Outlook.AppointmentItem item = AppointmentItemFind(globalId, start);
+            item.Delete();
+
+            log.LogStandard("Not Specified", globalId + " deleted");
+            return true;
         }
         #endregion
 

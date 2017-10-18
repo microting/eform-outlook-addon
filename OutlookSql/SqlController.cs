@@ -29,7 +29,7 @@ namespace OutlookSql
         #region con
         public                      SqlController(string connectionStringOutlook)
         {
-            Constructor(connectionStringOutlook);
+            ConstructorBase(connectionStringOutlook);
         }
 
         public                      SqlController(string connectionStringOutlook, string connectionStringSdk)
@@ -47,10 +47,10 @@ namespace OutlookSql
             }
 
             sdkSqlCon = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
-            Constructor(connectionStringOutlook);
+            ConstructorBase(connectionStringOutlook);
         }
 
-        private void                Constructor(string connectionString)
+        private void                ConstructorBase(string connectionString)
         {
             connectionStr = connectionString;
 
@@ -118,7 +118,7 @@ namespace OutlookSql
                     var match = db.appointments.SingleOrDefault(x => x.global_id == appointment.GlobalId);
 
                     if (match != null)
-                        return 2;
+                        return -1;
 
                     appointments newAppo = new appointments();
 
@@ -155,7 +155,7 @@ namespace OutlookSql
                     db.appointment_versions.Add(MapAppointmentVersions(newAppo));
                     db.SaveChanges();
 
-                    return 1;
+                    return newAppo.id;
                 }
             }
             catch (Exception ex)
@@ -203,6 +203,23 @@ namespace OutlookSql
                 using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == globalId);
+                    return match;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                return null;
+            }
+        }
+
+        public appointments         AppointmentsFind(int appointmentId)
+        {
+            try
+            {
+                using (var db = GetContextO())
+                {
+                    var match = db.appointments.SingleOrDefault(x => x.id == appointmentId && x.workflow_state != "Pre_created");
                     return match;
                 }
             }
@@ -265,8 +282,45 @@ namespace OutlookSql
                     if (body != null)
                         match.body = body;
                     #endregion
-                    match.response = response;
-                    match.expectionString = expectionString;
+                    #region match.response = response ...
+                    if (response != null)
+                        match.response = response;
+                    #endregion
+                    #region match.expectionString = expectionString ...
+                    if (response != null)
+                        match.expectionString = expectionString;
+                    #endregion
+                    match.version = match.version + 1;
+
+                    db.SaveChanges();
+
+                    db.appointment_versions.Add(MapAppointmentVersions(match));
+                    db.SaveChanges();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                return false;
+            }
+        }
+
+        public bool                 AppointmentsUpdate(string oldGlobalId, string newGlobalId)
+        {
+            try
+            {
+                using (var db = GetContextO())
+                {
+                    var match = db.appointments.SingleOrDefault(x => x.global_id == oldGlobalId);
+
+                    if (match == null)
+                        return false;
+
+                    match.global_id = newGlobalId;
+                    match.updated_at = DateTime.Now;
+                    match.completed = 0;
                     match.version = match.version + 1;
 
                     db.SaveChanges();

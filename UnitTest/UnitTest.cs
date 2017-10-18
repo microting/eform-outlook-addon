@@ -448,8 +448,8 @@ namespace UnitTest
             {
                 //Arrange
                 TestPrepare(t.GetMethodName(), false, false);
-                int checkValueA = 1;
-                int checkValueB = -1;
+                int checkValueA = 2;
+                int checkValueB = -2;
 
                 //Act
                 Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
@@ -468,8 +468,8 @@ namespace UnitTest
             {
                 //Arrange
                 TestPrepare(t.GetMethodName(), false, false);
-                int checkValueA = 2;
-                int checkValueB = -1;
+                int checkValueA = -1;
+                int checkValueB = 1;
 
                 //Act
                 Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
@@ -1263,12 +1263,10 @@ namespace UnitTest
                 IOutlookController oCon = new OutlookController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
 
                 //Act
-                oCon.CalendarItemUpdate(appoBase, WorkflowState.Processed, false);
-                oCon.CalendarItemUpdate(appoBase, WorkflowState.Processed, true);
-                oCon.CalendarItemUpdate(appoBase, WorkflowState.Created, false);
-                oCon.CalendarItemUpdate(appoBase, WorkflowState.Created, true);
-                oCon.CalendarItemUpdate(appoBase, WorkflowState.Failed_to_expection, false);
-                oCon.CalendarItemUpdate(appoBase, WorkflowState.Failed_to_intrepid, true);
+                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, WorkflowState.Processed, appoBase.Body);
+                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, WorkflowState.Created, appoBase.Body);
+                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, WorkflowState.Failed_to_expection, appoBase.Body);
+                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, WorkflowState.Failed_to_intrepid, appoBase.Body);
                 checkValueB = true;
 
                 //Assert
@@ -1542,7 +1540,10 @@ namespace UnitTest
             try
             {
                 for (int i = 0; i < 2; i++)
-                    checkValueB += coreOut.AppointmentCreate(template, sites, start, duration, title, null, null, false, null, null, null, null, null);
+                {
+                    if (coreOut.AppointmentCreate(template, sites, start, duration, title, null, null, false, null, null, null, null, null) > 0)
+                        checkValueB += true;
+                }
             }
             catch (Exception ex)
             {
@@ -1579,7 +1580,10 @@ namespace UnitTest
             try
             {
                 for (int i = 0; i < 3; i++)
-                    checkValueB += coreOut.AppointmentCreate(template, sites, start, duration, title, "random comment", true, true, "eForm Title", "des crip tion", "more info", 5, replace);
+                {
+                    if (coreOut.AppointmentCreate(template, sites, start, duration, title, "random comment", true, true, "eForm Title", "des crip tion", "more info", 5, replace) > 0)
+                        checkValueB += true;
+                }
             }
             catch (Exception ex)
             {
@@ -1592,29 +1596,219 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test008_Core_1d_AppointmentCreated_Pre_created()
+        public void Test008_Core_1d_AppointmentCreate_Created()
         {
-            #region //Arrange
+            //Arrange
             TestPrepare(t.GetMethodName(), true, true);
-            DateTime plusOne = DateTime.Now.AddHours(1);
-
-            int template = 2;
-            List<int> sites = new List<int> { siteId1 };
-            DateTime start = new DateTime(plusOne.Year, plusOne.Month, plusOne.Day, plusOne.Hour, 0, 0);
-            int duration = 30;
-            string title = "Faked title";
-
-            string checkValueA = "GlobalId:Appointment requested to be created";
+            string checkValueA = "Appointment created";
             string checkValueB = "";
-            #endregion
 
             //Act
             try
             {
-                coreOut.AppointmentCreate(template, sites, start, duration, title, null, null, false, null, null, null, null, null);
-                var appo = sqlController.AppointmentsFindOne(1);
-                if (appo.global_id.Contains("Appointment requested to be created"))
-                    checkValueB = "GlobalId:Appointment requested to be created";
+                int id = AppointmentCreate();
+
+                WaitForStat(id, WorkflowState.Created);
+                var found = sqlController.AppointmentsFindOne(WorkflowState.Created);
+
+                if (found != null)
+                    checkValueB = "Appointment created";
+                else
+                    checkValueB = "Appointment not created";
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test008_Core_2a_AppointmentCancel_NoMatch()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+            string checkValueA = "No match";
+            string checkValueB = "Match - where there should be none";
+
+            //Act
+            try
+            {
+                int appoId = AppointmentCreate();
+                if (appoId < 1)
+                    throw new Exception();
+
+                WaitForStat(appoId, WorkflowState.Created);
+
+                if (coreOut.AppointmentCancel(appoId + 42) == null) //wrong id
+                    checkValueB = "No match";
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test008_Core_2b_AppointmentCancel_Simple()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+            string checkValueA = "True";
+            string checkValueB = "";
+
+            //Act
+            try
+            {
+                int appoId = AppointmentCreate();
+                if (appoId < 1)
+                    throw new Exception();
+
+                WaitForStat(appoId, WorkflowState.Created);
+
+                checkValueB = coreOut.AppointmentCancel(appoId).ToString();
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test008_Core_2c_AppointmentCancel_Advanced()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+            string checkValueA = "Canceled Correctly";
+            string checkValueB = "Failed";
+
+            //Act
+            try
+            {
+                int appoId1 = AppointmentCreate();
+                if (appoId1 < 1)
+                    throw new Exception();
+
+                int appoId2 = AppointmentCreate();
+                if (appoId2 < 1)
+                    throw new Exception();
+
+                WaitForStat(appoId2, WorkflowState.Created);
+                WaitForStat(appoId1, WorkflowState.Created);
+
+                coreOut.AppointmentCancel(appoId2).ToString();
+                coreOut.AppointmentCancel(appoId1).ToString();
+
+                if (sqlController.AppointmentsFindOne(WorkflowState.Created) == null)
+                    checkValueB = "Canceled Correctly";
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test008_Core_3a_AppointmentDelete_NoMatch()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+            string checkValueA = "No match";
+            string checkValueB = "Match - where there should be none";
+            
+            //Act
+            try
+            {
+                int appoId = AppointmentCreate();
+                if (appoId < 1)
+                    throw new Exception();
+
+                WaitForStat(appoId, WorkflowState.Created);
+
+                if (coreOut.AppointmentDelete(appoId + 42) == null) //wrong id
+                    checkValueB = "No match";
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test008_Core_3b_AppointmentDelete_Simple()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+            string checkValueA = "True";
+            string checkValueB = "";
+            
+            //Act
+            try
+            {
+                int appoId = AppointmentCreate();
+                if (appoId < 1)
+                    throw new Exception();
+
+                WaitForStat(appoId, WorkflowState.Created);
+
+                checkValueB = coreOut.AppointmentDelete(appoId).ToString();
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test008_Core_3c_AppointmentDelete_Advanced()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+            string checkValueA = "Deleted Correctly";
+            string checkValueB = "Failed";
+   
+            //Act
+            try
+            {
+                int appoId1 = AppointmentCreate();
+                if (appoId1 < 1)
+                    throw new Exception();
+
+                int appoId2 = AppointmentCreate();
+                if (appoId2 < 1)
+                    throw new Exception();
+
+                WaitForStat(appoId2, WorkflowState.Created);
+                WaitForStat(appoId1, WorkflowState.Created);
+
+                coreOut.AppointmentDelete(appoId2).ToString();
+                coreOut.AppointmentDelete(appoId1).ToString();
+
+                if (sqlController.AppointmentsFindOne(WorkflowState.Created) == null)
+                    checkValueB = "Deleted Correctly";
             }
             catch (Exception ex)
             {
@@ -1652,79 +1846,46 @@ namespace UnitTest
             return returnValue;
         }
 
-        private List<string> WaitForAvailableDB()
+        private bool WaitForStat(int appointmentId, WorkflowState workflowState)
         {
             try
             {
                 for (int i = 0; i < 100; i++)
                 {
-                    List<string> lstMUId = sqlConSdk.UnitTest_FindAllActiveCases();
+                    var appoint = sqlController.AppointmentsFind(appointmentId);
 
-                    if (lstMUId.Count == 1)
-                    {
-                        return lstMUId;
-                    }
-                    else
-                    {
-                        Thread.Sleep(100);
-                    }
+                    if (appoint != null)
+                        if (appoint.workflow_state == workflowState.ToString())
+                            return true;
+
+                    Thread.Sleep(100);
                 }
-                throw new Exception("WaitForAvailableDB failed. Due to failed 100 attempts");
+                throw new Exception("WaitForStat failed. Due to failed 100 attempts (10sec+)");
             }
             catch (Exception ex)
             {
-                throw new Exception("WaitForAvailableDB failed", ex);
+                throw new Exception("WaitForStat failed", ex);
             }
         }
 
-        private bool WaitForAvailableMicroting(int interactionCaseId)
+        private int AppointmentCreate()
         {
             try
             {
-                string lastReply = "";
+                DateTime plusOne = DateTime.Now.AddHours(1);
 
-                for (int i = 0; i < 125; i++)
-                {
-                    var lst = sqlConSdk.UnitTest_FindAllActiveInteractionCaseLists(interactionCaseId);
-                    var cas = sqlConSdk.UnitTest_FindInteractionCase(interactionCaseId);
+                int template = 2;
+                List<int> sites = new List<int> { siteId1 };
+                DateTime start = new DateTime(plusOne.Year, plusOne.Month, plusOne.Day, plusOne.Hour, 0, 0);
+                int duration = 30;
+                string title = "Faked title";
 
-                    if (cas.workflow_state == "failed to sync")
-                        return true;
-
-                    int missingCount = 0;
-
-                    foreach (var item in lst)
-                    {
-                        if (string.IsNullOrEmpty(item.microting_uid))
-                            missingCount++;
-                    }
-
-                    if (missingCount == 0)
-                    {
-                        lastReply = "";
-
-                        foreach (var item in lst)
-                        {
-                            string reply = coreSdk.CaseCheck(item.microting_uid);
-
-                            if (!reply.Contains("success"))
-                                missingCount++;
-
-                            lastReply += reply + " // ";
-                        }
-
-                        if (missingCount == 0)
-                            return true;
-                    }
-
-                    Thread.Sleep(250 + 12 * i);
-                }
-                coreSdk.log.LogCritical("Not Specified", "TraceMsg:'" + lastReply.Trim() + "'");
-                throw new Exception("WaitForAvailableMicroting failed. Due to failed 125 attempts (1+ min)");
+                int id = coreOut.AppointmentCreate(template, sites, start, duration, title, null, null, false, null, null, null, null, null);
+                return id;
             }
             catch (Exception ex)
             {
-                throw new Exception("WaitForAvailableMicroting failed", ex);
+                throw new Exception(t.GetMethodName() + " failed", ex);
             }
         }
 

@@ -255,12 +255,13 @@ namespace OutlookCore
         /// <summary>
         /// IMPORTANT: templateId, sites, startTime, duration, outlookTitle and eFormConnected are mandatory. Rest are optional, and should be passed 'null' if not wanted to use
         /// </summary>
-        public bool             AppointmentCreate(int templateId, List<int> sites, DateTime startTime, int duration,
+        public int              AppointmentCreate(int templateId, List<int> sites, DateTime startTime, int duration,
             string outlookTitle, string outlookCommentary, bool? outlookColorRuleOverride, 
             bool eFormConnected, string eFormTitle, string eFormDescription, string eFormInfo, int? eFormDaysToExpire, List<string> eFormReplacements)
         {
             try
             {
+                #region log everything...
                 log.LogStandard("Not Specified", t.GetMethodName() + " called");
                 log.LogVariable("Not Specified", nameof(templateId), templateId.ToString());
                 log.LogVariable("Not Specified", nameof(startTime), startTime);
@@ -273,7 +274,8 @@ namespace OutlookCore
                 log.LogVariable("Not Specified", nameof(eFormDescription), eFormDescription);
                 log.LogVariable("Not Specified", nameof(eFormInfo), eFormInfo);
                 log.LogVariable("Not Specified", nameof(eFormDaysToExpire), eFormDaysToExpire);
-       
+                #endregion
+
                 #region needed
                 if (templateId < 1)
                     throw new ArgumentException("templateId needs to be minimum 1");
@@ -348,8 +350,59 @@ namespace OutlookCore
                 #endregion
 
                 Appointment appo = new Appointment(globalId, startTime, duration, outlookTitle, "Planned", body, colorRule, false, null);
-                if (sqlController.AppointmentsCreate(appo) == 1)
-                    return true;
+
+                return sqlController.AppointmentsCreate(appo);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// No summary
+        /// </summary>
+        public bool?            AppointmentCancel(int appointmentId)
+        {
+            try
+            {
+                log.LogStandard("Not Specified", t.GetMethodName() + " called");
+                log.LogVariable("Not Specified", nameof(appointmentId), appointmentId);
+
+                var appo = sqlController.AppointmentsFind(appointmentId);
+                if (appo == null)
+                {
+                    log.LogStandard("Not Specified", "No match found");
+                    return null;
+                }
+
+                return sqlController.AppointmentsUpdate(appo.global_id, WorkflowState.Canceled, appo.body, null, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// No summary
+        /// </summary>
+        public bool?            AppointmentDelete(int appointmentId)
+        {
+            try
+            {
+                log.LogStandard("Not Specified", t.GetMethodName() + " called");
+                log.LogVariable("Not Specified", nameof(appointmentId), appointmentId);
+
+                var appo = sqlController.AppointmentsFind(appointmentId);
+                if (appo == null)
+                {
+                    log.LogStandard("Not Specified", "No match found");
+                    return null;
+                }
+
+                if (outlookController.CalendarItemDelete(appo.global_id, (DateTime)appo.start_at))
+                    return sqlController.AppointmentsUpdate(appo.global_id, WorkflowState.Canceled, appo.body, null, null);
                 else
                     return false;
             }
@@ -535,7 +588,7 @@ namespace OutlookCore
 
                     lstAppointments = outlookController.UnitTest_CalendarItemGetAllNonRecurring(rollBackFrom, rollBackTo__);
                     foreach (var item in lstAppointments)
-                        outlookController.CalendarItemUpdate(item, WorkflowState.Planned, true);
+                        outlookController.CalendarItemUpdate(item.GlobalId, item.Start, WorkflowState.Planned, item.Body);
 
                     sqlController.SettingUpdate(Settings.checkLast_At, now.ToString());
 
