@@ -1627,7 +1627,67 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test008_Core_2a_AppointmentCancel_NoMatch()
+        public void Test008_Core_2a_AppointmentRead_NoMatch()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+            string checkValueA = "No match";
+            string checkValueB = "Match - where there should be none";
+
+            //Act
+            try
+            {
+                int appoId = AppointmentCreate();
+                if (appoId < 1)
+                    throw new Exception();
+
+                WaitForStat(appoId, WorkflowState.Created);
+
+                if (coreOut.AppointmentRead(appoId + 42) == null) //wrong id
+                    checkValueB = "No match";
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test008_Core_2b_AppointmentRead()
+        {
+            //Arrange
+            TestPrepare(t.GetMethodName(), true, true);
+            string checkValueA = "True";
+            string checkValueB = "";
+
+            //Act
+            try
+            {
+                int appoId = AppointmentCreate();
+                if (appoId < 1)
+                    throw new Exception();
+
+                WaitForStat(appoId, WorkflowState.Created);
+
+                if (coreOut.AppointmentRead(appoId) != null)
+                    checkValueB = "True";
+            }
+            catch (Exception ex)
+            {
+                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+            }
+
+            //Assert
+            TestTeardown();
+            Assert.Equal(checkValueA, checkValueB);
+        }
+
+        [Fact]
+        public void Test008_Core_3a_AppointmentCancel_NoMatch()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), true, true);
@@ -1657,7 +1717,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test008_Core_2b_AppointmentCancel_Simple()
+        public void Test008_Core_3b_AppointmentCancel_Simple()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), true, true);
@@ -1686,7 +1746,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test008_Core_2c_AppointmentCancel_Advanced()
+        public void Test008_Core_3c_AppointmentCancel_Advanced()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), true, true);
@@ -1724,7 +1784,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test008_Core_3a_AppointmentDelete_NoMatch()
+        public void Test008_Core_4a_AppointmentDelete_NoMatch()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), true, true);
@@ -1754,7 +1814,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test008_Core_3b_AppointmentDelete_Simple()
+        public void Test008_Core_4b_AppointmentDelete_Simple()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), true, true);
@@ -1783,7 +1843,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void Test008_Core_3c_AppointmentDelete_Advanced()
+        public void Test008_Core_4c_AppointmentDelete_Advanced()
         {
             //Arrange
             TestPrepare(t.GetMethodName(), true, true);
