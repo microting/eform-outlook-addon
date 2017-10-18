@@ -362,6 +362,34 @@ namespace OutlookCore
         /// <summary>
         /// No summary
         /// </summary>
+        public Appointment      AppointmentRead(int appointmentId)
+        {
+            try
+            {
+                log.LogStandard("Not Specified", t.GetMethodName() + " called");
+                log.LogVariable("Not Specified", nameof(appointmentId), appointmentId);
+
+                var a = sqlController.AppointmentsFind(appointmentId);
+                if (a == null)
+                {
+                    log.LogStandard("Not Specified", "No match found");
+                    return null;
+                }
+
+                Appointment appointment = 
+                    new Appointment(a.global_id, t.Date(a.start_at), t.Int(a.duration), a.subject, a.location, a.body, t.Bool(a.color_rule), true, sqlController.LookupRead);
+
+                return appointment;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// No summary
+        /// </summary>
         public bool?            AppointmentCancel(int appointmentId)
         {
             try
