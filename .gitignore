@@ -323,4 +323,4 @@ paket-files/
 *.sln.iml
 >>>>>>> e83bb4f... Initial commit
 
-sql_connection.txt
+Compiled/*
