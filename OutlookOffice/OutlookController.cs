@@ -175,18 +175,13 @@ namespace OutlookOffice
                                 Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
 
                                 if (appo.Location == null)
-                                {
-                                    if (includeBlankLocations)
-                                        appo.Location = "planned";
-                                    else
-                                        appo.Location = "";
-                                }
-
+                                    appo.Location = "planned";
+                              
                                 if (appo.Location.ToLower() == "planned")
                                 {
                                     int count = sqlController.AppointmentsCreate(appo);
 
-                                    if (count == 1)
+                                    if (count > 0)
                                         CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Processed, appo.Body);
                                     else
                                     {
@@ -320,34 +315,34 @@ namespace OutlookOffice
                             item.Categories = null;
                             break;
                         case "Processed":
-                            item.Categories = "Processing";
+                            item.Categories = CalendarItemCategory.Processing.ToString();
                             break;
                         case "Created":
-                            item.Categories = "Processing";
+                            item.Categories = CalendarItemCategory.Processing.ToString();
                             break;
                         case "Sent":
-                            item.Categories = "Sent";
+                            item.Categories = CalendarItemCategory.Sent.ToString();
                             break;
                         case "Retrived":
-                            item.Categories = "Retrived";
+                            item.Categories = CalendarItemCategory.Retrived.ToString();
                             break;
                         case "Completed":
-                            item.Categories = "Completed";
+                            item.Categories = CalendarItemCategory.Completed.ToString();
                             break;
                         case "Canceled":
-                            item.Categories = "Revoked";
+                            item.Categories = CalendarItemCategory.Revoked.ToString();
                             break;
                         case "Revoked":
-                            item.Categories = "Revoked";
+                            item.Categories = CalendarItemCategory.Revoked.ToString();
                             break;
                         case "Failed_to_expection":
-                            item.Categories = "Error";
+                            item.Categories = CalendarItemCategory.Error.ToString();
                             break;
                         case "Failed_to_intrepid":
-                            item.Categories = "Error";
+                            item.Categories = CalendarItemCategory.Error.ToString();
                             break;
                         default:
-                            item.Categories = "Error";
+                            item.Categories = CalendarItemCategory.Error.ToString();
                             break;
                     }
                     #endregion
@@ -452,31 +447,31 @@ namespace OutlookOffice
                     item.Categories = null;
                     break;
                 case WorkflowState.Processed:
-                    item.Categories = "Processing";
+                    item.Categories = CalendarItemCategory.Processing.ToString();
                     break;
                 case WorkflowState.Created:
-                    item.Categories = "Processing";
+                    item.Categories = CalendarItemCategory.Processing.ToString();
                     break;
                 case WorkflowState.Sent:
-                    item.Categories = "Sent";
+                    item.Categories = CalendarItemCategory.Sent.ToString();
                     break;
                 case WorkflowState.Retrived:
-                    item.Categories = "Retrived";
+                    item.Categories = CalendarItemCategory.Retrived.ToString();
                     break;
                 case WorkflowState.Completed:
-                    item.Categories = "Completed";
+                    item.Categories = CalendarItemCategory.Completed.ToString();
                     break;
                 case WorkflowState.Canceled:
-                    item.Categories = "Canceled";
+                    item.Categories = CalendarItemCategory.Revoked.ToString();
                     break;
                 case WorkflowState.Revoked:
-                    item.Categories = "Revoked";
+                    item.Categories = CalendarItemCategory.Revoked.ToString();
                     break;
                 case WorkflowState.Failed_to_expection:
-                    item.Categories = "Error";
+                    item.Categories = CalendarItemCategory.Error.ToString();
                     break;
                 case WorkflowState.Failed_to_intrepid:
-                    item.Categories = "Error";
+                    item.Categories = CalendarItemCategory.Error.ToString();
                     break;
             }
             #endregion
@@ -662,5 +657,15 @@ namespace OutlookOffice
                     + Environment.NewLine + "info# " + "Tekst fra Outlook appointment";
         }
         #endregion
+    }
+
+    public enum CalendarItemCategory
+    {
+        Completed,
+        Error,
+        Processing,
+        Retrived,
+        Revoked,
+        Sent
     }
 }
