@@ -448,13 +448,14 @@ namespace UnitTest
             {
                 //Arrange
                 TestPrepare(t.GetMethodName(), false, false);
-                int checkValueA = 2;
-                int checkValueB = -2;
+                bool checkValueA = true;
+                bool checkValueB = false;
 
                 //Act
                 Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
-                checkValueB = sqlController.AppointmentsCreate(appoBase);
-
+                if (sqlController.AppointmentsCreate(appoBase) > 0)
+                    checkValueB = true;
+                
                 //Assert
                 TestTeardown();
                 Assert.Equal(checkValueA, checkValueB);
