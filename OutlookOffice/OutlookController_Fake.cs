@@ -70,27 +70,6 @@ namespace OutlookOffice
 
             if (globalId == null)
             {
-                //Copied
-                var appointment = sqlController.AppointmentsFindOne(1);
-
-                if (appointment != null)
-                {
-                    if (appointment.global_id.Contains("Appointment requested to be created"))
-                    {
-                        appointment.location = "Created";
-                        string newGlobalId = CalendarItemCreate(appointment.location, (DateTime)appointment.start_at, (int)appointment.duration, appointment.subject, appointment.body);
-                        log.LogCritical("Not Specified", "CalendarItemCreate successful");
-                        log.LogVariable("Not Specified", nameof(newGlobalId), newGlobalId);
-
-                        sqlController.AppointmentsUpdate(appointment.global_id, WorkflowState.Created, null, null, null);
-                        sqlController.AppointmentsUpdate(appointment.global_id, newGlobalId);
-                        log.LogEverything("Not Specified", "AppointmentsUpdate successful");
-
-                        return true;
-                    }
-                }
-                //Copied
-
                 int temp = rndm.Next(0, 2);
                 if (temp == 2)
                     temp = 1;
@@ -109,10 +88,12 @@ namespace OutlookOffice
 
         public string               CalendarItemCreate(string location, DateTime start, int duration, string subject, string body)
         {
-            return "Faked GlobalId:" + t.GetRandomInt(8);
+            string globalId = "Faked GlobalId:" + t.GetRandomInt(8);
+            sqlController.AppointmentsCreate(new Appointment(globalId, start, duration, subject, location, body, false, false, null));
+            return globalId;
         }
 
-        public bool                 CalendarItemUpdate(string globalId, DateTime start, WorkflowState workflowState, string body)
+        public bool                 CalendarItemUpdate(string globalId, DateTime start, LocationOptions workflowState, string body)
         {
              return true;
         }

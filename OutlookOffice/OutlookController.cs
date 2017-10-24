@@ -182,11 +182,11 @@ namespace OutlookOffice
                                     int count = sqlController.AppointmentsCreate(appo);
 
                                     if (count > 0)
-                                        CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Processed, appo.Body);
+                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Processed, appo.Body);
                                     else
                                     {
                                         if (count == 0)
-                                            CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Failed_to_expection, appo.Body);
+                                            CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Exception, appo.Body);
 
                                         if (count == -1)
                                         {
@@ -206,12 +206,12 @@ namespace OutlookOffice
                                                 Environment.NewLine + "" +
                                                 Environment.NewLine + appo.Body;
                                             #endregion
-                                            CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Failed_to_intrepid, appo.Body);
+                                            CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
                                         }
                                     }
                                 }
                                 else
-                                    CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Failed_to_intrepid, appo.Body);
+                                    CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
 
                                 AllIntrepid = true;
                             }
@@ -225,9 +225,9 @@ namespace OutlookOffice
                                 Appointment appo = new Appointment(item.GlobalAppointmentID, item.Start, item.Duration, item.Subject, item.Location, item.Body, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
 
                                 if (sqlController.AppointmentsCancel(appo.GlobalId))
-                                    CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Canceled, appo.Body);
+                                    CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Canceled, appo.Body);
                                 else
-                                    CalendarItemUpdate(appo.GlobalId, appo.Start, WorkflowState.Failed_to_intrepid, appo.Body);
+                                    CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
 
                                 AllIntrepid = true;
                             }
@@ -257,7 +257,7 @@ namespace OutlookOffice
                 #endregion
 
                 sqlController.SettingUpdate(Settings.checkLast_At, timeOfRun.ToString());
-                log.LogVariable("Not Specified", nameof(Settings.checkLast_At), Settings.checkLast_At.ToString());
+                log.LogVariable("Not Specified", nameof(Settings.checkLast_At), timeOfRun.ToString());
 
                 return AllIntrepid;
             }
@@ -287,24 +287,7 @@ namespace OutlookOffice
                     return false;
                 log.LogVariable("Not Specified", nameof(appointments), appointment.ToString());
 
-                #region if Outlook SDK requested to create a new appointment in the calendar
-                if (appointment.global_id.Contains("Appointment requested to be created"))
-                {
-                    appointment.location = "Created";
-                    string newGlobalId = CalendarItemCreate(appointment.location, (DateTime)appointment.start_at, (int)appointment.duration, appointment.subject, appointment.body);
-                    log.LogCritical("Not Specified", "CalendarItemCreate successful");
-                    log.LogVariable("Not Specified", nameof(newGlobalId), newGlobalId);
-
-                    sqlController.AppointmentsUpdate(appointment.global_id, WorkflowState.Created, null, null, null);
-                    sqlController.AppointmentsUpdate(appointment.global_id, newGlobalId);
-                    log.LogEverything("Not Specified", "AppointmentsUpdate successful");
-
-                    return true;
-                }
-                #endregion
-
                 Outlook.AppointmentItem item = AppointmentItemFind(appointment.global_id, appointment.start_at.Value);
-
                 if (item != null)
                 {
                     item.Location = appointment.workflow_state;
@@ -335,7 +318,7 @@ namespace OutlookOffice
                         case "Revoked":
                             item.Categories = CalendarItemCategory.Revoked.ToString();
                             break;
-                        case "Failed_to_expection":
+                        case "Exception":
                             item.Categories = CalendarItemCategory.Error.ToString();
                             break;
                         case "Failed_to_intrepid":
@@ -383,13 +366,13 @@ namespace OutlookOffice
                     }
                     #endregion
                     item.Save();
-                    log.LogStandard("Not Specified", globalId + " reflected in calendar");
+                    log.LogStandard("Not Specified", "globalId:'" + appointment.global_id + "' reflected in calendar");
                 }
                 else
-                    log.LogWarning("Not Specified", globalId + " no longer in calendar, so hence is considered reflected in calendar");
+                    log.LogWarning("Not Specified", "globalId:'" + appointment.global_id + "' no longer in calendar, so hence is considered to be reflected in calendar");
 
                 sqlController.AppointmentsReflected(appointment.global_id);
-                log.LogStandard("Not Specified", globalId + " reflected in database");
+                log.LogStandard("Not Specified", "globalId:'" + appointment.global_id + "' reflected in database");
                 return true;
             }
             catch (Exception ex)
@@ -434,7 +417,7 @@ namespace OutlookOffice
             }
         }
 
-        public bool                 CalendarItemUpdate(string globalId, DateTime start, WorkflowState workflowState, string body)
+        public bool                 CalendarItemUpdate(string globalId, DateTime start, LocationOptions workflowState, string body)
         {
             Outlook.AppointmentItem item = AppointmentItemFind(globalId, start);
 
@@ -443,34 +426,34 @@ namespace OutlookOffice
             #region item.Categories = 'workflowState'...
             switch (workflowState)
             {
-                case WorkflowState.Planned:
+                case LocationOptions.Planned:
                     item.Categories = null;
                     break;
-                case WorkflowState.Processed:
+                case LocationOptions.Processed:
                     item.Categories = CalendarItemCategory.Processing.ToString();
                     break;
-                case WorkflowState.Created:
+                case LocationOptions.Created:
                     item.Categories = CalendarItemCategory.Processing.ToString();
                     break;
-                case WorkflowState.Sent:
+                case LocationOptions.Sent:
                     item.Categories = CalendarItemCategory.Sent.ToString();
                     break;
-                case WorkflowState.Retrived:
+                case LocationOptions.Retrived:
                     item.Categories = CalendarItemCategory.Retrived.ToString();
                     break;
-                case WorkflowState.Completed:
+                case LocationOptions.Completed:
                     item.Categories = CalendarItemCategory.Completed.ToString();
                     break;
-                case WorkflowState.Canceled:
+                case LocationOptions.Canceled:
                     item.Categories = CalendarItemCategory.Revoked.ToString();
                     break;
-                case WorkflowState.Revoked:
+                case LocationOptions.Revoked:
                     item.Categories = CalendarItemCategory.Revoked.ToString();
                     break;
-                case WorkflowState.Failed_to_expection:
+                case LocationOptions.Exception:
                     item.Categories = CalendarItemCategory.Error.ToString();
                     break;
-                case WorkflowState.Failed_to_intrepid:
+                case LocationOptions.Failed_to_intrepid:
                     item.Categories = CalendarItemCategory.Error.ToString();
                     break;
             }
@@ -487,7 +470,7 @@ namespace OutlookOffice
             Outlook.AppointmentItem item = AppointmentItemFind(globalId, start);
             item.Delete();
 
-            log.LogStandard("Not Specified", globalId + " deleted");
+            log.LogStandard("Not Specified", "globalId:'" + globalId + "' deleted");
             return true;
         }
         #endregion

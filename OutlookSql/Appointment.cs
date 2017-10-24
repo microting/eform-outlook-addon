@@ -62,8 +62,32 @@ namespace OutlookSql
         }
         #endregion
 
-        #region methods
-        public void     BodyToFields(string body, Func<string, string> Lookup)
+        #region public
+        public override string ToString()
+        {
+            string globalId = "";
+            string start = "";
+            string title = "";
+            string location = "";
+
+            if (GlobalId != null)
+                globalId = GlobalId;
+
+            if (Start != null)
+                start = Start.ToString();
+
+            if (Title != null)
+                title = Title;
+
+            if (Location != null)
+                location = Location;
+
+            return "GlobalId:" + globalId + " / Start:" + start + " / Title:" + title + " / Location:" + location;
+        }
+        #endregion
+
+        #region private
+        private void BodyToFields(string body, Func<string, string> Lookup)
         {
             if (body == null)
                 body = "";
@@ -75,7 +99,7 @@ namespace OutlookSql
 
                 if (intrepidFailedStr != "")
                 {
-                    Location = "Failed_to_intrepid";
+                    Location = LocationOptions.Failed_to_intrepid.ToString();
                     Body =
                     "<<< Intrepid error: Start >>>" + Environment.NewLine +
                     intrepidFailedStr + Environment.NewLine +
@@ -86,7 +110,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                Location = "Exception";
+                Location = LocationOptions.Exception.ToString();
                 Body =
                 "<<< Exception: Start >>>" + Environment.NewLine +
                 t.PrintException("Failed to intrepid this event, for the following reason:", ex) + Environment.NewLine +
@@ -96,7 +120,7 @@ namespace OutlookSql
             }
         }
 
-        private string  ReadingFields(string body, Func<string, string> Lookup)
+        private string ReadingFields(string body, Func<string, string> Lookup)
         {
             #region var
             string[] lines = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
@@ -127,7 +151,7 @@ namespace OutlookSql
                         if (itemStr.Contains("failed, for title"))
                             rtrnMsg = itemStr + Environment.NewLine +
                                 "" + Environment.NewLine + rtrnMsg;
-           
+
                         TemplateId = int.Parse(itemStr);
 
                         continue;
@@ -254,8 +278,8 @@ namespace OutlookSql
                 }
                 catch (Exception ex)
                 {
-                        rtrnMsg = t.PrintException("The following line:'" + line + "' coursed a exception", ex) + Environment.NewLine +
-                          "" + Environment.NewLine + rtrnMsg;
+                    rtrnMsg = t.PrintException("The following line:'" + line + "' coursed a exception", ex) + Environment.NewLine +
+                      "" + Environment.NewLine + rtrnMsg;
                 }
             }
 
@@ -271,39 +295,18 @@ namespace OutlookSql
                 rtrnMsg = "The mandatory field 'template' input not recognized." + Environment.NewLine +
                     "- Expected format: template#[identifier]" + Environment.NewLine +
                     "- Sample 1       : template#12" + Environment.NewLine +
-                    "- Sample 2       : template#'Container check'" + Environment.NewLine + 
+                    "- Sample 2       : template#'Container check'" + Environment.NewLine +
                     "" + Environment.NewLine + rtrnMsg;
             #endregion
 
             return rtrnMsg.Trim();
         }
-
-        public override string ToString()
-        {
-            string globalId = "";
-            string start = "";
-            string title = "";
-            string location = "";
-
-            if (GlobalId != null)
-                globalId = GlobalId;
-
-            if (Start != null)
-                start = Start.ToString();
-
-            if (Title != null)
-                title = Title;
-
-            if (Location != null)
-                location = Location;
-
-            return "GlobalId:" + globalId + " / Start:" + start + " / Title:" + title + " / Location:" + location;
-        }
         #endregion
     }
 
-    public enum WorkflowState
+    public enum LocationOptions
     {
+        //Appointment locations options / WorkflowState options
         Pre_created,
         Planned,
         Processed,
@@ -313,7 +316,8 @@ namespace OutlookSql
         Completed,
         Canceled,
         Revoked,
-        Failed_to_expection,
-        Failed_to_intrepid
+        Failed_to_intrepid,
+        Exception,
+        Unknown_location
     }
 }

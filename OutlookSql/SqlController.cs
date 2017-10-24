@@ -230,7 +230,7 @@ namespace OutlookSql
             }
         }
 
-        public appointments         AppointmentsFindOne(WorkflowState workflowState)
+        public appointments         AppointmentsFindOne(LocationOptions workflowState)
         {
             try
             {
@@ -264,7 +264,7 @@ namespace OutlookSql
             }
         }
 
-        public bool                 AppointmentsUpdate(string globalId, WorkflowState workflowState, string body, string expectionString, string response)
+        public bool                 AppointmentsUpdate(string globalId, LocationOptions workflowState, string body, string expectionString, string response)
         {
             try
             {
@@ -518,13 +518,13 @@ namespace OutlookSql
         {
             // read input
             #region create
-            appointments appoint = AppointmentsFindOne(WorkflowState.Processed);
+            appointments appoint = AppointmentsFindOne(LocationOptions.Processed);
 
             if (appoint != null)
             {
                 if (InteractionCaseCreate(appoint))
                 {
-                    bool isUpdated = AppointmentsUpdate(appoint.global_id, WorkflowState.Created, appoint.body, appoint.expectionString, null);
+                    bool isUpdated = AppointmentsUpdate(appoint.global_id, LocationOptions.Created, appoint.body, appoint.expectionString, null);
 
                     if (isUpdated)
                         return true;
@@ -545,13 +545,13 @@ namespace OutlookSql
             #endregion
 
             #region delete
-            appoint = AppointmentsFindOne(WorkflowState.Canceled);
+            appoint = AppointmentsFindOne(LocationOptions.Canceled);
 
             if (appoint != null)
             {
                 if (InteractionCaseDelete(appoint))
                 {
-                    bool isUpdated = AppointmentsUpdate(appoint.global_id, WorkflowState.Revoked, appoint.body, appoint.expectionString, null);
+                    bool isUpdated = AppointmentsUpdate(appoint.global_id, LocationOptions.Revoked, appoint.body, appoint.expectionString, null);
 
                     if (isUpdated)
                         return true;
@@ -621,7 +621,7 @@ namespace OutlookSql
             catch (Exception ex)
             {
                 log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
-                AppointmentsUpdate(appointment.global_id, WorkflowState.Failed_to_expection, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
+                AppointmentsUpdate(appointment.global_id, LocationOptions.Exception, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
                 return false;
             }
         }
@@ -636,7 +636,7 @@ namespace OutlookSql
             catch (Exception ex)
             {
                 log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
-                AppointmentsUpdate(appointment.global_id, WorkflowState.Failed_to_expection, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
+                AppointmentsUpdate(appointment.global_id, LocationOptions.Exception, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
                 return false;
             }
         }
@@ -680,12 +680,12 @@ namespace OutlookSql
                         if (item.stat == "Sent")
                         {
                             statCur = 2;
-                            lstSent.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
+                                 lstSent.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
                         }
                         if (item.stat == "Retrived")
                         {
                             statCur = 3;
-                            lstRetrived.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
+                             lstRetrived.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
                         }
                         if (item.stat == "Completed")
                         {
@@ -696,7 +696,7 @@ namespace OutlookSql
                         if (item.stat == "Deleted")
                         {
                             statCur = 5;
-                            lstDeleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
+                              lstDeleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
                         }
 
                         if (item.stat == "Expection")
@@ -769,19 +769,19 @@ namespace OutlookSql
                     #endregion
 
                     #region WorkflowState wFS = ...
-                    WorkflowState wFS = WorkflowState.Failed_to_intrepid;
+                    LocationOptions wFS = LocationOptions.Failed_to_intrepid;
                     if (statFinal == 1)
-                        wFS = WorkflowState.Created;
+                        wFS = LocationOptions.Created;
                     if (statFinal == 2)
-                        wFS = WorkflowState.Sent;
+                        wFS = LocationOptions.Sent;
                     if (statFinal == 3)
-                        wFS = WorkflowState.Retrived;
+                        wFS = LocationOptions.Retrived;
                     if (statFinal == 4)
-                        wFS = WorkflowState.Completed;
+                        wFS = LocationOptions.Completed;
                     if (statFinal == 5)
-                        wFS = WorkflowState.Revoked;
+                        wFS = LocationOptions.Revoked;
                     if (flagException == true)
-                        wFS = WorkflowState.Failed_to_intrepid;
+                        wFS = LocationOptions.Failed_to_intrepid;
                     #endregion
 
                     if (addToBody != "")

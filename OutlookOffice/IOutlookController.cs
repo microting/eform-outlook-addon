@@ -14,7 +14,7 @@ namespace OutlookOffice
 
         string CalendarItemCreate(string location, DateTime start, int duration, string subject, string body);
         
-        bool CalendarItemUpdate(string globalId, DateTime start, WorkflowState workflowState, string body);
+        bool CalendarItemUpdate(string globalId, DateTime start, LocationOptions workflowState, string body);
 
         bool CalendarItemDelete(string globalId, DateTime start);
 

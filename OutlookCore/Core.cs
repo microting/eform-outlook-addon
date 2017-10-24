@@ -255,7 +255,7 @@ namespace OutlookCore
         /// <summary>
         /// IMPORTANT: templateId, sites, startTime, duration, outlookTitle and eFormConnected are mandatory. Rest are optional, and should be passed 'null' if not wanted to use
         /// </summary>
-        public int              AppointmentCreate(int templateId, List<int> sites, DateTime startTime, int duration,
+        public string           AppointmentCreate(int templateId, List<int> sites, DateTime startTime, int duration,
             string outlookTitle, string outlookCommentary, bool? outlookColorRuleOverride, 
             bool eFormConnected, string eFormTitle, string eFormDescription, string eFormInfo, int? eFormDaysToExpire, List<string> eFormReplacements)
         {
@@ -286,8 +286,6 @@ namespace OutlookCore
                     throw new ArgumentException("sites.Count needs to be minimum 1");
 
                 //---
-
-                string globalId = "Appointment requested to be created" + " - uid:" + t.GetRandomInt(8);
 
                 if (startTime == null)
                     throw new ArgumentException("startTime needs to be not null");
@@ -349,9 +347,8 @@ namespace OutlookCore
                             body += Environment.NewLine + "Replacements# "  + replacement;
                 #endregion
 
-                Appointment appo = new Appointment(globalId, startTime, duration, outlookTitle, "Planned", body, colorRule, false, null);
-
-                return sqlController.AppointmentsCreate(appo);
+                string globalId = outlookController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body);
+                return globalId;
             }
             catch (Exception ex)
             {
@@ -362,22 +359,22 @@ namespace OutlookCore
         /// <summary>
         /// No summary
         /// </summary>
-        public Appointment      AppointmentRead(int appointmentId)
+        public Appointment      AppointmentRead(string globalId)
         {
             try
             {
                 log.LogStandard("Not Specified", t.GetMethodName() + " called");
-                log.LogVariable("Not Specified", nameof(appointmentId), appointmentId);
+                log.LogVariable("Not Specified", nameof(globalId), globalId);
 
-                var a = sqlController.AppointmentsFind(appointmentId);
-                if (a == null)
+                var appo = sqlController.AppointmentsFind(globalId);
+                if (appo == null)
                 {
                     log.LogStandard("Not Specified", "No match found");
                     return null;
                 }
 
                 Appointment appointment = 
-                    new Appointment(a.global_id, t.Date(a.start_at), t.Int(a.duration), a.subject, a.location, a.body, t.Bool(a.color_rule), true, sqlController.LookupRead);
+                    new Appointment(appo.global_id, t.Date(appo.start_at), t.Int(appo.duration), appo.subject, appo.location, appo.body, t.Bool(appo.color_rule), true, sqlController.LookupRead);
 
                 return appointment;
             }
@@ -390,21 +387,21 @@ namespace OutlookCore
         /// <summary>
         /// No summary
         /// </summary>
-        public bool?            AppointmentCancel(int appointmentId)
+        public bool?            AppointmentCancel(string globalId)
         {
             try
             {
                 log.LogStandard("Not Specified", t.GetMethodName() + " called");
-                log.LogVariable("Not Specified", nameof(appointmentId), appointmentId);
+                log.LogVariable("Not Specified", nameof(globalId), globalId);
 
-                var appo = sqlController.AppointmentsFind(appointmentId);
+                var appo = sqlController.AppointmentsFind(globalId);
                 if (appo == null)
                 {
                     log.LogStandard("Not Specified", "No match found");
                     return null;
                 }
 
-                return sqlController.AppointmentsUpdate(appo.global_id, WorkflowState.Canceled, appo.body, null, null);
+                return sqlController.AppointmentsUpdate(appo.global_id, LocationOptions.Canceled, appo.body, null, null);
             }
             catch (Exception ex)
             {
@@ -415,14 +412,14 @@ namespace OutlookCore
         /// <summary>
         /// No summary
         /// </summary>
-        public bool?            AppointmentDelete(int appointmentId)
+        public bool?            AppointmentDelete(string globalId)
         {
             try
             {
                 log.LogStandard("Not Specified", t.GetMethodName() + " called");
-                log.LogVariable("Not Specified", nameof(appointmentId), appointmentId);
+                log.LogVariable("Not Specified", nameof(globalId), globalId);
 
-                var appo = sqlController.AppointmentsFind(appointmentId);
+                var appo = sqlController.AppointmentsFind(globalId);
                 if (appo == null)
                 {
                     log.LogStandard("Not Specified", "No match found");
@@ -430,7 +427,7 @@ namespace OutlookCore
                 }
 
                 if (outlookController.CalendarItemDelete(appo.global_id, (DateTime)appo.start_at))
-                    return sqlController.AppointmentsUpdate(appo.global_id, WorkflowState.Canceled, appo.body, null, null);
+                    return sqlController.AppointmentsUpdate(appo.global_id, LocationOptions.Canceled, appo.body, null, null);
                 else
                     return false;
             }
@@ -616,7 +613,7 @@ namespace OutlookCore
 
                     lstAppointments = outlookController.UnitTest_CalendarItemGetAllNonRecurring(rollBackFrom, rollBackTo__);
                     foreach (var item in lstAppointments)
-                        outlookController.CalendarItemUpdate(item.GlobalId, item.Start, WorkflowState.Planned, item.Body);
+                        outlookController.CalendarItemUpdate(item.GlobalId, item.Start, LocationOptions.Planned, item.Body);
 
                     sqlController.SettingUpdate(Settings.checkLast_At, now.ToString());
 
