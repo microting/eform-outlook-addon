@@ -1439,6 +1439,7 @@ namespace UnitTest
             catch (Exception ex)
             {
                 tempValue = t.PrintException(t.GetMethodName() + " failed. Not always a real issue due to behaiver of threads.", ex);
+                Console.WriteLine(tempValue);
             }
 
             #region //Assert
@@ -1846,6 +1847,7 @@ namespace UnitTest
             catch (Exception ex)
             {
                 checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+                Console.WriteLine(checkValueB);
             }
 
             //Assert
