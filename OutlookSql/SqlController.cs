@@ -630,7 +630,12 @@ namespace OutlookSql
         {
             try
             {
-                sdkSqlCon.InteractionCaseDelete(int.Parse(appointment.microting_uid));
+                string mUID = appointment.microting_uid;
+
+                if (string.IsNullOrEmpty(mUID))
+                    return true;
+
+                sdkSqlCon.InteractionCaseDelete(int.Parse(mUID));
                 return true;
             }
             catch (Exception ex)
