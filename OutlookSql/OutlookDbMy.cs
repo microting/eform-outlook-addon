@@ -1,10 +1,10 @@
 namespace OutlookSql
 {
     using System.Data.Entity;
-    using MySql.Data.Entity;
+//    using MySql.Data.Entity;
 
     // Code-Based Configuration and Dependency resolution
-    [DbConfigurationType(typeof(MySqlEFConfiguration))]
+//    [DbConfigurationType(typeof(MySqlEFConfiguration))]
     public partial class OutlookDbMy : DbContext, OutlookContextInterface
     {
         public OutlookDbMy() { }
