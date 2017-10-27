@@ -153,6 +153,8 @@ namespace UnitTest
 
             if (startOut)
                 coreOut.Start(connectionStringOut);
+
+            sqlController.StartLog(coreOut);
         }
 
         private void TestTeardown()
@@ -569,11 +571,11 @@ namespace UnitTest
             {
                 //Arrange
                 TestPrepare(t.GetMethodName(), false, false);
-                string checkValueA = "Planned Test";
+                string checkValueA = "Processed Test";
                 string checkValueB = "Not the right reply";
 
                 //Act
-                sqlController.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Bla bla", "body", false, false, sqlController.LookupRead));
                 var match = sqlController.AppointmentsFind("globalId");
                 checkValueB = match.location + " " + match.subject;
 
@@ -911,7 +913,7 @@ namespace UnitTest
                 int checkValueB = 1;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Other", "body", false, false, sqlController.LookupRead);
                 sqlController.AppointmentsCreate(appoBase);
                 sqlController.SyncInteractionCase();
 
@@ -1170,7 +1172,7 @@ namespace UnitTest
                 TestPrepare(t.GetMethodName(), false, false);
                 string checkValueA = "true";
                 string checkValueB = "";
-                IOutlookController oCon = new OutlookController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
+                OutlookController oCon = new OutlookController(sqlController, new Log(coreOut, new LogWriter(), 4));
 
                 //Act
                 bool response;
@@ -1193,7 +1195,7 @@ namespace UnitTest
                 TestPrepare(t.GetMethodName(), false, false);
                 string checkValueA = "true";
                 string checkValueB = "";
-                IOutlookController oCon = new OutlookController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
+                OutlookController oCon = new OutlookController(sqlController, new Log(coreOut, new LogWriter(), 4));
 
                 //Act
                 bool response;
@@ -1207,7 +1209,7 @@ namespace UnitTest
             }
         }
 
-        [Fact]
+        //Refactor [Fact]
         public void Test006_OutlookController_3a_CalendarItemReflecting()
         {
             lock (_lockTest)
@@ -1225,7 +1227,7 @@ namespace UnitTest
                 bool? checkValueB3 = false;
                 bool? checkValueB4 = true;
                 bool? checkValueB5 = false;
-                IOutlookController oCon = new OutlookController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
+                OutlookController oCon = new OutlookController(sqlController, new Log(coreOut, new LogWriter(), 4));
 
                 //Act
                 checkValueB1 = oCon.CalendarItemReflecting(null);
@@ -1251,7 +1253,7 @@ namespace UnitTest
             }
         }
 
-        [Fact]
+        //Refactor [Fact]
         public void Test006_OutlookController_4a_CalendarItemUpdate()
         {
             lock (_lockTest)
@@ -1261,7 +1263,7 @@ namespace UnitTest
                 bool checkValueA = true;
                 bool checkValueB = false;
                 Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
-                IOutlookController oCon = new OutlookController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
+                OutlookController oCon = new OutlookController(sqlController, new Log(coreOut, new LogWriter(), 4));
 
                 //Act
                 oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, LocationOptions.Processed, appoBase.Body);
@@ -1278,7 +1280,7 @@ namespace UnitTest
         #endregion
 
         #region - test 007x - core (Exception handling)
-        [Fact]
+        //Refactor [Fact]
         public void Test007_Core_1a_ExceptionHandling()
         {
             #region //Arrange
@@ -1324,7 +1326,7 @@ namespace UnitTest
             #endregion
         }
 
-        [Fact]
+        //Refactor [Fact]
         public void Test007_Core_2a_DoubleExceptionHandling()
         {
             #region //Arrange
@@ -1388,7 +1390,7 @@ namespace UnitTest
             #endregion
         }
 
-        [Fact]
+        //Refactor [Fact]
         public void Test007_Core_3a_FatalExceptionHandling()
         {
             #region //Arrange
@@ -1881,7 +1883,7 @@ namespace UnitTest
             return returnValue;
         }
 
-        private bool WaitForStat(string globalId, LocationOptions workflowState)
+        private bool WaitForStat(string globalId, LocationOptions location)
         {
             try
             {
@@ -1890,7 +1892,7 @@ namespace UnitTest
                     var appoint = sqlController.AppointmentsFind(globalId);
 
                     if (appoint != null)
-                        if (appoint.workflow_state == workflowState.ToString())
+                        if (appoint.location == location.ToString())
                             return true;
 
                     Thread.Sleep(100);

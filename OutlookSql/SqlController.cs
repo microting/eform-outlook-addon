@@ -128,7 +128,7 @@ namespace OutlookSql
                     newAppo.expire_at = appointment.Start.AddDays(appointment.Expire);
                     newAppo.global_id = appointment.GlobalId;
                     newAppo.info = appointment.Info;
-                    newAppo.location = appointment.Location;
+                    newAppo.location = "Processed";
                     newAppo.body = appointment.Body;
                     newAppo.microting_uid = appointment.MicrotingUId;
                     newAppo.completed = 1;
@@ -139,12 +139,7 @@ namespace OutlookSql
                     newAppo.title = appointment.Title;
                     newAppo.description = appointment.Description;
                     newAppo.color_rule = t.Bool(appointment.ColorRule);
-                    #region                     newAppo.workflow_state = ...;
-                    if (appointment.GlobalId.Contains("Appointment requested to be created"))
-                        newAppo.workflow_state = "Pre_created";
-                    else
-                        newAppo.workflow_state = "Processed";
-                    #endregion
+                    newAppo.workflow_state = "Created";
                     newAppo.created_at = DateTime.Now;
                     newAppo.updated_at = DateTime.Now;
                     newAppo.version = 1;
@@ -176,7 +171,7 @@ namespace OutlookSql
                     if (match == null)
                         return false;
 
-                    match.workflow_state = "Canceled";
+                    match.location = "Canceled";
                     match.updated_at = DateTime.Now;
                     match.completed = 1;
                     match.version = match.version + 1;
@@ -213,30 +208,13 @@ namespace OutlookSql
             }
         }
 
-        public appointments         AppointmentsFind(int appointmentId)
+        public appointments         AppointmentsFindOne(LocationOptions location)
         {
             try
             {
                 using (var db = GetContextO())
                 {
-                    var match = db.appointments.SingleOrDefault(x => x.id == appointmentId && x.workflow_state != "Pre_created");
-                    return match;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
-                return null;
-            }
-        }
-
-        public appointments         AppointmentsFindOne(LocationOptions workflowState)
-        {
-            try
-            {
-                using (var db = GetContextO())
-                {
-                    var match = db.appointments.FirstOrDefault(x => x.workflow_state == workflowState.ToString());
+                    var match = db.appointments.FirstOrDefault(x => x.location == location.ToString());
                     return match;
                 }
             }
@@ -264,7 +242,7 @@ namespace OutlookSql
             }
         }
 
-        public bool                 AppointmentsUpdate(string globalId, LocationOptions workflowState, string body, string expectionString, string response)
+        public bool                 AppointmentsUpdate(string globalId, LocationOptions location, string body, string expectionString, string response)
         {
             try
             {
@@ -275,7 +253,7 @@ namespace OutlookSql
                     if (match == null)
                         return false;
 
-                    match.workflow_state = workflowState.ToString();
+                    match.location = location.ToString();
                     match.updated_at = DateTime.Now;
                     match.completed = 0;
                     #region match.body = body ...
@@ -524,23 +502,16 @@ namespace OutlookSql
             {
                 if (InteractionCaseCreate(appoint))
                 {
-                    bool isUpdated = AppointmentsUpdate(appoint.global_id, LocationOptions.Created, appoint.body, appoint.expectionString, null);
-
-                    if (isUpdated)
-                        return true;
-                    else
-                    {
-                        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-                        log.LogException("Not Specified", "Failed to update Outlook appointment, but Appointment created in SDK input", new Exception("FATAL issue"), true);
-                    }
+                    log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+                    log.LogStandard("Not Specified", "Appointment created in SDK input");
+                    return true;
                 }
                 else
                 {
                     log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
                     log.LogException("Not Specified", "Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
+                    return false;
                 }
-
-                return false;
             }
             #endregion
 
@@ -606,6 +577,8 @@ namespace OutlookSql
 
                     var match = db.appointments.Single(x => x.global_id == appointment.global_id);
 
+                    match.location = "Created";
+                    match.completed = 0;
                     match.microting_uid = "" + interCaseId;
                     match.updated_at = DateTime.Now;
                     match.version = match.version + 1;

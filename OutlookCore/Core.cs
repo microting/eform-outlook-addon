@@ -44,7 +44,7 @@ namespace OutlookCore
         #region var
         SqlController sqlController;
         Tools t = new Tools();
-        public IOutlookController outlookController;
+        public OutlookController outlookController;
         public Log log;
 
         bool syncOutlookConvertRunning = false;
@@ -103,16 +103,8 @@ namespace OutlookCore
                     log.LogStandard("Not Specified", "Settings read");
 
                     //outlookController
-                    if (sqlController.SettingRead(Settings.calendarName) == "unittest")
-                    {
-                        outlookController = new OutlookController_Fake(sqlController, log);
-                        log.LogStandard("Not Specified", "OutlookController_Fake started");
-                    }
-                    else
-                    {
-                        outlookController = new OutlookController(sqlController, log);
-                        log.LogStandard("Not Specified", "OutlookController started");
-                    }
+                    outlookController = new OutlookController(sqlController, log);
+                    log.LogStandard("Not Specified", "OutlookController started");
 
                     log.LogCritical("Not Specified", t.GetMethodName() + " started");
                     coreAvailable = true;
