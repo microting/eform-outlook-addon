@@ -1895,9 +1895,9 @@ namespace UnitTest
                         if (appoint.location == location.ToString())
                             return true;
 
-                    Thread.Sleep(100);
+                    Thread.Sleep(200);
                 }
-                throw new Exception("WaitForStat failed. Due to failed 100 attempts (10sec+)");
+                throw new Exception("WaitForStat failed. Due to failed 100 attempts (20sec+)");
             }
             catch (Exception ex)
             {
