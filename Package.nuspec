@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Microting.OutlookAddon</id>
-    <version>1.0.1.7</version>
+    <version>1.0.1.8</version>
     <authors>Microting A/S</authors>
     <owners>Microting A/S</owners>
     <licenseUrl>https://github.com/microting/eform-outlook-addon/blob/master/LICENSE</licenseUrl>
@@ -10,7 +10,7 @@
 	<iconUrl>https://www.microting.com/wp-content/uploads/2016/02/Microting-O-Logo-1.jpg</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>A component, which is used by the windows service component.</description>
-    <releaseNotes>Updating to version 1.6.4.2 of the SDK</releaseNotes>
+    <releaseNotes>Updating to version 1.6.4.3of the SDK</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <dependencies>
 	  <dependency id="Newtonsoft.Json" version="9.0.1"/>
