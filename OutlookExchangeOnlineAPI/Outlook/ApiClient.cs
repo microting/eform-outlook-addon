@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -11,11 +12,12 @@ namespace OutlookExchangeOnlineAPI
 {
     public class OutlookExchangeOnlineAPIClient
     {
-        string authority = "https://login.microsoftonline.com/44500d05-8971-44c2-9122-77e6a661ce46/oauth2/token";
-        string clientId = "e84acdd6-5b68-402c-9278-23ddbee13c44";
+        string authority = "https://login.microsoftonline.com/REPLACE_ME_GUID/oauth2/token";
+        string clientId = "";
         // Used to set the base API endpoint, e.g. "https://outlook.office.com/api/beta"
         public string ApiEndpoint { get; set; }
         public string AccessToken { get; set; }
+        string serviceLocation;
 
         public OutlookExchangeOnlineAPIClient()
         {
@@ -26,8 +28,10 @@ namespace OutlookExchangeOnlineAPI
 
         private string GetAppToken(string certFile, string certPass)
         {
+            string directory_id = File.ReadAllText(GetServiceLocation() + @"cert\directory_id.txt").Trim();
+            clientId = File.ReadAllText(GetServiceLocation() + @"cert\clientId.txt").Trim();
             X509Certificate2 cert = new X509Certificate2(certFile, certPass, X509KeyStorageFlags.MachineKeySet);
-            AuthenticationContext authContext = new AuthenticationContext(authority);
+            AuthenticationContext authContext = new AuthenticationContext(authority.Replace("REPLACE_ME_GUID", directory_id));
             ClientAssertionCertificate assertion = new ClientAssertionCertificate(clientId, cert);
             AuthenticationResult authResult = authContext.AcquireTokenAsync("https://outlook.office.com", assertion).Result;
             return authResult.AccessToken;
@@ -141,6 +145,18 @@ namespace OutlookExchangeOnlineAPI
         {
             string requestUrl = String.Format("/users/{0}/events/{1}", userEmail, EventID);
             HttpResponseMessage result = MakeApiCall("DELETE", requestUrl, userEmail, null, null);
+        }
+
+        private string GetServiceLocation()
+        {
+            if (serviceLocation != "")
+                return serviceLocation;
+
+            serviceLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            serviceLocation = Path.GetDirectoryName(serviceLocation) + "\\";
+            //LogEvent("serviceLocation:'" + serviceLocation + "'");
+
+            return serviceLocation;
         }
     }
 }
