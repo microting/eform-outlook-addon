@@ -1301,7 +1301,7 @@ namespace UnitTest
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    coreOut.outlookController.UnitTest_ForceException("throw new Exception");
+                    coreOut.outlookOnlineController.UnitTest_ForceException("throw new Exception");
                     tempValue += WaitForRestart();
                 }
             }
@@ -1351,15 +1351,15 @@ namespace UnitTest
             //Act
             try
             {
-                coreOut.outlookController.UnitTest_ForceException("throw new Exception");
+                coreOut.outlookOnlineController.UnitTest_ForceException("throw new Exception");
                 tempValue += WaitForRestart();
 
                 for (int i = 0; i < 3; i++)
                 {
-                    coreOut.outlookController.UnitTest_ForceException("throw new Exception");
+                    coreOut.outlookOnlineController.UnitTest_ForceException("throw new Exception");
                     tempValue += WaitForRestart();
 
-                    coreOut.outlookController.UnitTest_ForceException("throw other Exception");
+                    coreOut.outlookOnlineController.UnitTest_ForceException("throw other Exception");
                     tempValue += WaitForRestart();
                 }
             }
@@ -1420,7 +1420,7 @@ namespace UnitTest
                 #region core.CaseCreate(main1, null, siteId1);
                 for (int i = 0; i < 2; i++)
                 {
-                    coreOut.outlookController.UnitTest_ForceException("throw new Exception");
+                    coreOut.outlookOnlineController.UnitTest_ForceException("throw new Exception");
                     tempValue += WaitForRestart();
                 }
                 #endregion
@@ -1430,10 +1430,10 @@ namespace UnitTest
                 #region core.CaseCreate(main1, null, siteId1);
                 for (int i = 0; i < 3; i++)
                 {
-                    coreOut.outlookController.UnitTest_ForceException("throw other Exception");
+                    coreOut.outlookOnlineController.UnitTest_ForceException("throw other Exception");
                     tempValue += WaitForRestart();
 
-                    coreOut.outlookController.UnitTest_ForceException("throw new Exception");
+                    coreOut.outlookOnlineController.UnitTest_ForceException("throw new Exception");
                     tempValue += WaitForRestart();
                 }
                 #endregion

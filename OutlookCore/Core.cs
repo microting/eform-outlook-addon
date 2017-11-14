@@ -33,6 +33,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using OutlookOfficeOnline;
+using OutlookExchangeOnlineAPI;
 
 namespace OutlookCore
 {
@@ -44,7 +46,9 @@ namespace OutlookCore
         #region var
         SqlController sqlController;
         Tools t = new Tools();
-        public OutlookController outlookController;
+        OutlookExchangeOnlineAPIClient outlookExchangeOnlineAPI;
+        public IOutlookOnlineController outlookOnlineController;
+        //public OutlookController outlookController;
         public Log log;
 
         bool syncOutlookConvertRunning = false;
@@ -102,8 +106,23 @@ namespace OutlookCore
                     this.connectionString = connectionString;
                     log.LogStandard("Not Specified", "Settings read");
 
+                    //Initialise Outlook API client's object
+                    outlookExchangeOnlineAPI = new OutlookExchangeOnlineAPIClient();
+
                     //outlookController
-                    outlookController = new OutlookController(sqlController, log);
+                    //outlookController = new OutlookController(sqlController, log);
+                    //outlookController
+                    if (sqlController.SettingRead(Settings.calendarName) == "unittest")
+                    {
+                        outlookOnlineController = new OutlookOnlineController_Fake(sqlController, log);
+                        log.LogStandard("Not Specified", "OutlookController_Fake started");
+                    }
+                    else
+                    {
+
+                        outlookOnlineController = new OutlookOnlineController(sqlController, log, outlookExchangeOnlineAPI);
+                        log.LogStandard("Not Specified", "OutlookController started");
+                    }
                     log.LogStandard("Not Specified", "OutlookController started");
 
                     log.LogCritical("Not Specified", t.GetMethodName() + " started");
@@ -203,7 +222,8 @@ namespace OutlookCore
                     syncInteractionCaseRunning = false;
 
                     log.LogStandard("Not Specified", "Core closed");
-                    outlookController = null;
+                    //outlookController = null;
+                    outlookOnlineController = null;
                     sqlController = null;
 
                     coreStatChanging = false;
@@ -339,7 +359,8 @@ namespace OutlookCore
                             body += Environment.NewLine + "Replacements# "  + replacement;
                 #endregion
 
-                string globalId = outlookController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body);
+                //string globalId = outlookController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body);
+                string globalId = outlookOnlineController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body);
                 return globalId;
             }
             catch (Exception ex)
@@ -418,10 +439,15 @@ namespace OutlookCore
                     return null;
                 }
 
-                if (outlookController.CalendarItemDelete(appo.global_id, (DateTime)appo.start_at))
+                if (outlookOnlineController.CalendarItemDelete(appo.global_id))
                     return sqlController.AppointmentsUpdate(appo.global_id, LocationOptions.Canceled, appo.body, null, null);
                 else
                     return false;
+
+                //if (outlookController.CalendarItemDelete(appo.global_id, (DateTime)appo.start_at))
+                //    return sqlController.AppointmentsUpdate(appo.global_id, LocationOptions.Canceled, appo.body, null, null);
+                //else
+                //    return false;
             }
             catch (Exception ex)
             {
@@ -447,7 +473,8 @@ namespace OutlookCore
 
                         if (firstRun)
                         {
-                            outlookController.CalendarItemConvertRecurrences();
+                            //outlookController.CalendarItemConvertRecurrences();
+                            outlookOnlineController.CalendarItemConvertRecurrences();
                             firstRun = false;
                             log.LogStandard("Not Specified", t.GetMethodName() + " warm up completed");
                         }
@@ -494,7 +521,8 @@ namespace OutlookCore
 
                     if (coreThreadRunning)
                     {
-                        while (coreThreadRunning && outlookController.CalendarItemConvertRecurrences()) { }
+                        while (coreThreadRunning && outlookOnlineController.CalendarItemConvertRecurrences()) { }
+                        //while (coreThreadRunning && outlookController.CalendarItemConvertRecurrences()) { }
 
                         log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
 
@@ -523,10 +551,16 @@ namespace OutlookCore
                 {
                     syncOutlookAppsRunning = true;
 
-                    while (coreThreadRunning && outlookController.CalendarItemIntrepid())
+                    //while (coreThreadRunning && outlookController.CalendarItemIntrepid())
+                    //    log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
+
+                    //while (coreThreadRunning && outlookController.CalendarItemReflecting(null))
+                    //    log.LogEverything("Not Specified", "outlookController.CalendarItemReflecting() completed");
+
+                    while (coreThreadRunning && outlookOnlineController.CalendarItemIntrepid())
                         log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
 
-                    while (coreThreadRunning && outlookController.CalendarItemReflecting(null))
+                    while (coreThreadRunning && outlookOnlineController.CalendarItemReflecting(null))
                         log.LogEverything("Not Specified", "outlookController.CalendarItemReflecting() completed");
 
                     syncOutlookAppsRunning = false;
@@ -587,7 +621,8 @@ namespace OutlookCore
         {
             sqlController = new SqlController(connectionString);
             Log log = sqlController.StartLog(this);
-            outlookController = new OutlookController(sqlController, log);
+            //outlookController = new OutlookController(sqlController, log);
+            outlookOnlineController = new OutlookOnlineController(sqlController, log, outlookExchangeOnlineAPI);
             AdminTools at = new AdminTools(sqlController.SettingRead(Settings.microtingDb));
 
             try
@@ -603,9 +638,12 @@ namespace OutlookCore
                     DateTime rollBackTo__ = now.AddDays(+2);
                     DateTime rollBackFrom = now.AddDays(-3);
 
-                    lstAppointments = outlookController.UnitTest_CalendarItemGetAllNonRecurring(rollBackFrom, rollBackTo__);
+                    //lstAppointments = outlookController.UnitTest_CalendarItemGetAllNonRecurring(rollBackFrom, rollBackTo__);
+                    lstAppointments = outlookOnlineController.UnitTest_CalendarItemGetAllNonRecurring(rollBackFrom, rollBackTo__);
+
                     foreach (var item in lstAppointments)
-                        outlookController.CalendarItemUpdate(item.GlobalId, item.Start, LocationOptions.Planned, item.Body);
+                        //outlookController.CalendarItemUpdate(item.GlobalId, item.Start, LocationOptions.Planned, item.Body);
+                        outlookOnlineController.CalendarItemUpdate(item.GlobalId, item.Start, LocationOptions.Planned, item.Body);
 
                     sqlController.SettingUpdate(Settings.checkLast_At, now.ToString());
 

@@ -111,6 +111,10 @@
       <Project>{448169a7-ab54-4dce-b30a-739c82e49f0c}</Project>
       <Name>OutlookCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OutlookOfficeOnline\OutlookOfficeOnline.csproj">
+      <Project>{DE4FCF29-8DC3-4F96-9122-E2C8E58F37B8}</Project>
+      <Name>OutlookOfficeOnline</Name>
+    </ProjectReference>
     <ProjectReference Include="..\OutlookOffice\OutlookOffice.csproj">
       <Project>{849124CB-94E2-4CEA-AF6E-1606CD1F6E29}</Project>
       <Name>OutlookOffice</Name>

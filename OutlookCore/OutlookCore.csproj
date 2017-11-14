@@ -89,6 +89,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OutlookExchangeOnlineAPI\OutlookExchangeOnlineAPI.csproj">
+      <Project>{1552369f-ec3d-486d-8f78-847af459a5b6}</Project>
+      <Name>OutlookExchangeOnlineAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OutlookOfficeOnline\OutlookOfficeOnline.csproj">
+      <Project>{de4fcf29-8dc3-4f96-9122-e2c8e58f37b8}</Project>
+      <Name>OutlookOfficeOnline</Name>
+    </ProjectReference>
     <ProjectReference Include="..\OutlookOffice\OutlookOffice.csproj">
       <Project>{849124CB-94E2-4CEA-AF6E-1606CD1F6E29}</Project>
       <Name>OutlookOffice</Name>
