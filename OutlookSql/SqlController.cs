@@ -1254,6 +1254,7 @@ namespace OutlookSql
         includeBlankLocations,
         colorsRule,
         responseBeforeBody,
-        calendarName
+        calendarName,
+        UserEmailAddess
     }
 }
