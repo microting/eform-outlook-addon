@@ -18,8 +18,8 @@ namespace SourceCode
             Core outCore = new Core();
             eFormCore.Core sdkCore = new eFormCore.Core();
 
-            string outConStr = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "MicrotingOutlook" + ";Integrated Security=True";
-            string sdkConStr = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "MicrotingOdense"  + ";Integrated Security=True";
+            string outConStr = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "MicrotingOutlook" + ";Integrated Security=True";
+            string sdkConStr = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "V166"  + ";Integrated Security=True";
             
             while (true)
             {

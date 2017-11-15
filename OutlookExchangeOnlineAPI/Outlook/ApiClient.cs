@@ -13,7 +13,7 @@ namespace OutlookExchangeOnlineAPI
     public class OutlookExchangeOnlineAPIClient
     {
         string authority = "https://login.microsoftonline.com/REPLACE_ME_GUID/oauth2/token";
-        string clientId = "";
+        string application_id = "";
         // Used to set the base API endpoint, e.g. "https://outlook.office.com/api/beta"
         public string ApiEndpoint { get; set; }
         public string AccessToken { get; set; }
@@ -29,10 +29,10 @@ namespace OutlookExchangeOnlineAPI
         private string GetAppToken(string certFile, string certPass)
         {
             string directory_id = File.ReadAllText(GetServiceLocation() + @"cert\directory_id.txt").Trim();
-            clientId = File.ReadAllText(GetServiceLocation() + @"cert\clientId.txt").Trim();
+            application_id = File.ReadAllText(GetServiceLocation() + @"cert\application_id.txt").Trim();
             X509Certificate2 cert = new X509Certificate2(certFile, certPass, X509KeyStorageFlags.MachineKeySet);
             AuthenticationContext authContext = new AuthenticationContext(authority.Replace("REPLACE_ME_GUID", directory_id));
-            ClientAssertionCertificate assertion = new ClientAssertionCertificate(clientId, cert);
+            ClientAssertionCertificate assertion = new ClientAssertionCertificate(application_id, cert);
             AuthenticationResult authResult = authContext.AcquireTokenAsync("https://outlook.office.com", assertion).Result;
             return authResult.AccessToken;
         }

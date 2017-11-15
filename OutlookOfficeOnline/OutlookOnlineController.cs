@@ -116,121 +116,129 @@ namespace OutlookOfficeOnline
                 #endregion
 
                 #region process appointments
-                foreach (Event item in GetCalendarItems(tLimitFrom, tLimitTo))
+                List<Event> eventList = GetCalendarItems(tLimitFrom, tLimitTo);
+                if (eventList == null)
                 {
-                    if (item.Type == "SingleInstance") //is NOT recurring, otherwise ignore
+                    AllIntrepid = true;
+                }
+                else
+                {
+                    foreach (Event item in eventList)
                     {
-                        if (tLimitFrom <= item.Start.DateTime && item.Start.DateTime <= tLimitTo)
+                        if (item.Type == "SingleInstance") //is NOT recurring, otherwise ignore
                         {
-                            #region location "planned"?
-                            string location = item.Location.DisplayName;
-
-                            if (location == string.Empty)
+                            if (tLimitFrom <= item.Start.DateTime && item.Start.DateTime <= tLimitTo)
                             {
-                                if (includeBlankLocations)
-                                    location = "planned";
-                                else
-                                    location = "";
-                            }
+                                #region location "planned"?
+                                string location = item.Location.DisplayName;
 
-                            location = location.ToLower();
-                            #endregion
-
-                            if (location.ToLower() == "planned")
-                            #region ...
-                            {
-                                log.LogVariable("Not Specified", nameof(location), location);
-
-                                if (item.BodyPreview != null)
-                                    if (item.BodyPreview.Contains("<<< "))
-                                        if (item.BodyPreview.Contains("End >>>"))
-                                        {
-                                            item.BodyPreview = t.ReplaceAtLocationAll(item.BodyPreview, "<<< ", "End >>>", "", true);
-                                            item.BodyPreview = item.BodyPreview.Replace("<<< End >>>", "");
-                                            item.BodyPreview = item.BodyPreview.Trim();
-                                        }
-
-                                Event Updateditem = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, "{\"Location\": {\"DisplayName\": \"" + location + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(item.BodyPreview) + "\"}}");
-
-                                Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, Updateditem.Location.DisplayName, Updateditem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
-
-                                if (appo.Location == null)
-                                    appo.Location = "planned";
-
-                                if (appo.Location.ToLower() == "planned")
+                                if (location == string.Empty)
                                 {
-                                    int count = sqlController.AppointmentsCreate(appo);
-
-                                    if (count > 0)
-                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Processed, appo.Body);
+                                    if (includeBlankLocations)
+                                        location = "planned";
                                     else
-                                    {
-                                        if (count == 0)
-                                            CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Exception, appo.Body);
+                                        location = "";
+                                }
 
-                                        if (count == -1)
+                                location = location.ToLower();
+                                #endregion
+
+                                if (location.ToLower() == "planned")
+                                #region ...
+                                {
+                                    log.LogVariable("Not Specified", nameof(location), location);
+
+                                    if (item.BodyPreview != null)
+                                        if (item.BodyPreview.Contains("<<< "))
+                                            if (item.BodyPreview.Contains("End >>>"))
+                                            {
+                                                item.BodyPreview = t.ReplaceAtLocationAll(item.BodyPreview, "<<< ", "End >>>", "", true);
+                                                item.BodyPreview = item.BodyPreview.Replace("<<< End >>>", "");
+                                                item.BodyPreview = item.BodyPreview.Trim();
+                                            }
+
+                                    Event Updateditem = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, "{\"Location\": {\"DisplayName\": \"" + location + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(item.BodyPreview) + "\"}}");
+
+                                    Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, Updateditem.Location.DisplayName, Updateditem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
+
+                                    if (appo.Location == null)
+                                        appo.Location = "planned";
+
+                                    if (appo.Location.ToLower() == "planned")
+                                    {
+                                        int count = sqlController.AppointmentsCreate(appo);
+
+                                        if (count > 0)
+                                            CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Processed, appo.Body);
+                                        else
                                         {
-                                            #region appo.Body = 'text'
-                                            appo.Body = "<<< Intrepid error: Start >>>" +
-                                                Environment.NewLine + "Global ID already exists in the database." +
-                                                Environment.NewLine + "Indicating that this appointment has already been created." +
-                                                Environment.NewLine + "Likely course, is that you set the Appointment’s location to 'planned'/[blank] again." +
-                                                Environment.NewLine + "" +
-                                                Environment.NewLine + "If you wanted to a create a new appointment in the calendar:" +
-                                                Environment.NewLine + "- Create a new appointment in the calendar" +
-                                                Environment.NewLine + "- Create or copy the wanted details to the new appointment" +
-                                                Environment.NewLine + "" +
-                                                Environment.NewLine + "If you want to restore this appointment’s correct status:" +
-                                                Environment.NewLine + "- Set the appointment’s location to 'check'" +
-                                                Environment.NewLine + "<<< Intrepid error: End >>>" +
-                                                Environment.NewLine + "" +
-                                                Environment.NewLine + appo.Body;
-                                            #endregion
-                                            CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
+                                            if (count == 0)
+                                                CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Exception, appo.Body);
+
+                                            if (count == -1)
+                                            {
+                                                #region appo.Body = 'text'
+                                                appo.Body = "<<< Intrepid error: Start >>>" +
+                                                    Environment.NewLine + "Global ID already exists in the database." +
+                                                    Environment.NewLine + "Indicating that this appointment has already been created." +
+                                                    Environment.NewLine + "Likely course, is that you set the Appointment’s location to 'planned'/[blank] again." +
+                                                    Environment.NewLine + "" +
+                                                    Environment.NewLine + "If you wanted to a create a new appointment in the calendar:" +
+                                                    Environment.NewLine + "- Create a new appointment in the calendar" +
+                                                    Environment.NewLine + "- Create or copy the wanted details to the new appointment" +
+                                                    Environment.NewLine + "" +
+                                                    Environment.NewLine + "If you want to restore this appointment’s correct status:" +
+                                                    Environment.NewLine + "- Set the appointment’s location to 'check'" +
+                                                    Environment.NewLine + "<<< Intrepid error: End >>>" +
+                                                    Environment.NewLine + "" +
+                                                    Environment.NewLine + appo.Body;
+                                                #endregion
+                                                CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
+                                            }
                                         }
                                     }
+                                    else
+                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
+
+                                    AllIntrepid = true;
                                 }
-                                else
-                                    CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
+                                #endregion
 
-                                AllIntrepid = true;
+                                if (location.ToLower() == "cancel")
+                                #region ...
+                                {
+                                    log.LogVariable("Not Specified", nameof(location), location);
+
+                                    Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, ReplaceLinesInBody(item.BodyPreview), t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
+
+                                    if (sqlController.AppointmentsCancel(appo.GlobalId))
+                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Canceled, appo.Body);
+                                    else
+                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
+
+                                    AllIntrepid = true;
+                                }
+                                #endregion
+
+                                if (location.ToLower() == "check")
+                                #region ...
+                                {
+                                    log.LogVariable("Not Specified", nameof(location), location);
+
+                                    eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb));
+                                    eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting, log);
+
+                                    var temp = sqlController.AppointmentsFind(item.Id);
+
+                                    var list = sqlMicroting.InteractionCaseListRead(int.Parse(temp.microting_uid));
+                                    foreach (var aCase in list)
+                                        com.CheckStatusUpdateIfNeeded(aCase.microting_uid);
+
+                                    CalendarItemReflecting(item.Id);
+                                    AllIntrepid = true;
+                                }
+                                #endregion
                             }
-                            #endregion
-
-                            if (location.ToLower() == "cancel")
-                            #region ...
-                            {
-                                log.LogVariable("Not Specified", nameof(location), location);
-
-                                Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, ReplaceLinesInBody(item.BodyPreview), t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
-
-                                if (sqlController.AppointmentsCancel(appo.GlobalId))
-                                    CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Canceled, appo.Body);
-                                else
-                                    CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
-
-                                AllIntrepid = true;
-                            }
-                            #endregion
-
-                            if (location.ToLower() == "check")
-                            #region ...
-                            {
-                                log.LogVariable("Not Specified", nameof(location), location);
-
-                                eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb));
-                                eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting, log);
-
-                                var temp = sqlController.AppointmentsFind(item.Id);
-
-                                var list = sqlMicroting.InteractionCaseListRead(int.Parse(temp.microting_uid));
-                                foreach (var aCase in list)
-                                    com.CheckStatusUpdateIfNeeded(aCase.microting_uid);
-
-                                CalendarItemReflecting(item.Id);
-                                AllIntrepid = true;
-                            }
-                            #endregion
                         }
                     }
                 }

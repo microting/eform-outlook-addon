@@ -815,6 +815,7 @@ namespace OutlookSql
             SettingCreate(Settings.colorsRule);
             SettingCreate(Settings.responseBeforeBody);
             SettingCreate(Settings.calendarName);
+            SettingCreate(Settings.UserEmailAddess);
 
             return true;
         }
@@ -851,7 +852,7 @@ namespace OutlookSql
                     case Settings.includeBlankLocations:    id =  9;    defaultValue = "true";                                  break;
                     case Settings.colorsRule:               id = 10;    defaultValue = "1";                                     break;
                     case Settings.responseBeforeBody:       id = 11;    defaultValue = "false";                                 break;
-                    case Settings.calendarName:             id = 12;    defaultValue = "default";                               break;
+                    case Settings.calendarName:             id = 12;    defaultValue = "Calendar";                              break;
        
                     default:
                         throw new IndexOutOfRangeException(name.ToString() + " is not a known/mapped Settings type");
