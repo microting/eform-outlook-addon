@@ -525,7 +525,7 @@ namespace OutlookOfficeOnline
                 return userEmailAddess;
             else
             {
-                userEmailAddess = sqlController.SettingRead(Settings.UserEmailAddess);
+                userEmailAddess = sqlController.SettingRead(Settings.userEmailAddress);
                 if (!string.IsNullOrEmpty(userEmailAddess))
                     return userEmailAddess;
                 else

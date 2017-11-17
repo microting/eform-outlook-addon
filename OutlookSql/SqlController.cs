@@ -815,7 +815,7 @@ namespace OutlookSql
             SettingCreate(Settings.colorsRule);
             SettingCreate(Settings.responseBeforeBody);
             SettingCreate(Settings.calendarName);
-            SettingCreate(Settings.UserEmailAddess);
+            SettingCreate(Settings.userEmailAddress);
 
             return true;
         }
@@ -853,7 +853,8 @@ namespace OutlookSql
                     case Settings.colorsRule:               id = 10;    defaultValue = "1";                                     break;
                     case Settings.responseBeforeBody:       id = 11;    defaultValue = "false";                                 break;
                     case Settings.calendarName:             id = 12;    defaultValue = "Calendar";                              break;
-       
+                    case Settings.userEmailAddress:          id = 13;    defaultValue = "no-reply@invalid.invalid";              break;
+
                     default:
                         throw new IndexOutOfRangeException(name.ToString() + " is not a known/mapped Settings type");
                 }
@@ -1256,6 +1257,6 @@ namespace OutlookSql
         colorsRule,
         responseBeforeBody,
         calendarName,
-        UserEmailAddess
+        userEmailAddress
     }
 }

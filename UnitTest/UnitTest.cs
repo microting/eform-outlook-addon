@@ -112,6 +112,7 @@ namespace UnitTest
 
         string connectionStringOut = "";
         string connectionStringSdk = "";
+        private string serviceLocation;
         #endregion
 
         #region con
@@ -152,7 +153,7 @@ namespace UnitTest
                 coreSdk.Start(connectionStringSdk);
 
             if (startOut)
-                coreOut.Start(connectionStringOut);
+                coreOut.Start(connectionStringOut, serviceLocation);
 
             sqlController.StartLog(coreOut);
         }
@@ -279,7 +280,7 @@ namespace UnitTest
                 //Act
                 try
                 {
-                    checkValueB = core.Start(null) + "";
+                    checkValueB = core.Start(null, serviceLocation) + "";
                 }
                 catch (Exception ex)
                 {
@@ -306,7 +307,7 @@ namespace UnitTest
                 //Act
                 try
                 {
-                    checkValueB = core.Start("").ToString();
+                    checkValueB = core.Start("", serviceLocation).ToString();
                 }
                 catch (Exception ex)
                 {
@@ -331,7 +332,7 @@ namespace UnitTest
             //Act
             try
             {
-                checkValueB = core.Start(connectionStringOut).ToString();
+                checkValueB = core.Start(connectionStringOut, serviceLocation).ToString();
             }
             catch (Exception ex)
             {
@@ -356,7 +357,7 @@ namespace UnitTest
             try
             {
                 checkValueB = core.Running().ToString();
-                core.Start(connectionStringOut);
+                core.Start(connectionStringOut, serviceLocation);
                 checkValueB += core.Running().ToString();
             }
             catch (Exception ex)
@@ -406,7 +407,7 @@ namespace UnitTest
             try
             {
                 checkValueB = core.Running().ToString();
-                core.Start(connectionStringOut);
+                core.Start(connectionStringOut, serviceLocation);
                 Thread.Sleep(30000);
                 checkValueB += core.Running().ToString();
                 Thread.Sleep(05000);

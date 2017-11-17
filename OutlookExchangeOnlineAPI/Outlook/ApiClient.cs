@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Clients.ActiveDirectory;
+﻿using eFormShared;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -18,10 +19,14 @@ namespace OutlookExchangeOnlineAPI
         public string ApiEndpoint { get; set; }
         public string AccessToken { get; set; }
         string serviceLocation;
+        public Log log;
 
-        public OutlookExchangeOnlineAPIClient()
+
+        public OutlookExchangeOnlineAPIClient(string serviceLocation)
         {
             // Set default endpoint
+            log.LogStandard("Not Specified", "serviceLocation is set to " + serviceLocation);
+            this.serviceLocation = serviceLocation;
             ApiEndpoint = "https://outlook.office.com/api/v2.0";
             AccessToken = GetAppToken(@"cert\cert.pfx", "123qweASDZXC");//the pfx file is encrypted with this password
         }

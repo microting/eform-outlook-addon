@@ -65,18 +65,23 @@ namespace OutlookCore
         string connectionString;
 
         int sameExceptionCountTried = 0;
+        string serviceLocation;
         #endregion
 
         //con
 
         #region public state
-        public bool             Start(string connectionString)
+        public bool             Start(string connectionString, string serviceLocation)
         {
             try
             {
                 if (!coreAvailable && !coreStatChanging)
                 {
+                    this.serviceLocation = serviceLocation;
                     coreStatChanging = true;
+
+                    if (string.IsNullOrEmpty(serviceLocation))
+                        throw new ArgumentException("serviceLocation is not allowed to be null or empty");
 
                     if (string.IsNullOrEmpty(connectionString))
                         throw new ArgumentException("serverConnectionString is not allowed to be null or empty");
@@ -105,9 +110,10 @@ namespace OutlookCore
                     //settings read
                     this.connectionString = connectionString;
                     log.LogStandard("Not Specified", "Settings read");
+                    log.LogStandard("Not Specified", "this.serviceLocation is " + this.serviceLocation);
 
                     //Initialise Outlook API client's object
-                    outlookExchangeOnlineAPI = new OutlookExchangeOnlineAPIClient();
+                    outlookExchangeOnlineAPI = new OutlookExchangeOnlineAPIClient(this.serviceLocation);
 
                     //outlookController
                     //outlookController = new OutlookController(sqlController, log);
@@ -186,7 +192,7 @@ namespace OutlookCore
                     else
                         log.LogStandard("Not Specified", "Delay skipped");
 
-                    Start(connectionString);
+                    Start(connectionString, serviceLocation);
                     coreRestarting = false;
                 }
             }

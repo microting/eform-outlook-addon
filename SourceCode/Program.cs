@@ -13,6 +13,7 @@ namespace SourceCode
 {
     class Program
     {
+
         static void Main(string[] args)
         {
             Core outCore = new Core();
@@ -20,6 +21,7 @@ namespace SourceCode
 
             string outConStr = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "MicrotingOutlook" + ";Integrated Security=True";
             string sdkConStr = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "V166"  + ";Integrated Security=True";
+            string serviceLocation = "";
             
             while (true)
             {
@@ -35,7 +37,7 @@ namespace SourceCode
                 if (tempLower == "o")
                 #region outlook core start
                 {
-                    outCore.Start(outConStr);
+                    outCore.Start(outConStr, GetServiceLocation());
                 }
                 #endregion
 
@@ -122,6 +124,14 @@ namespace SourceCode
         static void Stump(object sender, EventArgs args)
         {
             Console.WriteLine("EVENT:" + sender.ToString());
+        }
+
+        static string GetServiceLocation()
+        {            
+            string serviceLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            serviceLocation = Path.GetDirectoryName(serviceLocation) + "\\";
+
+            return serviceLocation;
         }
     }
 }
