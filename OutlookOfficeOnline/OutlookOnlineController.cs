@@ -278,9 +278,9 @@ namespace OutlookOfficeOnline
                 Event item = AppointmentItemFind(appointment.global_id, appointment.start_at.Value);
                 if (item != null)
                 {
-                    item.Location.DisplayName = appointment.workflow_state;
+                    item.Location.DisplayName = appointment.location;
                     #region item.Categories = 'workflowState'...
-                    switch (appointment.workflow_state)
+                    switch (appointment.location)
                     {
                         case "Planned":
                             Categories = null;
@@ -491,6 +491,7 @@ namespace OutlookOfficeOnline
                 CalendarList calendarList = outlookExchangeOnlineAPIClient.GetCalendarList(userEmailAddess, calendarName);
                 foreach (Calendar cal in calendarList.value)
                 {
+                    log.LogEverything("Not Specified", "GetCalendarItems comparing cal.Name " + cal.Name + " with calendarName " + calendarName);
                     if (cal.Name.Equals(calendarName, StringComparison.OrdinalIgnoreCase))
                     {
                         EventList outlookCalendarItems = outlookExchangeOnlineAPIClient.GetCalendarItems(userEmailAddess, cal.Id, tLimitFrom, tLimitTo);
