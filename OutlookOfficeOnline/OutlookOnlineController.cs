@@ -250,7 +250,7 @@ namespace OutlookOfficeOnline
                 return AllIntrepid;
             }
             catch (Exception ex)
-            {
+            {               
                 throw new Exception(t.GetMethodName() + " failed", ex);
             }
         }

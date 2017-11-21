@@ -22,13 +22,13 @@ namespace OutlookExchangeOnlineAPI
         public Log log;
 
 
-        public OutlookExchangeOnlineAPIClient(string serviceLocation)
+        public OutlookExchangeOnlineAPIClient(string serviceLocation, Log logger)
         {
             // Set default endpoint
-            log.LogStandard("Not Specified", "serviceLocation is set to " + serviceLocation);
+            log = logger;
             this.serviceLocation = serviceLocation;
             ApiEndpoint = "https://outlook.office.com/api/v2.0";
-            AccessToken = GetAppToken(@"cert\cert.pfx", "123qweASDZXC");//the pfx file is encrypted with this password
+            AccessToken = GetAppToken(GetServiceLocation() + @"cert\cert.pfx", "123qweASDZXC"); //the pfx file is encrypted with this password
         }
 
         private string GetAppToken(string certFile, string certPass)

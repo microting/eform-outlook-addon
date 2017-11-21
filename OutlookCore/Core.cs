@@ -71,13 +71,13 @@ namespace OutlookCore
         //con
 
         #region public state
-        public bool             Start(string connectionString, string serviceLocation)
+        public bool             Start(string connectionString, string service_location)
         {
             try
             {
                 if (!coreAvailable && !coreStatChanging)
                 {
-                    this.serviceLocation = serviceLocation;
+                    serviceLocation = service_location;
                     coreStatChanging = true;
 
                     if (string.IsNullOrEmpty(serviceLocation))
@@ -110,10 +110,10 @@ namespace OutlookCore
                     //settings read
                     this.connectionString = connectionString;
                     log.LogStandard("Not Specified", "Settings read");
-                    log.LogStandard("Not Specified", "this.serviceLocation is " + this.serviceLocation);
+                    log.LogStandard("Not Specified", "this.serviceLocation is " + serviceLocation);
 
                     //Initialise Outlook API client's object
-                    outlookExchangeOnlineAPI = new OutlookExchangeOnlineAPIClient(this.serviceLocation);
+                    outlookExchangeOnlineAPI = new OutlookExchangeOnlineAPIClient(serviceLocation, log);
 
                     //outlookController
                     //outlookController = new OutlookController(sqlController, log);
