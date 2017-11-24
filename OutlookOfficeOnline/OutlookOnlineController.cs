@@ -157,7 +157,11 @@ namespace OutlookOfficeOnline
                                                 item.BodyPreview = item.BodyPreview.Trim();
                                             }
 
+
+                                    log.LogStandard("Not Specified", "Trying to do UpdateEvent on item.Id:" + item.Id + " to have new location location : " + location);
                                     Event Updateditem = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, "{\"Location\": {\"DisplayName\": \"" + location + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(item.BodyPreview) + "\"}}");
+
+                                    log.LogStandard("Not Specified", "Trying create new appointment for item.Id : " + item.Id + " and the UpdateEvent returned Updateditem: " + Updateditem.ToString());
 
                                     Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, Updateditem.Location.DisplayName, Updateditem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
 
@@ -166,17 +170,25 @@ namespace OutlookOfficeOnline
 
                                     if (appo.Location.ToLower() == "planned")
                                     {
+                                        log.LogStandard("Not Specified", "Before calling CalendarItemIntrepid.AppointmentsCreate");
                                         int count = sqlController.AppointmentsCreate(appo);
+                                        log.LogStandard("Not Specified", "After calling CalendarItemIntrepid.AppointmentsCreate");
 
                                         if (count > 0)
+                                        {
+                                            log.LogStandard("Not Specified", "Appointment created successfully for item.Id : " + item.Id);
                                             CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Processed, appo.Body);
+                                        }                                          
                                         else
                                         {
                                             if (count == 0)
+                                            {
                                                 CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Exception, appo.Body);
-
+                                            }                                             
                                             if (count == -1)
                                             {
+                                                log.LogStandard("Not Specified", "Appointment not created successfully for item.Id : " + item.Id);
+
                                                 #region appo.Body = 'text'
                                                 appo.Body = "<<< Intrepid error: Start >>>" +
                                                     Environment.NewLine + "Global ID already exists in the database." +
@@ -189,6 +201,7 @@ namespace OutlookOfficeOnline
                                                     Environment.NewLine + "" +
                                                     Environment.NewLine + "If you want to restore this appointment’s correct status:" +
                                                     Environment.NewLine + "- Set the appointment’s location to 'check'" +
+                                                    Environment.NewLine + "Item.Id :" + item.Id +
                                                     Environment.NewLine + "<<< Intrepid error: End >>>" +
                                                     Environment.NewLine + "" +
                                                     Environment.NewLine + appo.Body;
@@ -250,7 +263,18 @@ namespace OutlookOfficeOnline
                 return AllIntrepid;
             }
             catch (Exception ex)
-            {               
+            {
+                var lineNumber = 0;
+                const string lineSearch = ":line ";
+                var index = ex.StackTrace.LastIndexOf(lineSearch);
+                if (index != -1)
+                {
+                    var lineNumerText = ex.StackTrace.Substring(index + lineSearch.Length);
+                    if (int.TryParse(lineNumerText, out lineNumber))
+                    {
+                    }
+                }
+                log.LogException("Exception", ex.Message + " Exception at line" + lineNumber.ToString(), ex, false);
                 throw new Exception(t.GetMethodName() + " failed", ex);
             }
         }
@@ -275,7 +299,7 @@ namespace OutlookOfficeOnline
                     return false;
                 log.LogVariable("Not Specified", nameof(appointments), appointment.ToString());
 
-                Event item = AppointmentItemFind(appointment.global_id, appointment.start_at.Value);
+                Event item = AppointmentItemFind(appointment.global_id, appointment.start_at.Value.AddHours(-36), appointment.start_at.Value.AddHours(36)); // TODO!
                 if (item != null)
                 {
                     item.Location.DisplayName = appointment.location;
@@ -385,7 +409,8 @@ namespace OutlookOfficeOnline
 
         public bool CalendarItemUpdate(string globalId, DateTime start, LocationOptions workflowState, string body)
         {
-            Event item = AppointmentItemFind(globalId, start);
+            log.LogStandard("Not Specified", "CalendarItemUpdate incoming start is : " + start.ToString());
+            Event item = AppointmentItemFind(globalId, start.AddHours(-36), start.AddHours(36)); // TODO!
 
             item.BodyPreview = body;
             item.Location.DisplayName = workflowState.ToString();
@@ -449,22 +474,29 @@ namespace OutlookOfficeOnline
             log.LogVariable("Not Specified", nameof(dTime), dTime);
             return dTime;
         }
-        private Event AppointmentItemFind(string globalId, DateTime start)
+        private Event AppointmentItemFind(string globalId, DateTime tLimitFrom, DateTime tLimitTo)
         {
             try
             {
-                string filter = "[Start] = '" + start.ToString("g") + "'";
+                log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind called");
+                string filter = "AppointmentItemFind [After] '" + tLimitFrom.ToString("g") + "' AND [before] <= '" + tLimitTo.ToString("g") + "'";
                 log.LogVariable("Not Specified", nameof(filter), filter.ToString());
 
-                List<Event> calendarItemsAllToday = GetCalendarItems(start.Date, DateTime.Today.AddDays(1));
+                List<Event> calendarItemsAllToday = GetCalendarItems(tLimitFrom, tLimitTo);
                 foreach (Event item in calendarItemsAllToday)
+                {
+                    log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind calendarItemsAllToday current item.Id is " + item.Id);
                     if (item.Id.Equals(globalId))
                         return item;
+                }
 
                 List<Event> calendarItemsRes = GetCalendarItems(new DateTime(1975, 1, 1).Date, DateTime.Today.AddDays(1));
                 foreach (Event item in calendarItemsRes)
+                {
+                    log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind calendarItemsRes current item.Id is " + item.Id);
                     if (item.Id.Equals(globalId))
                         return item;
+                }
 
                 log.LogEverything("Not Specified", "No match found for " + nameof(globalId) + ":" + globalId);
                 return null;
@@ -484,7 +516,8 @@ namespace OutlookOfficeOnline
         {
             lock (_lockOutlook)
             {
-                string filter = "[Start] >= '" + tLimitFrom.ToString("g") + "' AND [Start] <= '" + tLimitTo.ToString("g") + "'";
+                log.LogEverything("Not Specified", "OutlookOnlineController.GetCalendarItems called");
+                string filter = "GetCalendarItems [After] '" + tLimitTo.ToString("g") + "' AND [before] <= '" + tLimitFrom.ToString("g") + "'";
                 log.LogVariable("Not Specified", nameof(filter), filter.ToString());
                 calendarName = GetCalendarName();
                 userEmailAddess = GetUserEmailAddress();
@@ -495,7 +528,7 @@ namespace OutlookOfficeOnline
                     if (cal.Name.Equals(calendarName, StringComparison.OrdinalIgnoreCase))
                     {
                         EventList outlookCalendarItems = outlookExchangeOnlineAPIClient.GetCalendarItems(userEmailAddess, cal.Id, tLimitFrom, tLimitTo);
-                        log.LogVariable("Not Specified", "outlookCalendarItems.Count", outlookCalendarItems.value.Count);
+                        //log.LogVariable("Not Specified", "outlookCalendarItems.Count", outlookCalendarItems.value.Count);
                         return outlookCalendarItems.value;
                     }
                 }

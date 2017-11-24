@@ -106,6 +106,8 @@ namespace OutlookExchangeOnlineAPI
 
         public EventList GetCalendarItems(string userEmail, string calendarID, DateTime startDate, DateTime enddate)
         {
+            log.LogEverything("Not Specified", "ApiClient.GetCalendarItems called");
+
             EventList result = new EventList();
             result.value = new List<Event>();
             bool alldone = false;
@@ -116,6 +118,7 @@ namespace OutlookExchangeOnlineAPI
                 requestUrl = String.Format("/users/{0}/calendars/{1}/calendarview?startDateTime={2}&endDateTime={3}&$skip={4}", userEmail, calendarID, startDate, enddate, skip);
                 HttpResponseMessage httpresult = MakeApiCall("GET", requestUrl, userEmail, null, null);
                 string response = httpresult.Content.ReadAsStringAsync().Result;
+                log.LogEverything("Not Specified", "ApiClient.GetCalendarItems response is " + response);
                 EventList curpage = JsonConvert.DeserializeObject<EventList>(response);
                 if (curpage.value.Count >= 10) alldone = false;
                 else alldone = true;

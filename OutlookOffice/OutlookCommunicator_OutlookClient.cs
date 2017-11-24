@@ -210,6 +210,7 @@ namespace OutlookOffice
         {
             try
             {
+                log.LogEverything("Not Specified", "OutlookCommunicator_OutlookClient.AppointmentItemFind called");
                 string filter = "[Start] = '" + start.ToString("g") + "'";
                 log.LogVariable("Not Specified", nameof(filter), filter.ToString());
 
@@ -239,7 +240,8 @@ namespace OutlookOffice
         {
             lock (_lockOutlook)
             {
-                string filter = "[Start] >= '" + tLimitFrom.ToString("g") + "' AND [Start] <= '" + tLimitTo.ToString("g") + "'";
+
+                string filter = "GetCalendarItems [After] '" + tLimitTo.ToString("g") + "' AND [before] <= '" + tLimitFrom.ToString("g") + "'";
                 log.LogVariable("Not Specified", nameof(filter), filter.ToString());
 
                 Outlook.MAPIFolder CalendarFolder = GetCalendarFolder();

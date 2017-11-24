@@ -118,7 +118,24 @@ namespace OutlookSql
                     var match = db.appointments.SingleOrDefault(x => x.global_id == appointment.GlobalId);
 
                     if (match != null)
-                        return -1;
+                    {
+                        db.Database.SqlQuery<string>("ALTER TABLE appointments alter column global_id varchar(MAX)COLLATE Danish_Norwegian_CS_AS NOT NULL");
+                        db.Database.SqlQuery<string>("ALTER TABLE appointment_versions alter column global_id varchar(MAX)COLLATE Danish_Norwegian_CS_AS NOT NULL");
+                        try
+                        {
+                            match = db.appointments.SingleOrDefault(x => x.global_id == appointment.GlobalId);
+                            if (match != null)
+                            {
+                                log.LogStandard("Not specified", "AppointmentsCreate 1 SQL query returned the following match.global_id: " + match.global_id);
+                                return -1;
+                            }
+                        }
+                        catch
+                        {
+                            log.LogStandard("Not specified", "AppointmentsCreate 2 SQL query returned the following match.global_id: " + match.global_id);
+                            return -1;
+                        }
+                    }
 
                     appointments newAppo = new appointments();
 
