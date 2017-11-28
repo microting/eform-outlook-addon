@@ -47,7 +47,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-</PropertyGroup>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
       <HintPath>..\packages\Microting.eForm.1.6.4.4\lib\AWSSDK.Core.dll</HintPath>
@@ -124,10 +124,6 @@
     <ProjectReference Include="..\OutlookOfficeOnline\OutlookOfficeOnline.csproj">
       <Project>{DE4FCF29-8DC3-4F96-9122-E2C8E58F37B8}</Project>
       <Name>OutlookOfficeOnline</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OutlookOffice\OutlookOffice.csproj">
-      <Project>{849124CB-94E2-4CEA-AF6E-1606CD1F6E29}</Project>
-      <Name>OutlookOffice</Name>
     </ProjectReference>
     <ProjectReference Include="..\OutlookSql\OutlookSql.csproj">
       <Project>{15D8BC36-5BFF-4BBB-9E3B-7F19CDC0F1F1}</Project>

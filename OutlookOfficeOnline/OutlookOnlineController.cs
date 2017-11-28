@@ -102,6 +102,7 @@ namespace OutlookOfficeOnline
         {
             try
             {
+                log.LogStandard("Not Specified", "CalendarItemIntrepid called. Before setting all vars");
                 bool AllIntrepid = false;
                 #region var
                 DateTime checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
@@ -114,6 +115,8 @@ namespace OutlookOfficeOnline
                 DateTime tLimitTo = timeOfRun.AddHours(+checkPreSend_Hours);
                 DateTime tLimitFrom = checkLast_At.AddHours(-checkRetrace_Hours);
                 #endregion
+
+                log.LogStandard("Not Specified", "CalendarItemIntrepid called. After setting all vars");
 
                 #region process appointments
                 List<Event> eventList = GetCalendarItems(tLimitFrom, tLimitTo);
@@ -156,7 +159,6 @@ namespace OutlookOfficeOnline
                                                 item.BodyPreview = item.BodyPreview.Replace("<<< End >>>", "");
                                                 item.BodyPreview = item.BodyPreview.Trim();
                                             }
-
 
                                     log.LogStandard("Not Specified", "Trying to do UpdateEvent on item.Id:" + item.Id + " to have new location location : " + location);
                                     Event Updateditem = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, "{\"Location\": {\"DisplayName\": \"" + location + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(item.BodyPreview) + "\"}}");
@@ -522,16 +524,19 @@ namespace OutlookOfficeOnline
                 calendarName = GetCalendarName();
                 userEmailAddess = GetUserEmailAddress();
                 CalendarList calendarList = outlookExchangeOnlineAPIClient.GetCalendarList(userEmailAddess, calendarName);
-                foreach (Calendar cal in calendarList.value)
+                if (calendarList != null)
                 {
-                    log.LogEverything("Not Specified", "GetCalendarItems comparing cal.Name " + cal.Name + " with calendarName " + calendarName);
-                    if (cal.Name.Equals(calendarName, StringComparison.OrdinalIgnoreCase))
+                    foreach (Calendar cal in calendarList.value)
                     {
-                        EventList outlookCalendarItems = outlookExchangeOnlineAPIClient.GetCalendarItems(userEmailAddess, cal.Id, tLimitFrom, tLimitTo);
-                        //log.LogVariable("Not Specified", "outlookCalendarItems.Count", outlookCalendarItems.value.Count);
-                        return outlookCalendarItems.value;
+                        log.LogEverything("Not Specified", "GetCalendarItems comparing cal.Name " + cal.Name + " with calendarName " + calendarName);
+                        if (cal.Name.Equals(calendarName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            EventList outlookCalendarItems = outlookExchangeOnlineAPIClient.GetCalendarItems(userEmailAddess, cal.Id, tLimitFrom, tLimitTo);
+                            //log.LogVariable("Not Specified", "outlookCalendarItems.Count", outlookCalendarItems.value.Count);
+                            return outlookCalendarItems.value;
+                        }
                     }
-                }
+                }                
                 return null;
 
             }

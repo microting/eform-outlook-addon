@@ -9,7 +9,8 @@ using System.Linq;
 
 using Xunit;
 using System.Threading;
-using OutlookOffice;
+using OutlookOfficeOnline;
+//using OutlookOffice;
 
 namespace UnitTest
 {
@@ -17,8 +18,8 @@ namespace UnitTest
     {
         //
 
-        string connectionStringLocal_SDK = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "UnitTest_Outlook_" + "Microting"        + ";Integrated Security=True";
-        string connectionStringLocal_OUT = "Data Source=DESKTOP-7V1APE5\\SQLEXPRESS;Initial Catalog=" + "UnitTest_Outlook_" + "MicrotingOutlook" + ";Integrated Security=True";
+        string connectionStringLocal_SDK = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "UnitTest_Outlook_" + "Microting"        + ";Integrated Security=True";
+        string connectionStringLocal_OUT = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "UnitTest_Outlook_" + "MicrotingOutlook" + ";Integrated Security=True";
 
         #region content
         #region var
@@ -1173,7 +1174,7 @@ namespace UnitTest
                 TestPrepare(t.GetMethodName(), false, false);
                 string checkValueA = "true";
                 string checkValueB = "";
-                OutlookController oCon = new OutlookController(sqlController, new Log(coreOut, new LogWriter(), 4));
+                OutlookOnlineController_Fake oCon = new OutlookOnlineController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
 
                 //Act
                 bool response;
@@ -1196,7 +1197,7 @@ namespace UnitTest
                 TestPrepare(t.GetMethodName(), false, false);
                 string checkValueA = "true";
                 string checkValueB = "";
-                OutlookController oCon = new OutlookController(sqlController, new Log(coreOut, new LogWriter(), 4));
+                OutlookOnlineController_Fake oCon = new OutlookOnlineController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
 
                 //Act
                 bool response;
@@ -1228,7 +1229,7 @@ namespace UnitTest
                 bool? checkValueB3 = false;
                 bool? checkValueB4 = true;
                 bool? checkValueB5 = false;
-                OutlookController oCon = new OutlookController(sqlController, new Log(coreOut, new LogWriter(), 4));
+                OutlookOnlineController_Fake oCon = new OutlookOnlineController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
 
                 //Act
                 checkValueB1 = oCon.CalendarItemReflecting(null);
@@ -1264,7 +1265,7 @@ namespace UnitTest
                 bool checkValueA = true;
                 bool checkValueB = false;
                 Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
-                OutlookController oCon = new OutlookController(sqlController, new Log(coreOut, new LogWriter(), 4));
+                OutlookOnlineController_Fake oCon = new OutlookOnlineController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
 
                 //Act
                 oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, LocationOptions.Processed, appoBase.Body);

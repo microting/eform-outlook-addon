@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -91,16 +92,52 @@ namespace OutlookExchangeOnlineAPI
                     request.Content.Headers.ContentType.MediaType = "application/json";
                 }
 
-                var apiResult = httpClient.SendAsync(request).Result;
+                var apiResult = ExecuteQueryWithIncrementalRetry(request, 3, 10);
+                //var apiResult = httpClient.SendAsync(request).Result;
                 return apiResult;
             }
         }
 
+        public HttpResponseMessage ExecuteQueryWithIncrementalRetry(HttpRequestMessage request, int retryCount, int delay)
+        {
+            int retryAttempts = 0;
+            int backoffInteval = delay;
+            if (retryCount <= 0)
+                throw new ArgumentException("Provide a retryCount greater than zero.");
+            if (delay <= 0)
+                throw new ArgumentException("Provide a delay count greater than zero.");
+            HttpResponseMessage result = null;
+
+            while (retryAttempts < retryCount)
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    result = httpClient.SendAsync(request).Result;
+                    if (!result.StatusCode.Equals(HttpStatusCode.OK))
+                    {
+                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK");
+                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
+                        System.Threading.Thread.Sleep(backoffInteval);
+                        retryAttempts++;
+                        backoffInteval = backoffInteval * 2;
+                    }
+                    else
+                    {
+                        return result;
+                    }
+                }
+            }
+            return result;
+        }
+
         public CalendarList GetCalendarList(string userEmail, string calendarName)
         {
+
+            log.LogEverything("Not Specified", "ApiClient.GetCalendarList called");
             string requestUrl = String.Format("/users/{0}/calendars", userEmail);
             HttpResponseMessage result = MakeApiCall("GET", requestUrl, userEmail, null, null);
             string response = result.Content.ReadAsStringAsync().Result;
+            log.LogEverything("Not Specified", "ApiClient.GetCalendarList response is : "+ response);
             return JsonConvert.DeserializeObject<CalendarList>(response);
         }
 
