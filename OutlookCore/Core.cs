@@ -113,7 +113,6 @@ namespace OutlookCore
                     log.LogStandard("Not Specified", "this.serviceLocation is " + serviceLocation);
 
                     //Initialise Outlook API client's object
-                    outlookExchangeOnlineAPI = new OutlookExchangeOnlineAPIClient(serviceLocation, log);
 
                     //outlookController
                     //outlookController = new OutlookController(sqlController, log);
@@ -125,7 +124,7 @@ namespace OutlookCore
                     }
                     else
                     {
-
+                        outlookExchangeOnlineAPI = new OutlookExchangeOnlineAPIClient(serviceLocation, log);
                         outlookOnlineController = new OutlookOnlineController(sqlController, log, outlookExchangeOnlineAPI);
                         log.LogStandard("Not Specified", "OutlookController started");
                     }

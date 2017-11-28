@@ -127,6 +127,7 @@ namespace UnitTest
         #region prepare and teardown     
         private void TestPrepare(string testName, bool startOut, bool startSdk)
         {
+            serviceLocation = AppDomain.CurrentDomain.SetupInformation.ApplicationBase + @"\..\..\";
             adminTool = new eFormCore.AdminTools(connectionStringSdk);
             string temp = adminTool.DbClear();
             if (temp != "")
