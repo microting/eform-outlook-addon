@@ -92,7 +92,7 @@ namespace OutlookExchangeOnlineAPI
                     request.Content.Headers.ContentType.MediaType = "application/json";
                 }
 
-                var apiResult = ExecuteQueryWithIncrementalRetry(request, 3, 10);
+                var apiResult = ExecuteQueryWithIncrementalRetry(request, 3, 30);
                 //var apiResult = httpClient.SendAsync(request).Result;
                 return apiResult;
             }
@@ -112,19 +112,30 @@ namespace OutlookExchangeOnlineAPI
             {
                 using (var httpClient = new HttpClient())
                 {
-                    result = httpClient.SendAsync(request).Result;
-                    if (!result.StatusCode.Equals(HttpStatusCode.OK))
+                    try
                     {
-                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK");
-                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
+                        result = httpClient.SendAsync(request).Result;
+                        if (!result.StatusCode.Equals(HttpStatusCode.OK))
+                        {
+                            log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
+                            log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
+                            System.Threading.Thread.Sleep(backoffInteval);
+                            retryAttempts++;
+                            backoffInteval = backoffInteval * 2;
+                        }
+                        else
+                        {
+                            return result;
+                        }
+                    } catch (Exception ex)
+                    {
+                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry throwed an Exception and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
+                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry the exeption is : " + ex.Message);
                         System.Threading.Thread.Sleep(backoffInteval);
                         retryAttempts++;
                         backoffInteval = backoffInteval * 2;
                     }
-                    else
-                    {
-                        return result;
-                    }
+                    
                 }
             }
             return result;
