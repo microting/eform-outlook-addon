@@ -119,7 +119,7 @@ namespace OutlookExchangeOnlineAPI
                         {
                             log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
                             log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
-                            System.Threading.Thread.Sleep(backoffInteval);
+                            System.Threading.Thread.Sleep(backoffInteval * 1000);
                             retryAttempts++;
                             backoffInteval = backoffInteval * 2;
                         }
