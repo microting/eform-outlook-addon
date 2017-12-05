@@ -46,6 +46,7 @@ namespace OutlookCore
         #region var
         SqlController sqlController;
         Tools t = new Tools();
+        private eFormCore.Core sdkCore;
         OutlookExchangeOnlineAPIClient outlookExchangeOnlineAPI;
         public IOutlookOnlineController outlookOnlineController;
         //public OutlookController outlookController;
@@ -589,7 +590,10 @@ namespace OutlookCore
                 {
                     syncInteractionCaseRunning = true;
 
-                    while (coreThreadRunning && sqlController.SyncInteractionCase())
+                    string sdkCoreConnectionString = sqlController.SettingRead(Settings.microtingDb);
+                    string serverAddress = sdkCore.GetHttpServerAddress();
+
+                    while (coreThreadRunning && sqlController.SyncInteractionCase(serverAddress))
                         log.LogEverything("Not Specified", t.GetMethodName() + " completed");
 
                     syncInteractionCaseRunning = false;
@@ -671,5 +675,60 @@ namespace OutlookCore
             Close();
         }
         #endregion
+
+        public void startSdkCore(string sdkConnectionString)
+        {
+            //string[] lines;
+            //try
+            //{
+            //    lines =
+            //        System.IO.File.ReadAllLines(System.Web.Hosting.HostingEnvironment.MapPath("~/bin/Input.txt"));
+
+            //    if (lines[0].IsEmpty())
+            //    {
+            //        throw new Exception();
+            //    }
+            //}
+            //catch (Exception)
+            //{
+            //    throw new HttpResponseException(HttpStatusCode.Unauthorized);
+            //}
+
+
+            //string connectionStr = lines.First();
+
+            this.sdkCore = new eFormCore.Core();
+            //bool running = false;
+            //_core.HandleCaseCreated += EventCaseCreated;
+            //_core.HandleCaseRetrived += EventCaseRetrived;
+            //_core.HandleCaseCompleted += EventCaseCompleted;
+            //_core.HandleCaseDeleted += EventCaseDeleted;
+            //_core.HandleFileDownloaded += EventFileDownloaded;
+            //_core.HandleSiteActivated += EventSiteActivated;
+            //_core.HandleEventLog += EventLog;
+            //_core.HandleEventMessage += EventMessage;
+            //_core.HandleEventWarning += EventWarning;
+            //_core.HandleEventException += EventException;
+
+            //try
+            //{
+                sdkCore.StartSqlOnly(sdkConnectionString);
+            //}
+            //catch (Exception ex)
+            //{
+            //    AdminTools adminTools = new AdminTools(connectionStr);
+            //    adminTools.MigrateDb();
+            //    adminTools.DbSettingsReloadRemote();
+            //    running = _core.StartSqlOnly(connectionStr);
+            //}
+
+            //if (running)
+            //{
+            //    return this.sdkCore;
+            //}
+            ////Logger.Error("Core is not running");
+            //throw new Exception("Core is not running");
+            //return null;
+        }
     }
 }

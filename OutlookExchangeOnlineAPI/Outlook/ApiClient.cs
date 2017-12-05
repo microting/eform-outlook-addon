@@ -131,7 +131,7 @@ namespace OutlookExchangeOnlineAPI
                     {
                         log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry throwed an Exception and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
                         log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry the exeption is : " + ex.Message);
-                        System.Threading.Thread.Sleep(backoffInteval);
+                        System.Threading.Thread.Sleep(backoffInteval * 1000);
                         retryAttempts++;
                         backoffInteval = backoffInteval * 2;
                     }

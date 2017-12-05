@@ -509,7 +509,7 @@ namespace OutlookSql
         #endregion
 
         #region public SDK
-        public bool                 SyncInteractionCase()
+        public bool                 SyncInteractionCase(string serverAddress)
         {
             // read input
             #region create
@@ -560,7 +560,7 @@ namespace OutlookSql
             #endregion
 
             // read output
-            return InteractionCaseProcessed();
+            return InteractionCaseProcessed(serverAddress);
         }
 
         public bool                 InteractionCaseCreate(appointments appointment)
@@ -636,7 +636,7 @@ namespace OutlookSql
             }
         }
 
-        public bool                 InteractionCaseProcessed()
+        public bool                 InteractionCaseProcessed(string serverAddress)
         {
             try
             {
@@ -675,29 +675,29 @@ namespace OutlookSql
                         if (item.stat == "Sent")
                         {
                             statCur = 2;
-                                 lstSent.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
+                                 lstSent.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     ("+ serverAddress + "/cases/edit/"+ item.case_id + "/" + match.template_id + ")");
                         }
                         if (item.stat == "Retrived")
                         {
                             statCur = 3;
-                             lstRetrived.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
+                             lstRetrived.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
                         }
                         if (item.stat == "Completed")
                         {
                             statCur = 4;
                             anyCompleted = true;
-                            lstCompleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
+                            lstCompleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
                         }
                         if (item.stat == "Deleted")
                         {
                             statCur = 5;
-                              lstDeleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
+                              lstDeleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
                         }
 
                         if (item.stat == "Expection")
                         {
                             flagException = true;
-                            lstExpection.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (http://angular/case/" + item.siteId + "/" + item.microting_uid + ")");
+                            lstExpection.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
                         }
 
                         if (statHigh < statCur)

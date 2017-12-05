@@ -918,7 +918,7 @@ namespace UnitTest
                 //Act
                 Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Other", "body", false, false, sqlController.LookupRead);
                 sqlController.AppointmentsCreate(appoBase);
-                sqlController.SyncInteractionCase();
+                sqlController.SyncInteractionCase("SomeUnitTestAddress");
 
                 //Assert
                 TestTeardown();
