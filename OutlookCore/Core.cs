@@ -136,6 +136,9 @@ namespace OutlookCore
                     coreStatChanging = false;
 
                     //coreThread
+                    string sdkCoreConnectionString = sqlController.SettingRead(Settings.microtingDb);
+                    startSdkCore(sdkCoreConnectionString);
+
                     Thread coreThread = new Thread(() => CoreThread());
                     coreThread.Start();
                     log.LogStandard("Not Specified", "CoreThread started");
@@ -590,7 +593,6 @@ namespace OutlookCore
                 {
                     syncInteractionCaseRunning = true;
 
-                    string sdkCoreConnectionString = sqlController.SettingRead(Settings.microtingDb);
                     string serverAddress = sdkCore.GetHttpServerAddress();
 
                     while (coreThreadRunning && sqlController.SyncInteractionCase(serverAddress))
