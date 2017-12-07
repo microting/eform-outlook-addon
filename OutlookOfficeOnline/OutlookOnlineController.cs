@@ -36,7 +36,7 @@ namespace OutlookOfficeOnline
         #region public
         public bool CalendarItemConvertRecurrences()
         {
-            return false;
+            //return false;
             try
             {
                 bool ConvertedAny = false;
@@ -492,7 +492,8 @@ namespace OutlookOfficeOnline
                         return item;
                 }
 
-                List<Event> calendarItemsRes = GetCalendarItems(new DateTime(1975, 1, 1).Date, DateTime.Today.AddDays(1));
+                //List<Event> calendarItemsRes = GetCalendarItems(new DateTime(1975, 1, 1).Date, DateTime.Today.AddDays(1));
+                List<Event> calendarItemsRes = GetCalendarItems(new DateTime(1975, 1, 1).Date, new DateTime(2025, 12, 31).Date);
                 foreach (Event item in calendarItemsRes)
                 {
                     log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind calendarItemsRes current item.Id is " + item.Id);
