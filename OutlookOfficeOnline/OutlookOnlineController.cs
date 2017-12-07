@@ -487,7 +487,7 @@ namespace OutlookOfficeOnline
                 List<Event> calendarItemsAllToday = GetCalendarItems(tLimitFrom, tLimitTo);
                 foreach (Event item in calendarItemsAllToday)
                 {
-                    log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind calendarItemsAllToday current item.Id is " + item.Id);
+                    //log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind calendarItemsAllToday current item.Id is " + item.Id);
                     if (item.Id.Equals(globalId))
                         return item;
                 }
@@ -496,7 +496,7 @@ namespace OutlookOfficeOnline
                 List<Event> calendarItemsRes = GetCalendarItems(new DateTime(1975, 1, 1).Date, new DateTime(2025, 12, 31).Date);
                 foreach (Event item in calendarItemsRes)
                 {
-                    log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind calendarItemsRes current item.Id is " + item.Id);
+                    //log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind calendarItemsRes current item.Id is " + item.Id);
                     if (item.Id.Equals(globalId))
                         return item;
                 }
@@ -577,14 +577,17 @@ namespace OutlookOfficeOnline
             calendarName = GetCalendarName();
             userEmailAddess = GetUserEmailAddress();
             CalendarList calendarList = outlookExchangeOnlineAPIClient.GetCalendarList(userEmailAddess, calendarName);
-            foreach (Calendar cal in calendarList.value)
+            if (calendarList != null)
             {
-                if (cal.Name.Equals(calendarName, StringComparison.OrdinalIgnoreCase))
+                foreach (Calendar cal in calendarList.value)
                 {
-                    return cal.Id;
+                    if (cal.Name.Equals(calendarName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return cal.Id;
+                    }
                 }
             }
-            return null;
+            return null;                   
         }
 
         #endregion

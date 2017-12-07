@@ -148,8 +148,16 @@ namespace OutlookExchangeOnlineAPI
             string requestUrl = String.Format("/users/{0}/calendars", userEmail);
             HttpResponseMessage result = MakeApiCall("GET", requestUrl, userEmail, null, null);
             string response = result.Content.ReadAsStringAsync().Result;
+
             log.LogEverything("Not Specified", "ApiClient.GetCalendarList response is : "+ response);
-            return JsonConvert.DeserializeObject<CalendarList>(response);
+            if (response.Contains("odata"))
+            {
+                return JsonConvert.DeserializeObject<CalendarList>(response);
+            } else
+            {
+                return null;
+            }
+                
         }
 
         public EventList GetCalendarItems(string userEmail, string calendarID, DateTime startDate, DateTime enddate)
@@ -167,14 +175,21 @@ namespace OutlookExchangeOnlineAPI
                 HttpResponseMessage httpresult = MakeApiCall("GET", requestUrl, userEmail, null, null);
                 string response = httpresult.Content.ReadAsStringAsync().Result;
                 log.LogEverything("Not Specified", "ApiClient.GetCalendarItems response is " + response);
-                EventList curpage = JsonConvert.DeserializeObject<EventList>(response);
-                if (curpage.value.Count >= 10) alldone = false;
-                else alldone = true;
-                foreach (Event curevent in curpage.value)
+                if (response.Contains("odata"))
                 {
-                    result.value.Add(curevent);
+                    EventList curpage = JsonConvert.DeserializeObject<EventList>(response);
+                    if (curpage.value.Count >= 10) alldone = false;
+                    else alldone = true;
+                    foreach (Event curevent in curpage.value)
+                    {
+                        result.value.Add(curevent);
+                    }
+                    skip += curpage.value.Count;
+                } else
+                {
+                    alldone = true;
                 }
-                skip += curpage.value.Count;
+                
             }
             return result;
         }
