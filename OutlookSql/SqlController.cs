@@ -511,6 +511,12 @@ namespace OutlookSql
         #region public SDK
         public bool                 SyncInteractionCase(string serverAddress)
         {
+            if (string.IsNullOrEmpty(serverAddress))
+            {
+                log.LogVariable("Not Specified", nameof(serverAddress), serverAddress);
+                return false;
+            }                         
+
             // read input
             #region create
             appointments appoint = AppointmentsFindOne(LocationOptions.Processed);
