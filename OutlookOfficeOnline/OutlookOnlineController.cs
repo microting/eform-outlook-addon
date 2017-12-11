@@ -53,36 +53,59 @@ namespace OutlookOfficeOnline
                 #endregion
 
                 #region convert recurrences
-                foreach (Event item in GetCalendarItems(tLimitFrom, tLimitTo))
-                {
-                    if (item.Type.Equals("Occurrence")) //is recurring, otherwise ignore
+                List<Event> eventList = GetCalendarItems(tLimitFrom, tLimitTo);
+                if (eventList != null) {
+                    foreach (Event item in eventList)
                     {
-                        #region location "planned"?
-                        string location = item.Location.DisplayName;
-
-                        if (location == string.Empty)
+                        if (item.Type.Equals("Occurrence")) //is recurring, otherwise ignore
                         {
-                            if (includeBlankLocations)
-                                location = "planned";
-                            else
-                                location = "";
+                            #region location "planned"?
+                            string location = null;
+                            try {
+                                location = item.Location.DisplayName;
+                            } catch (Exception ex)
+                            {
+                                log.LogEverything("Not Specified", t.GetMethodName() + " got exception :" + ex.Message + " when trying to do item.Location.DisplayName for item with id : " + item.Id);
+                                return false;
+                            }
+                             
+
+                            if (string.IsNullOrEmpty(location))
+                            {
+                                if (includeBlankLocations)
+                                    location = "planned";
+                                else
+                                    location = "";
+                            }
+
+                            location = location.ToLower();
+                            #endregion
+
+                            if (location == "planned")
+                            #region ...
+                            {
+                                try
+                                {
+                                    string appointmendId = CalendarItemCreate(location, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject,
+                                    item.BodyPreview);
+                                } catch (Exception ex)
+                                {
+                                    log.LogEverything("Not Specified", t.GetMethodName() + " got exception :" + ex.Message + " when trying to do CalendarItemCreate for item with id : " + item.Id);
+                                    return false;
+                                }
+                                
+                                if (CalendarItemDelete(item.Id))
+                                {
+                                    log.LogStandard("Not Specified", item.Id + " / " + item.Start.DateTime + " converted to non-recurence appointment");
+                                    ConvertedAny = true;
+                                }
+                                
+                            }
+                            #endregion
                         }
-
-                        location = location.ToLower();
-                        #endregion
-
-                        if (location == "planned")
-                        #region ...
-                        {
-
-                            CalendarItemCreate(location, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.BodyPreview);
-                            CalendarItemDelete(item.Id);
-                            log.LogStandard("Not Specified", item.Id + " / " + item.Start.DateTime + " converted to non-recurence appointment");
-                            ConvertedAny = true;
-                        }
-                        #endregion
                     }
-                }
+                } else { }
+                
                 #endregion
 
                 if (ConvertedAny)
@@ -461,10 +484,19 @@ namespace OutlookOfficeOnline
 
         public bool CalendarItemDelete(string globalId)
         {
-            userEmailAddess = GetUserEmailAddress();
-            outlookExchangeOnlineAPIClient.DeleteEvent(userEmailAddess, globalId);
-            log.LogStandard("Not Specified", "globalId:'" + globalId + "' deleted");
-            return true;
+            log.LogEverything("Not Specified", "OutlookOnlineController.CalendarItemDelete called");
+            try
+            {
+                userEmailAddess = GetUserEmailAddress();
+                outlookExchangeOnlineAPIClient.DeleteEvent(userEmailAddess, globalId);
+                log.LogStandard("Not Specified", "globalId:'" + globalId + "' deleted");
+                return true;
+            } catch (Exception ex)
+            {
+                log.LogStandard("Not Specified", "CalendarItemDelete failed got exception:" + ex.Message);
+                return false;
+            }
+            
         }
         #endregion
 
