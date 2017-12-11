@@ -515,7 +515,8 @@ namespace OutlookSql
             {
                 log.LogVariable("Not Specified", nameof(serverAddress), serverAddress);
                 return false;
-            }                         
+            }
+            log.LogEverything("Not Specified", "SyncInteractionCase called and serverAddress is " + serverAddress);
 
             // read input
             #region create
@@ -523,6 +524,7 @@ namespace OutlookSql
 
             if (appoint != null)
             {
+                log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null 1");
                 if (InteractionCaseCreate(appoint))
                 {
                     log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
@@ -543,6 +545,7 @@ namespace OutlookSql
 
             if (appoint != null)
             {
+                log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null 2");
                 if (InteractionCaseDelete(appoint))
                 {
                     bool isUpdated = AppointmentsUpdate(appoint.global_id, LocationOptions.Revoked, appoint.body, appoint.expectionString, null);
