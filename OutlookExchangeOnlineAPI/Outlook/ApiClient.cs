@@ -117,11 +117,26 @@ namespace OutlookExchangeOnlineAPI
                         result = httpClient.SendAsync(request).Result;
                         if (!result.StatusCode.Equals(HttpStatusCode.OK))
                         {
-                            log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
-                            log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
-                            System.Threading.Thread.Sleep(backoffInteval * 1000);
-                            retryAttempts++;
-                            backoffInteval = backoffInteval * 2;
+                            if (!result.StatusCode.Equals(HttpStatusCode.Created))
+                            {
+
+                                if (result.StatusCode.Equals(HttpStatusCode.NoContent))
+                                {
+                                    log.LogEverything("Not Specified", "ExecuteQueryWithIncrementalRetry got result NoContent and result.Content is :" + result.Content);
+                                    return result;
+                                } else
+                                {
+                                    log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK or Created and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
+                                    log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
+                                    System.Threading.Thread.Sleep(backoffInteval * 1000);
+                                    retryAttempts++;
+                                    backoffInteval = backoffInteval * 2;
+                                }
+                                
+                            } else
+                            {
+                                return result;
+                            }
                         }
                         else
                         {
