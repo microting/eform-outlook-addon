@@ -104,6 +104,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppoinntmentSite.cs" />
     <Compile Include="Appointment.cs" />
     <Compile Include="Migrations\201712141856275_InitialDb.cs" />
     <Compile Include="Migrations\201712141856275_InitialDb.Designer.cs">

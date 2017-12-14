@@ -121,12 +121,12 @@ namespace OutlookOfficeOnline
             }
         }
 
-        public bool CalendarItemIntrepid()
+        public bool CalendarItemIntrepret()
         {
             try
             {
-                log.LogStandard("Not Specified", "CalendarItemIntrepid called. Before setting all vars");
-                bool AllIntrepid = false;
+                log.LogStandard("Not Specified", "CalendarItemIntrepret called. Before setting all vars");
+                bool AllIntrepret = false;
                 #region var
                 DateTime checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
                 double checkPreSend_Hours = double.Parse(sqlController.SettingRead(Settings.checkPreSend_Hours));
@@ -139,13 +139,13 @@ namespace OutlookOfficeOnline
                 DateTime tLimitFrom = checkLast_At.AddHours(-checkRetrace_Hours);
                 #endregion
 
-                log.LogStandard("Not Specified", "CalendarItemIntrepid called. After setting all vars");
+                log.LogStandard("Not Specified", "CalendarItemIntrepret called. After setting all vars");
 
                 #region process appointments
                 List<Event> eventList = GetCalendarItems(tLimitFrom, tLimitTo);
                 if (eventList == null)
                 {
-                    AllIntrepid = true;
+                    AllIntrepret = true;
                 }
                 else
                 {
@@ -195,9 +195,9 @@ namespace OutlookOfficeOnline
 
                                     if (appo.Location.ToLower() == "planned")
                                     {
-                                        log.LogStandard("Not Specified", "Before calling CalendarItemIntrepid.AppointmentsCreate");
+                                        log.LogStandard("Not Specified", "Before calling CalendarItemIntrepret.AppointmentsCreate");
                                         int count = sqlController.AppointmentsCreate(appo);
-                                        log.LogStandard("Not Specified", "After calling CalendarItemIntrepid.AppointmentsCreate");
+                                        log.LogStandard("Not Specified", "After calling CalendarItemIntrepret.AppointmentsCreate");
 
                                         if (count > 0)
                                         {
@@ -238,7 +238,7 @@ namespace OutlookOfficeOnline
                                     else
                                         CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepret, appo.Body);
 
-                                    AllIntrepid = true;
+                                    AllIntrepret = true;
                                 }
                                 #endregion
 
@@ -254,7 +254,7 @@ namespace OutlookOfficeOnline
                                     else
                                         CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepret, appo.Body);
 
-                                    AllIntrepid = true;
+                                    AllIntrepret = true;
                                 }
                                 #endregion
 
@@ -273,7 +273,7 @@ namespace OutlookOfficeOnline
                                         com.CheckStatusUpdateIfNeeded(aCase.microting_uid);
 
                                     CalendarItemReflecting(item.Id);
-                                    AllIntrepid = true;
+                                    AllIntrepret = true;
                                 }
                                 #endregion
                             }
@@ -285,7 +285,7 @@ namespace OutlookOfficeOnline
                 sqlController.SettingUpdate(Settings.checkLast_At, timeOfRun.ToString());
                 log.LogVariable("Not Specified", nameof(Settings.checkLast_At), timeOfRun.ToString());
 
-                return AllIntrepid;
+                return AllIntrepret;
             }
             catch (Exception ex)
             {

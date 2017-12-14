@@ -1203,7 +1203,7 @@ namespace UnitTest
                 //Act
                 bool response;
                 for (int i = 0; i < 10; i++)
-                    response = oCon.CalendarItemIntrepid();
+                    response = oCon.CalendarItemIntrepret();
                 checkValueB = "true";
 
                 //Assert

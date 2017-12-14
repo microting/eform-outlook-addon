@@ -18,7 +18,7 @@ namespace OutlookSql
         public string Body { get; set; }
 
         public int TemplateId { get; set; }
-        public List<int> SiteIds { get; set; }
+        public List<AppoinntmentSite> AppointmentSites { get; set; }
         public bool Connected { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
@@ -37,7 +37,7 @@ namespace OutlookSql
 
         }
 
-        public          Appointment(string globalId, DateTime start, int duration, string subject, string location, string body, bool colorRule, bool intrepidBody, Func<string, string> Lookup)
+        public          Appointment(string globalId, DateTime start, int duration, string subject, string location, string body, bool colorRule, bool interpretBodyContent, Func<string, string> Lookup)
         {
             GlobalId = globalId;
             Start = start;
@@ -47,7 +47,7 @@ namespace OutlookSql
             Body = body;
 
             TemplateId = -1;
-            SiteIds = new List<int>();
+            AppointmentSites = new List<AppoinntmentSite>();
             Connected = false;
             Title = "";
             Description = "";
@@ -57,7 +57,7 @@ namespace OutlookSql
             ColorRule = colorRule;
             MicrotingUId = "";
 
-            if (intrepidBody)
+            if (interpretBodyContent)
                 BodyToFields(body, Lookup);
         }
         #endregion
@@ -101,9 +101,9 @@ namespace OutlookSql
                 {
                     Location = LocationOptions.Failed_to_intrepret.ToString();
                     Body =
-                    "<<< Intrepid error: Start >>>" + Environment.NewLine +
+                    "<<< Interpret error: Start >>>" + Environment.NewLine +
                     intrepidFailedStr + Environment.NewLine +
-                    "<<< Intrepid error: End >>>" + Environment.NewLine +
+                    "<<< Interpret error: End >>>" + Environment.NewLine +
                     Environment.NewLine +
                     Body;
                 }
@@ -124,7 +124,7 @@ namespace OutlookSql
         {
             #region var
             string[] lines = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-            SiteIds = new List<int>();
+            AppointmentSites = new List<AppoinntmentSite>();
             Replacements = new List<string>();
             string check = "";
             string rtrnMsg = "";
@@ -170,16 +170,25 @@ namespace OutlookSql
                                 string itemStr = Lookup(item.Replace("'", "").Replace("’", "").Trim());
 
                                 if (itemStr.Contains("failed, for title"))
-                                    rtrnMsg = itemStr + Environment.NewLine +
-                                        "" + Environment.NewLine + rtrnMsg;
+                                {
+                                    rtrnMsg = itemStr + Environment.NewLine + "" + Environment.NewLine + rtrnMsg;
+                                }
                                 else
-                                    SiteIds.AddRange(t.IntLst(itemStr));
+                                {
+                                    AppoinntmentSite appointmentSite = new AppoinntmentSite();
+                                    AppointmentSites.Add(appointmentSite);
+                                    //AppointmentSites.AddRange(t.IntLst(itemStr));
+                                }                                    
                             }
                             else
-                                SiteIds.Add(int.Parse(item));
+                            {
+                                AppoinntmentSite appointmentSite = new AppoinntmentSite();
+                                AppointmentSites.Add(appointmentSite);
+                            }
+                                //AppointmentSites.Add(int.Parse(item));
                         }
 
-                        SiteIds = SiteIds.Distinct().ToList();
+                        AppointmentSites = AppointmentSites.Distinct().ToList();
 
                         continue;
                     }
@@ -284,7 +293,7 @@ namespace OutlookSql
             }
 
             #region none-optional
-            if (SiteIds.Count < 1)
+            if (AppointmentSites.Count < 1)
                 rtrnMsg = "The mandatory field 'sites' input not recognized." + Environment.NewLine +
                     "- Expected format: sites#[identifier](,[identifier])*n" + Environment.NewLine +
                     "- Sample 1       : sites#1234,2345,3456" + Environment.NewLine +
