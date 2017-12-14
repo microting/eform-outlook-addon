@@ -89,13 +89,13 @@ namespace OutlookSql
                 return new OutlookDbMy(connectionStr);
         }
 
-        private MicrotingContextInterface   GetContextM()
-        {
-            if (msSql)
-                return new MicrotingDbMs(SettingRead(Settings.microtingDb));
-            else
-                return new MicrotingDbMy(SettingRead(Settings.microtingDb));
-        }
+        //private MicrotingContextInterface   GetContextM()
+        //{
+        //    if (msSql)
+        //        return new MicrotingDbMs(SettingRead(Settings.microtingDb));
+        //    else
+        //        return new MicrotingDbMy(SettingRead(Settings.microtingDb));
+        //}
 
         public bool                 MigrateDb()
         {
@@ -513,6 +513,7 @@ namespace OutlookSql
         #region public SDK
         public bool                 SyncInteractionCase(string serverAddress)
         {
+            return false; // TODO
             if (string.IsNullOrEmpty(serverAddress))
             {
                 log.LogVariable("Not Specified", nameof(serverAddress), serverAddress);
@@ -592,7 +593,7 @@ namespace OutlookSql
 
             // read output
             //log.LogEverything("Not Specified", "SyncInteractionCase called and we are returning false! ");
-            return InteractionCaseProcessed(serverAddress);
+            //return InteractionCaseProcessed(serverAddress); TODO
         }
 
         public bool                 InteractionCaseCreate(appointments appointment)
@@ -626,21 +627,21 @@ namespace OutlookSql
 
                     #region check for existing a_interaction_case
                     // Lets see if the appointment already have an intercationCase and use that one otherwise create a new one.
-                    a_interaction_cases existing_case;
-                    int interCaseId;
+                    //a_interaction_cases existing_case; TODO
+                    int interCaseId = 0;
 
-                    using (var sdk_db = GetContextM())
-                    {
-                        existing_case = sdk_db.a_interaction_cases.FirstOrDefault(x => x.custom == appointment.global_id);
-                        if (existing_case == null)
-                        {
-                            interCaseId = sdkSqlCon.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), replacements);
-                        }
-                        else
-                        {
-                            interCaseId = existing_case.id;
-                        }
-                    }
+                    //using (var sdk_db = GetContextM())
+                    //{
+                    //    existing_case = sdk_db.a_interaction_cases.FirstOrDefault(x => x.custom == appointment.global_id);
+                    //    if (existing_case == null)
+                    //    {
+                    //        interCaseId = sdkSqlCon.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), replacements);
+                    //    }
+                    //    else
+                    //    {
+                    //        interCaseId = existing_case.id;
+                    //    }
+                    //}
                     #endregion
 
                     var match = db.appointments.Single(x => x.global_id == appointment.global_id);
@@ -687,187 +688,187 @@ namespace OutlookSql
             }
         }
 
-        public bool InteractionCaseProcessed(string serverAddress)
-        {
-            log.LogEverything("Not Specified", "InteractionCaseProcessed called and serverAddress is " + serverAddress);
-            try
-            {
-                using (var db = GetContextM())
-                {
-                    var match = db.a_interaction_cases.FirstOrDefault(x => x.synced == 0);
-                    if (match == null)
-                    {
-                        log.LogEverything("Not Specified", "InteractionCaseProcessed called and (match == null)");
-                        return false;
-                    } else
-                    {
-                        log.LogEverything("Not Specified", "InteractionCaseProcessed called and match.id is :" +match.id);
-                    }
+        //public bool InteractionCaseProcessed(string serverAddress)
+        //{
+        //    log.LogEverything("Not Specified", "InteractionCaseProcessed called and serverAddress is " + serverAddress);
+        //    try
+        //    {
+        //        using (var db = GetContextM())
+        //        {
+        //            var match = db.a_interaction_cases.FirstOrDefault(x => x.synced == 0);
+        //            if (match == null)
+        //            {
+        //                log.LogEverything("Not Specified", "InteractionCaseProcessed called and (match == null)");
+        //                return false;
+        //            } else
+        //            {
+        //                log.LogEverything("Not Specified", "InteractionCaseProcessed called and match.id is :" +match.id);
+        //            }
 
 
-                    #region var
-                    int statHigh = -99;
-                    int statLow = 99;
-                    int statCur = 0;
-                    int statFinal = 0;
-                    string addToBody = "";
-                    List<string> lstSent = new List<string>();
-                    List<string> lstRetrived = new List<string>();
-                    List<string> lstCompleted = new List<string>();
-                    List<string> lstDeleted = new List<string>();
-                    List<string> lstExpection = new List<string>();
-                    bool flagException = false;
-                    bool anyCompleted = false;
-                    #endregion
-                    foreach (var item in match.a_interaction_case_lists)
-                    {
+        //            #region var
+        //            int statHigh = -99;
+        //            int statLow = 99;
+        //            int statCur = 0;
+        //            int statFinal = 0;
+        //            string addToBody = "";
+        //            List<string> lstSent = new List<string>();
+        //            List<string> lstRetrived = new List<string>();
+        //            List<string> lstCompleted = new List<string>();
+        //            List<string> lstDeleted = new List<string>();
+        //            List<string> lstExpection = new List<string>();
+        //            bool flagException = false;
+        //            bool anyCompleted = false;
+        //            #endregion
+        //            foreach (var item in match.a_interaction_case_lists)
+        //            {
 
-                        log.LogEverything("Not Specified", "InteractionCaseProcessed called and foreach item is " + item.case_id.ToString());
-                        #region if stat ...
-                        statCur = 0;
+        //                log.LogEverything("Not Specified", "InteractionCaseProcessed called and foreach item is " + item.case_id.ToString());
+        //                #region if stat ...
+        //                statCur = 0;
 
-                        if (item.stat == "Created")
-                            statCur = 1;
-                        if (item.stat == "Sent")
-                        {
-                            statCur = 2;
-                            lstSent.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
-                        }
-                        if (item.stat == "Retrived")
-                        {
-                            statCur = 3;
-                            lstRetrived.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
-                        }
-                        if (item.stat == "Completed")
-                        {
-                            statCur = 4;
-                            anyCompleted = true;
-                            lstCompleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
-                        }
-                        if (item.stat == "Deleted")
-                        {
-                            statCur = 5;
-                            lstDeleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
-                        }
+        //                if (item.stat == "Created")
+        //                    statCur = 1;
+        //                if (item.stat == "Sent")
+        //                {
+        //                    statCur = 2;
+        //                    lstSent.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
+        //                }
+        //                if (item.stat == "Retrived")
+        //                {
+        //                    statCur = 3;
+        //                    lstRetrived.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
+        //                }
+        //                if (item.stat == "Completed")
+        //                {
+        //                    statCur = 4;
+        //                    anyCompleted = true;
+        //                    lstCompleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
+        //                }
+        //                if (item.stat == "Deleted")
+        //                {
+        //                    statCur = 5;
+        //                    lstDeleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
+        //                }
 
-                        if (item.stat == "Expection")
-                        {
-                            flagException = true;
-                            lstExpection.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
-                        }
+        //                if (item.stat == "Expection")
+        //                {
+        //                    flagException = true;
+        //                    lstExpection.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
+        //                }
 
-                        if (statHigh < statCur)
-                            statHigh = statCur;
+        //                if (statHigh < statCur)
+        //                    statHigh = statCur;
 
-                        if (statLow > statCur)
-                            statLow = statCur;
-                        #endregion
-                    }
+        //                if (statLow > statCur)
+        //                    statLow = statCur;
+        //                #endregion
+        //            }
 
-                    #region pick color
-                    if (anyCompleted && statHigh == 5) //as in 1 or more completed, and some deleted
-                        statHigh = 4;
+        //            #region pick color
+        //            if (anyCompleted && statHigh == 5) //as in 1 or more completed, and some deleted
+        //                statHigh = 4;
 
-                    if (match.workflow_state == "failed to sync")
-                        flagException = true;
+        //            if (match.workflow_state == "failed to sync")
+        //                flagException = true;
 
-                    try
-                    {
-                        if (t.Bool(AppointmentsFind(match.custom).color_rule))
-                            statFinal = statHigh;
-                        else
-                            statFinal = statLow;
-                    }
-                    catch (Exception ex)
-                    {
-                        log.LogException("Not Specified", t.GetMethodName() + " failed in t.Bool(AppointmentsFind(match.custom).color_rule", ex, false);
-                        return false;
-                    }
+        //            try
+        //            {
+        //                if (t.Bool(AppointmentsFind(match.custom).color_rule))
+        //                    statFinal = statHigh;
+        //                else
+        //                    statFinal = statLow;
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                log.LogException("Not Specified", t.GetMethodName() + " failed in t.Bool(AppointmentsFind(match.custom).color_rule", ex, false);
+        //                return false;
+        //            }
 
-                    #endregion
+        //            #endregion
 
-                    #region craft body text to be added
-                    if (lstExpection.Count > 0)
-                    {
-                        addToBody += "Expection:" + Environment.NewLine;
-                        foreach (var line in lstExpection)
-                            addToBody += line + Environment.NewLine;
-                        addToBody += Environment.NewLine;
-                    }
+        //            #region craft body text to be added
+        //            if (lstExpection.Count > 0)
+        //            {
+        //                addToBody += "Expection:" + Environment.NewLine;
+        //                foreach (var line in lstExpection)
+        //                    addToBody += line + Environment.NewLine;
+        //                addToBody += Environment.NewLine;
+        //            }
 
-                    if (lstCompleted.Count > 0)
-                    {
-                        addToBody += "Completed:" + Environment.NewLine;
-                        foreach (var line in lstCompleted)
-                            addToBody += line + Environment.NewLine;
-                        addToBody += Environment.NewLine;
-                    }
+        //            if (lstCompleted.Count > 0)
+        //            {
+        //                addToBody += "Completed:" + Environment.NewLine;
+        //                foreach (var line in lstCompleted)
+        //                    addToBody += line + Environment.NewLine;
+        //                addToBody += Environment.NewLine;
+        //            }
 
-                    if (lstRetrived.Count > 0)
-                    {
-                        addToBody += "Retrived:" + Environment.NewLine;
-                        foreach (var line in lstRetrived)
-                            addToBody += line + Environment.NewLine;
-                        addToBody += Environment.NewLine;
-                    }
+        //            if (lstRetrived.Count > 0)
+        //            {
+        //                addToBody += "Retrived:" + Environment.NewLine;
+        //                foreach (var line in lstRetrived)
+        //                    addToBody += line + Environment.NewLine;
+        //                addToBody += Environment.NewLine;
+        //            }
 
-                    if (lstSent.Count > 0)
-                    {
-                        addToBody += "Sent:" + Environment.NewLine;
-                        foreach (var line in lstSent)
-                            addToBody += line + Environment.NewLine;
-                        addToBody += Environment.NewLine;
-                    }
+        //            if (lstSent.Count > 0)
+        //            {
+        //                addToBody += "Sent:" + Environment.NewLine;
+        //                foreach (var line in lstSent)
+        //                    addToBody += line + Environment.NewLine;
+        //                addToBody += Environment.NewLine;
+        //            }
 
-                    if (lstDeleted.Count > 0)
-                    {
-                        addToBody += "Deleted:" + Environment.NewLine;
-                        foreach (var line in lstDeleted)
-                            addToBody += line + Environment.NewLine;
-                        addToBody += Environment.NewLine;
-                    }
-                    #endregion
+        //            if (lstDeleted.Count > 0)
+        //            {
+        //                addToBody += "Deleted:" + Environment.NewLine;
+        //                foreach (var line in lstDeleted)
+        //                    addToBody += line + Environment.NewLine;
+        //                addToBody += Environment.NewLine;
+        //            }
+        //            #endregion
 
-                    #region WorkflowState wFS = ...
-                    LocationOptions wFS = LocationOptions.Failed_to_intrepret;
-                    if (statFinal == 1)
-                        wFS = LocationOptions.Created;
-                    if (statFinal == 2)
-                        wFS = LocationOptions.Sent;
-                    if (statFinal == 3)
-                        wFS = LocationOptions.Retrived;
-                    if (statFinal == 4)
-                        wFS = LocationOptions.Completed;
-                    if (statFinal == 5)
-                        wFS = LocationOptions.Revoked;
-                    if (flagException == true)
-                        wFS = LocationOptions.Failed_to_intrepret;
-                    #endregion
+        //            #region WorkflowState wFS = ...
+        //            LocationOptions wFS = LocationOptions.Failed_to_intrepret;
+        //            if (statFinal == 1)
+        //                wFS = LocationOptions.Created;
+        //            if (statFinal == 2)
+        //                wFS = LocationOptions.Sent;
+        //            if (statFinal == 3)
+        //                wFS = LocationOptions.Retrived;
+        //            if (statFinal == 4)
+        //                wFS = LocationOptions.Completed;
+        //            if (statFinal == 5)
+        //                wFS = LocationOptions.Revoked;
+        //            if (flagException == true)
+        //                wFS = LocationOptions.Failed_to_intrepret;
+        //            #endregion
 
-                    if (addToBody != "")
-                    {
-                        AppointmentsUpdate(match.custom, wFS, null, match.expectionString, addToBody.Trim());
-                    }
-                    else
-                    {
-                        AppointmentsUpdate(match.custom, wFS, null, match.expectionString, null);
-                    }
+        //            if (addToBody != "")
+        //            {
+        //                AppointmentsUpdate(match.custom, wFS, null, match.expectionString, addToBody.Trim());
+        //            }
+        //            else
+        //            {
+        //                AppointmentsUpdate(match.custom, wFS, null, match.expectionString, null);
+        //            }
 
 
-                    match.updated_at = DateTime.Now;
-                    match.version = match.version++;
-                    match.synced = 1;
-                    db.SaveChanges();
+        //            match.updated_at = DateTime.Now;
+        //            match.version = match.version++;
+        //            match.synced = 1;
+        //            db.SaveChanges();
 
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
-                return true;
-            }
-        }
+        //            return true;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+        //        return true;
+        //    }
+        //}
 
         public string               SiteLookupName(int? siteUId)
         {
@@ -1261,41 +1262,41 @@ namespace OutlookSql
             }
         }
 
-        public bool                 UnitTest_TruncateTable_Microting(string tableName)
-        {
-            try
-            {
-                using (var db = GetContextM())
-                {
-                    if (msSql)
-                    {
-                        db.Database.ExecuteSqlCommand("DELETE FROM [dbo].[" + tableName + "];");
-                        db.Database.ExecuteSqlCommand("DBCC CHECKIDENT('" + tableName + "', RESEED, 1);");
+        //public bool                 UnitTest_TruncateTable_Microting(string tableName)
+        //{
+        //    try
+        //    {
+        //        using (var db = GetContextM())
+        //        {
+        //            if (msSql)
+        //            {
+        //                db.Database.ExecuteSqlCommand("DELETE FROM [dbo].[" + tableName + "];");
+        //                db.Database.ExecuteSqlCommand("DBCC CHECKIDENT('" + tableName + "', RESEED, 1);");
 
-                        return true;
-                    }
-                    else
-                    {
-                        db.Database.ExecuteSqlCommand("SET FOREIGN_KEY_CHECKS=0");
-                        db.Database.ExecuteSqlCommand("TRUNCATE TABLE " + tableName + ";");
-                        db.Database.ExecuteSqlCommand("SET FOREIGN_KEY_CHECKS=1");
+        //                return true;
+        //            }
+        //            else
+        //            {
+        //                db.Database.ExecuteSqlCommand("SET FOREIGN_KEY_CHECKS=0");
+        //                db.Database.ExecuteSqlCommand("TRUNCATE TABLE " + tableName + ";");
+        //                db.Database.ExecuteSqlCommand("SET FOREIGN_KEY_CHECKS=1");
 
-                        return true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                string str = ex.Message;
-                return false;
-            }
-        }
+        //                return true;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string str = ex.Message;
+        //        return false;
+        //    }
+        //}
 
         public bool                 UnitTest_OutlookDatabaseClear()
         {
             try
             {
-                using (var db = GetContextM())
+                using (var db = GetContextO())
                 {
                     UnitTest_TruncateTable(typeof(appointment_versions).Name);
                     UnitTest_TruncateTable(typeof(appointments).Name);

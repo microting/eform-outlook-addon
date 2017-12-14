@@ -105,8 +105,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Appointment.cs" />
-    <Compile Include="MicrotingContextInterface.cs" />
-    <Compile Include="MicrotingDbMy.cs" />
     <Compile Include="OutlookContextInterface.cs" />
     <Compile Include="OutlookDbMy.cs" />
     <Compile Include="table\logs.cs" />
@@ -116,9 +114,6 @@
     <Compile Include="table\appointment_versions.cs" />
     <Compile Include="OutlookDbMs.cs" />
     <Compile Include="table\settings.cs" />
-    <Compile Include="table\a_interaction_cases.cs" />
-    <Compile Include="table\a_interaction_case_lists.cs" />
-    <Compile Include="MicrotingDbMs.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="SqlController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

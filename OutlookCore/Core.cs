@@ -497,9 +497,11 @@ namespace OutlookCore
                             = new Thread(() => SyncOutlookApps());
                         syncOutlookAppsThread.Start();
 
-                        Thread syncInteractionCaseCreateThread
-                            = new Thread(() => SyncInteractionCase());
-                        syncInteractionCaseCreateThread.Start();
+                        #region TODO
+                        //Thread syncInteractionCaseCreateThread
+                        //    = new Thread(() => SyncInteractionCase());
+                        //syncInteractionCaseCreateThread.Start(); 
+                        # endregion
 
                         Thread.Sleep(2000);
                     }
@@ -587,6 +589,12 @@ namespace OutlookCore
 
         private void            SyncInteractionCase()
         {
+
+            while (true)
+            {
+
+            }
+
             try
             {
                 if (!syncInteractionCaseRunning)
@@ -596,7 +604,9 @@ namespace OutlookCore
                     string serverAddress = sdkCore.GetHttpServerAddress();
 
                     while (coreThreadRunning && sqlController.SyncInteractionCase(serverAddress))
+                    {
                         log.LogEverything("Not Specified", t.GetMethodName() + " completed");
+                    }                        
 
                     syncInteractionCaseRunning = false;
                 }
@@ -662,10 +672,10 @@ namespace OutlookCore
 
                     sqlController.UnitTest_TruncateTable("appointment_versions");
                     sqlController.UnitTest_TruncateTable("appointments");
-                    sqlController.UnitTest_TruncateTable_Microting("a_interaction_case_lists");
-                    sqlController.UnitTest_TruncateTable_Microting("a_interaction_cases");
-                    sqlController.UnitTest_TruncateTable_Microting("notifications");
-                    sqlController.UnitTest_TruncateTable_Microting("cases");
+                    //sqlController.UnitTest_TruncateTable_Microting("a_interaction_case_lists");
+                    //sqlController.UnitTest_TruncateTable_Microting("a_interaction_cases");
+                    //sqlController.UnitTest_TruncateTable_Microting("notifications");
+                    //sqlController.UnitTest_TruncateTable_Microting("cases");
 
                     coreStatChanging = false;
                 }
