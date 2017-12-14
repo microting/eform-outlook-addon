@@ -396,7 +396,7 @@ namespace OutlookCore
                 }
 
                 Appointment appointment = 
-                    new Appointment(appo.global_id, t.Date(appo.start_at), t.Int(appo.duration), appo.subject, appo.location, appo.body, t.Bool(appo.color_rule), true, sqlController.LookupRead);
+                    new Appointment(appo.global_id, t.Date(appo.start_at), t.Int(appo.duration), appo.subject, appo.processing_state, appo.body, t.Bool(appo.color_rule), true, sqlController.LookupRead);
 
                 return appointment;
             }

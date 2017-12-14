@@ -268,7 +268,7 @@ namespace OutlookOfficeOnline
 
                                     var temp = sqlController.AppointmentsFind(item.Id);
 
-                                    var list = sqlMicroting.InteractionCaseListRead(int.Parse(temp.microting_uid));
+                                    var list = sqlMicroting.InteractionCaseListRead(int.Parse(temp.microting_uuid));
                                     foreach (var aCase in list)
                                         com.CheckStatusUpdateIfNeeded(aCase.microting_uid);
 
@@ -327,9 +327,9 @@ namespace OutlookOfficeOnline
                 Event item = AppointmentItemFind(appointment.global_id, appointment.start_at.Value.AddHours(-36), appointment.start_at.Value.AddHours(36)); // TODO!
                 if (item != null)
                 {
-                    item.Location.DisplayName = appointment.location;
+                    item.Location.DisplayName = appointment.processing_state;
                     #region item.Categories = 'workflowState'...
-                    switch (appointment.location)
+                    switch (appointment.processing_state)
                     {
                         case "Planned":
                             Categories = null;
@@ -391,11 +391,11 @@ namespace OutlookOfficeOnline
                             Environment.NewLine + "<<< Response: End >>>";
                         }
                     }
-                    if (!string.IsNullOrEmpty(appointment.expectionString))
+                    if (!string.IsNullOrEmpty(appointment.exceptionString))
                     {
                         item.BodyPreview = "<<< Exception: Start >>>" +
                         Environment.NewLine +
-                        Environment.NewLine + appointment.expectionString +
+                        Environment.NewLine + appointment.exceptionString +
                         Environment.NewLine +
                         Environment.NewLine + "<<< Exception: End >>>" +
                         Environment.NewLine +

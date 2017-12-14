@@ -8,6 +8,11 @@ namespace OutlookSql
 
     public partial class appointments
     {
+
+        public appointments()
+        {
+            this.appointment_sites = new HashSet<appointment_sites>();
+        }
         [Key]
         public int id { get; set; }
 
@@ -32,13 +37,11 @@ namespace OutlookSql
         public string subject { get; set; }
 
         [StringLength(255)]
-        public string location { get; set; }
+        public string processing_state { get; set; }
 
         public string body { get; set; }
 
-        public string expectionString { get; set; }
-
-        public string site_ids { get; set; }
+        public string exceptionString { get; set; }       
 
         [StringLength(255)]
         public string title { get; set; }
@@ -49,9 +52,7 @@ namespace OutlookSql
         public string info { get; set; }
 
         [StringLength(255)]
-        public string microting_uid { get; set; }
-
-        public short? connected { get; set; }
+        public string microting_uuid { get; set; }
 
         public short? completed { get; set; }
 
@@ -63,12 +64,14 @@ namespace OutlookSql
 
         public short? color_rule { get; set; }
 
+        public virtual ICollection<appointment_sites> appointment_sites { get; set; }
+
         public override string ToString()
         {
             string globalId = "";
             string start = "";
             string _title = "";
-            string _location = "";
+            string _processing_state = "";
 
             if (global_id != null)
                 globalId = global_id;
@@ -79,10 +82,10 @@ namespace OutlookSql
             if (title != null)
                 _title = title;
 
-            if (location != null)
-                _location = location;
+            if (processing_state != null)
+                _processing_state = processing_state;
 
-            return "GlobalId:" + globalId + " / Start:" + start + " / Title:" + _title + " / Location:" + _location;
+            return "GlobalId:" + globalId + " / Start:" + start + " / Title:" + _title + " / Processing state:" + _processing_state;
         }
     }
 }

@@ -580,7 +580,7 @@ namespace UnitTest
                 //Act
                 sqlController.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Bla bla", "body", false, false, sqlController.LookupRead));
                 var match = sqlController.AppointmentsFind("globalId");
-                checkValueB = match.location + " " + match.subject;
+                checkValueB = match.processing_state + " " + match.subject;
 
                 //Assert
                 TestTeardown();
@@ -1895,7 +1895,7 @@ namespace UnitTest
                     var appoint = sqlController.AppointmentsFind(globalId);
 
                     if (appoint != null)
-                        if (appoint.location == location.ToString())
+                        if (appoint.processing_state == location.ToString())
                             return true;
 
                     Thread.Sleep(200);

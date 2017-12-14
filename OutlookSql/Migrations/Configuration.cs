@@ -9,7 +9,7 @@ namespace OutlookSql.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = true;
+            AutomaticMigrationsEnabled = false;
             AutomaticMigrationDataLossAllowed = false;
         }
 

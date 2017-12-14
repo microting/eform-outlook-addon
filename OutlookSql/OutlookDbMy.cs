@@ -14,12 +14,14 @@ namespace OutlookSql
         {
         }
 
-        public virtual DbSet<appointment_versions>  appointment_versions { get; set; }
-        public virtual DbSet<appointments>          appointments { get; set; }
-        public virtual DbSet<log_exceptions>        log_exceptions { get; set; }
-        public virtual DbSet<logs>                  logs { get; set; }
-        public virtual DbSet<lookups>               lookups { get; set; }
-        public virtual DbSet<settings>              settings { get; set; }
+        public virtual DbSet<appointments> appointments { get; set; }
+        public virtual DbSet<appointment_versions> appointment_versions { get; set; }
+        public virtual DbSet<appointment_sites> appointment_sites { get; set; }
+        public virtual DbSet<appointment_site_versions> appointment_site_versions { get; set; }
+        public virtual DbSet<log_exceptions> log_exceptions { get; set; }
+        public virtual DbSet<logs> logs { get; set; }
+        public virtual DbSet<lookups> lookups { get; set; }
+        public virtual DbSet<settings> settings { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -56,7 +58,7 @@ namespace OutlookSql
                 .IsUnicode(false);
 
             modelBuilder.Entity<appointments>()
-                .Property(e => e.location)
+                .Property(e => e.processing_state)
                 .IsUnicode(false);
 
             modelBuilder.Entity<appointments>()
@@ -64,11 +66,7 @@ namespace OutlookSql
                 .IsUnicode(false);
 
             modelBuilder.Entity<appointments>()
-                .Property(e => e.expectionString)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<appointments>()
-                .Property(e => e.site_ids)
+                .Property(e => e.exceptionString)
                 .IsUnicode(false);
 
             modelBuilder.Entity<appointments>()
@@ -80,7 +78,7 @@ namespace OutlookSql
                 .IsUnicode(false);
 
             modelBuilder.Entity<appointments>()
-                .Property(e => e.microting_uid)
+                .Property(e => e.microting_uuid)
                 .IsUnicode(false);
 
             modelBuilder.Entity<appointments>()

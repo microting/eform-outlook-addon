@@ -107,6 +107,8 @@
     <Compile Include="Appointment.cs" />
     <Compile Include="OutlookContextInterface.cs" />
     <Compile Include="OutlookDbMy.cs" />
+    <Compile Include="table\appointment_site_versions.cs" />
+    <Compile Include="table\appointment_sites.cs" />
     <Compile Include="table\logs.cs" />
     <Compile Include="table\log_exceptions.cs" />
     <Compile Include="table\lookups.cs" />
