@@ -231,12 +231,12 @@ namespace OutlookOfficeOnline
                                                     Environment.NewLine + "" +
                                                     Environment.NewLine + appo.Body;
                                                 #endregion
-                                                CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
+                                                CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepret, appo.Body);
                                             }
                                         }
                                     }
                                     else
-                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
+                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepret, appo.Body);
 
                                     AllIntrepid = true;
                                 }
@@ -252,7 +252,7 @@ namespace OutlookOfficeOnline
                                     if (sqlController.AppointmentsCancel(appo.GlobalId))
                                         CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Canceled, appo.Body);
                                     else
-                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepid, appo.Body);
+                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepret, appo.Body);
 
                                     AllIntrepid = true;
                                 }
@@ -402,8 +402,16 @@ namespace OutlookOfficeOnline
                         Environment.NewLine + item.BodyPreview;
                     }
                     #endregion
-                    outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, CalendarItemUpdateBody(item.BodyPreview, item.Location.DisplayName, Categories));
-                    log.LogStandard("Not Specified", "globalId:'" + appointment.global_id + "' reflected in calendar");
+                    Event eresult = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, CalendarItemUpdateBody(item.BodyPreview, item.Location.DisplayName, Categories));
+                    if (eresult == null)
+                    {
+                        return false;
+                    } else
+                    {
+                        log.LogStandard("Not Specified", "globalId:'" + appointment.global_id + "' reflected in calendar");
+                    }
+                        
+                    
                 }
                 else
                     log.LogWarning("Not Specified", "globalId:'" + appointment.global_id + "' no longer in calendar, so hence is considered to be reflected in calendar");
@@ -470,16 +478,23 @@ namespace OutlookOfficeOnline
                 case LocationOptions.Exception:
                     Categories = CalendarItemCategory.Error.ToString();
                     break;
-                case LocationOptions.Failed_to_intrepid:
+                case LocationOptions.Failed_to_intrepret:
                     Categories = CalendarItemCategory.Error.ToString();
                     break;
             }
             #endregion
 
-            outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, CalendarItemUpdateBody(item.BodyPreview, item.Location.DisplayName, Categories));
+            Event eresult = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, CalendarItemUpdateBody(item.BodyPreview, item.Location.DisplayName, Categories));
+            if (eresult == null)
+            {
+                log.LogStandard("Not Specified", AppointmentPrint(item) + " NOT updated to " + workflowState.ToString());
+                return false;
+            } else
+            {
+                log.LogStandard("Not Specified", AppointmentPrint(item) + " updated to " + workflowState.ToString());
+                return true;
+            }
 
-            log.LogStandard("Not Specified", AppointmentPrint(item) + " updated to " + workflowState.ToString());
-            return true;
         }
 
         public bool CalendarItemDelete(string globalId)

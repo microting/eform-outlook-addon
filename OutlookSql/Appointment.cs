@@ -99,7 +99,7 @@ namespace OutlookSql
 
                 if (intrepidFailedStr != "")
                 {
-                    Location = LocationOptions.Failed_to_intrepid.ToString();
+                    Location = LocationOptions.Failed_to_intrepret.ToString();
                     Body =
                     "<<< Intrepid error: Start >>>" + Environment.NewLine +
                     intrepidFailedStr + Environment.NewLine +
@@ -316,7 +316,7 @@ namespace OutlookSql
         Completed,
         Canceled,
         Revoked,
-        Failed_to_intrepid,
+        Failed_to_intrepret,
         Exception,
         Unknown_location
     }

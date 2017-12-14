@@ -261,6 +261,8 @@ namespace OutlookSql
 
         public bool                 AppointmentsUpdate(string globalId, LocationOptions location, string body, string expectionString, string response)
         {
+            log.LogEverything("Not Specified", "AppointmentsUpdate called and globalId is " + globalId);
+
             try
             {
                 using (var db = GetContextO())
@@ -524,7 +526,7 @@ namespace OutlookSql
 
             if (appoint != null)
             {
-                log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null 1");
+                log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Processed");
                 if (InteractionCaseCreate(appoint))
                 {
                     log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
@@ -545,7 +547,7 @@ namespace OutlookSql
 
             if (appoint != null)
             {
-                log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null 2");
+                log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Canceled");
                 if (InteractionCaseDelete(appoint))
                 {
                     bool isUpdated = AppointmentsUpdate(appoint.global_id, LocationOptions.Revoked, appoint.body, appoint.expectionString, null);
@@ -563,17 +565,40 @@ namespace OutlookSql
                     log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
                     log.LogException("Not Specified", "Failed to deleted Appointment in SDK input", new Exception("FATAL issue"), true);
                 }
+                log.LogEverything("Not Specified", "SyncInteractionCase called and we are returning false! ");
 
                 return false;
             }
+            //appoint = AppointmentsFindOne(LocationOptions.Created);
+
+            //if (appoint != null)
+            //{
+            //    log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Created");
+            //    if (InteractionCaseCreate(appoint))
+            //    {
+            //        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+            //        log.LogStandard("Not Specified", "Appointment created in SDK input");
+            //        return true;
+            //    }
+            //    else
+            //    {
+            //        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+            //        log.LogException("Not Specified", "Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
+            //        return false;
+            //    }
+            //}
+
             #endregion
 
             // read output
+            //log.LogEverything("Not Specified", "SyncInteractionCase called and we are returning false! ");
             return InteractionCaseProcessed(serverAddress);
         }
 
         public bool                 InteractionCaseCreate(appointments appointment)
         {
+            log.LogEverything("Not Specified", "InteractionCaseCreate called ");
+
             try
             {
                 using (var db = GetContextO())
@@ -599,7 +624,24 @@ namespace OutlookSql
                     if (replacements.Count == 0)
                         replacements = null;
 
-                    int interCaseId = sdkSqlCon.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), replacements);
+                    #region check for existing a_interaction_case
+                    // Lets see if the appointment already have an intercationCase and use that one otherwise create a new one.
+                    a_interaction_cases existing_case;
+                    int interCaseId;
+
+                    using (var sdk_db = GetContextM())
+                    {
+                        existing_case = sdk_db.a_interaction_cases.FirstOrDefault(x => x.custom == appointment.global_id);
+                        if (existing_case == null)
+                        {
+                            interCaseId = sdkSqlCon.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), replacements);
+                        }
+                        else
+                        {
+                            interCaseId = existing_case.id;
+                        }
+                    }
+                    #endregion
 
                     var match = db.appointments.Single(x => x.global_id == appointment.global_id);
 
@@ -645,20 +687,23 @@ namespace OutlookSql
             }
         }
 
-        public bool                 InteractionCaseProcessed(string serverAddress)
+        public bool InteractionCaseProcessed(string serverAddress)
         {
+            log.LogEverything("Not Specified", "InteractionCaseProcessed called and serverAddress is " + serverAddress);
             try
             {
                 using (var db = GetContextM())
                 {
                     var match = db.a_interaction_cases.FirstOrDefault(x => x.synced == 0);
                     if (match == null)
+                    {
+                        log.LogEverything("Not Specified", "InteractionCaseProcessed called and (match == null)");
                         return false;
+                    } else
+                    {
+                        log.LogEverything("Not Specified", "InteractionCaseProcessed called and match.id is :" +match.id);
+                    }
 
-                    match.updated_at = DateTime.Now;
-                    match.version = match.version++;
-                    match.synced = 1;
-                    db.SaveChanges();
 
                     #region var
                     int statHigh = -99;
@@ -676,6 +721,8 @@ namespace OutlookSql
                     #endregion
                     foreach (var item in match.a_interaction_case_lists)
                     {
+
+                        log.LogEverything("Not Specified", "InteractionCaseProcessed called and foreach item is " + item.case_id.ToString());
                         #region if stat ...
                         statCur = 0;
 
@@ -684,12 +731,12 @@ namespace OutlookSql
                         if (item.stat == "Sent")
                         {
                             statCur = 2;
-                                 lstSent.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     ("+ serverAddress + "/cases/edit/"+ item.case_id + "/" + match.template_id + ")");
+                            lstSent.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
                         }
                         if (item.stat == "Retrived")
                         {
                             statCur = 3;
-                             lstRetrived.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
+                            lstRetrived.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
                         }
                         if (item.stat == "Completed")
                         {
@@ -700,7 +747,7 @@ namespace OutlookSql
                         if (item.stat == "Deleted")
                         {
                             statCur = 5;
-                              lstDeleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
+                            lstDeleted.Add(item.updated_at + " / " + SiteLookupName(item.siteId) + "     (" + serverAddress + "/cases/edit/" + item.case_id + "/" + match.template_id + ")");
                         }
 
                         if (item.stat == "Expection")
@@ -724,10 +771,19 @@ namespace OutlookSql
                     if (match.workflow_state == "failed to sync")
                         flagException = true;
 
-                    if (t.Bool(AppointmentsFind(match.custom).color_rule))
-                        statFinal = statHigh;
-                    else
-                        statFinal = statLow;
+                    try
+                    {
+                        if (t.Bool(AppointmentsFind(match.custom).color_rule))
+                            statFinal = statHigh;
+                        else
+                            statFinal = statLow;
+                    }
+                    catch (Exception ex)
+                    {
+                        log.LogException("Not Specified", t.GetMethodName() + " failed in t.Bool(AppointmentsFind(match.custom).color_rule", ex, false);
+                        return false;
+                    }
+
                     #endregion
 
                     #region craft body text to be added
@@ -773,7 +829,7 @@ namespace OutlookSql
                     #endregion
 
                     #region WorkflowState wFS = ...
-                    LocationOptions wFS = LocationOptions.Failed_to_intrepid;
+                    LocationOptions wFS = LocationOptions.Failed_to_intrepret;
                     if (statFinal == 1)
                         wFS = LocationOptions.Created;
                     if (statFinal == 2)
@@ -785,13 +841,23 @@ namespace OutlookSql
                     if (statFinal == 5)
                         wFS = LocationOptions.Revoked;
                     if (flagException == true)
-                        wFS = LocationOptions.Failed_to_intrepid;
+                        wFS = LocationOptions.Failed_to_intrepret;
                     #endregion
 
                     if (addToBody != "")
+                    {
                         AppointmentsUpdate(match.custom, wFS, null, match.expectionString, addToBody.Trim());
+                    }
                     else
+                    {
                         AppointmentsUpdate(match.custom, wFS, null, match.expectionString, null);
+                    }
+
+
+                    match.updated_at = DateTime.Now;
+                    match.version = match.version++;
+                    match.synced = 1;
+                    db.SaveChanges();
 
                     return true;
                 }

@@ -1272,7 +1272,7 @@ namespace UnitTest
                 oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, LocationOptions.Processed, appoBase.Body);
                 oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, LocationOptions.Created, appoBase.Body);
                 oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, LocationOptions.Exception, appoBase.Body);
-                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, LocationOptions.Failed_to_intrepid, appoBase.Body);
+                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, LocationOptions.Failed_to_intrepret, appoBase.Body);
                 checkValueB = true;
 
                 //Assert
@@ -1876,7 +1876,7 @@ namespace UnitTest
             if (sqlController.AppointmentsFindOne(LocationOptions.Completed) != null) returnValue += "Completed";
             if (sqlController.AppointmentsFindOne(LocationOptions.Created) != null) returnValue += "Created";
             if (sqlController.AppointmentsFindOne(LocationOptions.Exception) != null) returnValue += "Exception";
-            if (sqlController.AppointmentsFindOne(LocationOptions.Failed_to_intrepid) != null) returnValue += "Failed_to_intrepid";
+            if (sqlController.AppointmentsFindOne(LocationOptions.Failed_to_intrepret) != null) returnValue += "Failed_to_intrepid";
             if (sqlController.AppointmentsFindOne(LocationOptions.Planned) != null) returnValue += "Planned";
             if (sqlController.AppointmentsFindOne(LocationOptions.Processed) != null) returnValue += "Processed";
             if (sqlController.AppointmentsFindOne(LocationOptions.Retrived) != null) returnValue += "Retrived";

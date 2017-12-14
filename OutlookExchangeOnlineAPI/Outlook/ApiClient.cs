@@ -199,8 +199,15 @@ namespace OutlookExchangeOnlineAPI
             string requestUrl = String.Format("/users/{0}/events/{1}", userEmail, EventID);
             HttpResponseMessage result = MakeApiCall("PATCH", requestUrl, userEmail, update, null);
             string response = result.Content.ReadAsStringAsync().Result;
-            Event UpdatedEvent = JsonConvert.DeserializeObject<Event>(response);
-            return UpdatedEvent;
+            if (response.Contains("odata"))
+            {
+                Event UpdatedEvent = JsonConvert.DeserializeObject<Event>(response);
+                return UpdatedEvent;
+            } else
+            {
+                return null;
+            }
+            
 
         }
         public Event CreateEvent(string userEmail, string CalendarID, string eventObject)
