@@ -162,7 +162,7 @@ namespace OutlookSql
 
                         foreach (var item in t.TextLst(lineNoComma))
                         {
-                            AppoinntmentSite appointmentSite = new AppoinntmentSite(int.Parse(item), ProcessingStateOptions.Planned.ToString(), null);
+                            AppoinntmentSite appointmentSite = new AppoinntmentSite(int.Parse(item), ProcessingStateOptions.Processed.ToString(), null);
                             AppointmentSites.Add(appointmentSite);
                         }
 
