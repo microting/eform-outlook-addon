@@ -155,29 +155,29 @@ namespace OutlookOfficeOnline
                         {
                             if (tLimitFrom <= item.Start.DateTime && item.Start.DateTime <= tLimitTo)
                             {
-                                #region location "planned"?
-                                string location = null;
+                                #region processingState "planned"?
+                                string processingState = null;
                                 try
                                 {
-                                    location = item.Location.DisplayName;
+                                    processingState = item.Location.DisplayName;
                                 } catch { }
                                 
 
-                                if (string.IsNullOrEmpty(location))
+                                if (string.IsNullOrEmpty(processingState))
                                 {
                                     if (includeBlankLocations)
-                                        location = "planned";
+                                        processingState = "planned";
                                     else
-                                        location = "";
+                                        processingState = "";
                                 }
 
-                                location = location.ToLower();
+                                processingState = processingState.ToLower();
                                 #endregion
 
-                                if (location.ToLower() == "planned")
+                                if (processingState.ToLower() == "planned")
                                 #region ...
                                 {
-                                    log.LogVariable("Not Specified", nameof(location), location);
+                                    log.LogVariable("Not Specified", nameof(processingState), processingState);
 
                                     if (item.BodyPreview != null)
                                         if (item.BodyPreview.Contains("<<< "))
@@ -188,8 +188,8 @@ namespace OutlookOfficeOnline
                                                 item.BodyPreview = item.BodyPreview.Trim();
                                             }
 
-                                    log.LogStandard("Not Specified", "Trying to do UpdateEvent on item.Id:" + item.Id + " to have new location location : " + location);
-                                    Event updatedItem = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, "{\"Location\": {\"DisplayName\": \"" + location + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(item.BodyPreview) + "\"}}");
+                                    log.LogStandard("Not Specified", "Trying to do UpdateEvent on item.Id:" + item.Id + " to have new location location : " + processingState);
+                                    Event updatedItem = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, "{\"Location\": {\"DisplayName\": \"" + processingState + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(item.BodyPreview) + "\"}}");
 
                                     if (updatedItem == null)
                                     {
@@ -200,10 +200,10 @@ namespace OutlookOfficeOnline
 
                                     Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, updatedItem.Location.DisplayName, updatedItem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
 
-                                    if (appo.Location == null)
-                                        appo.Location = "planned";
+                                    if (appo.ProcessingState == null)
+                                        appo.ProcessingState = "planned";
 
-                                    if (appo.Location.ToLower() == "planned")
+                                    if (appo.ProcessingState.ToLower() == "planned")
                                     {
                                         log.LogStandard("Not Specified", "Before calling CalendarItemIntrepret.AppointmentsCreate");
                                         int count = sqlController.AppointmentsCreate(appo);
@@ -212,13 +212,13 @@ namespace OutlookOfficeOnline
                                         if (count > 0)
                                         {
                                             log.LogStandard("Not Specified", "Appointment created successfully for item.Id : " + item.Id);
-                                            CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Processed, appo.Body);
+                                            CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Processed, appo.Body);
                                         }                                          
                                         else
                                         {
                                             if (count == 0)
                                             {
-                                                CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Exception, appo.Body);
+                                                CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Exception, appo.Body);
                                             }                                             
                                             if (count == -1)
                                             {
@@ -241,37 +241,37 @@ namespace OutlookOfficeOnline
                                                     Environment.NewLine + "" +
                                                     Environment.NewLine + appo.Body;
                                                 #endregion
-                                                CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepret, appo.Body);
+                                                CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.ParsingFailed, appo.Body);
                                             }
                                         }
                                     }
                                     else
-                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepret, appo.Body);
+                                        CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.ParsingFailed, appo.Body);
 
                                     AllParsed = true;
                                 }
                                 #endregion
 
-                                if (location.ToLower() == "cancel")
+                                if (processingState.ToLower() == "cancel")
                                 #region ...
                                 {
-                                    log.LogVariable("Not Specified", nameof(location), location);
+                                    log.LogVariable("Not Specified", nameof(processingState), processingState);
 
                                     Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, ReplaceLinesInBody(item.BodyPreview), t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
 
                                     if (sqlController.AppointmentsCancel(appo.GlobalId))
-                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Canceled, appo.Body);
+                                        CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Canceled, appo.Body);
                                     else
-                                        CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepret, appo.Body);
+                                        CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.ParsingFailed, appo.Body);
 
                                     AllParsed = true;
                                 }
                                 #endregion
 
-                                if (location.ToLower() == "check")
+                                if (processingState.ToLower() == "check")
                                 #region ...
                                 {
-                                    log.LogVariable("Not Specified", nameof(location), location);
+                                    log.LogVariable("Not Specified", nameof(processingState), processingState);
 
                                     eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb));
                                     eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting, log);
@@ -450,7 +450,7 @@ namespace OutlookOfficeOnline
             }
         }
 
-        public bool CalendarItemUpdate(string globalId, DateTime start, LocationOptions workflowState, string body)
+        public bool CalendarItemUpdate(string globalId, DateTime start, ProcessingStateOptions workflowState, string body)
         {
             log.LogStandard("Not Specified", "CalendarItemUpdate incoming start is : " + start.ToString());
             Event item = AppointmentItemFind(globalId, start.AddHours(-36), start.AddHours(36)); // TODO!
@@ -461,34 +461,34 @@ namespace OutlookOfficeOnline
             #region item.Categories = 'workflowState'...
             switch (workflowState)
             {
-                case LocationOptions.Planned:
+                case ProcessingStateOptions.Planned:
                     Categories = null;
                     break;
-                case LocationOptions.Processed:
+                case ProcessingStateOptions.Processed:
                     Categories = CalendarItemCategory.Processing.ToString();
                     break;
-                case LocationOptions.Created:
+                case ProcessingStateOptions.Created:
                     Categories = CalendarItemCategory.Processing.ToString();
                     break;
-                case LocationOptions.Sent:
+                case ProcessingStateOptions.Sent:
                     Categories = CalendarItemCategory.Sent.ToString();
                     break;
-                case LocationOptions.Retrived:
+                case ProcessingStateOptions.Retrived:
                     Categories = CalendarItemCategory.Retrived.ToString();
                     break;
-                case LocationOptions.Completed:
+                case ProcessingStateOptions.Completed:
                     Categories = CalendarItemCategory.Completed.ToString();
                     break;
-                case LocationOptions.Canceled:
+                case ProcessingStateOptions.Canceled:
                     Categories = CalendarItemCategory.Revoked.ToString();
                     break;
-                case LocationOptions.Revoked:
+                case ProcessingStateOptions.Revoked:
                     Categories = CalendarItemCategory.Revoked.ToString();
                     break;
-                case LocationOptions.Exception:
+                case ProcessingStateOptions.Exception:
                     Categories = CalendarItemCategory.Error.ToString();
                     break;
-                case LocationOptions.Failed_to_intrepret:
+                case ProcessingStateOptions.ParsingFailed:
                     Categories = CalendarItemCategory.Error.ToString();
                     break;
             }

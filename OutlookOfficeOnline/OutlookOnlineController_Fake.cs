@@ -93,7 +93,7 @@ namespace OutlookOfficeOnline
             return globalId;
         }
 
-        public bool                 CalendarItemUpdate(string globalId, DateTime start, LocationOptions workflowState, string body)
+        public bool                 CalendarItemUpdate(string globalId, DateTime start, ProcessingStateOptions workflowState, string body)
         {
              return true;
         }

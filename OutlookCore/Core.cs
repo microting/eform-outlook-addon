@@ -423,7 +423,7 @@ namespace OutlookCore
                     return null;
                 }
 
-                return sqlController.AppointmentsUpdate(appo.global_id, LocationOptions.Canceled, appo.body, null, null);
+                return sqlController.AppointmentsUpdate(appo.global_id, ProcessingStateOptions.Canceled, appo.body, null, null);
             }
             catch (Exception ex)
             {
@@ -449,7 +449,7 @@ namespace OutlookCore
                 }
 
                 if (outlookOnlineController.CalendarItemDelete(appo.global_id))
-                    return sqlController.AppointmentsUpdate(appo.global_id, LocationOptions.Canceled, appo.body, null, null);
+                    return sqlController.AppointmentsUpdate(appo.global_id, ProcessingStateOptions.Canceled, appo.body, null, null);
                 else
                     return false;
 
@@ -664,7 +664,7 @@ namespace OutlookCore
 
                     foreach (var item in lstAppointments)
                         //outlookController.CalendarItemUpdate(item.GlobalId, item.Start, LocationOptions.Planned, item.Body);
-                        outlookOnlineController.CalendarItemUpdate(item.GlobalId, item.Start, LocationOptions.Planned, item.Body);
+                        outlookOnlineController.CalendarItemUpdate(item.GlobalId, item.Start, ProcessingStateOptions.Planned, item.Body);
 
                     sqlController.SettingUpdate(Settings.checkLast_At, now.ToString());
 

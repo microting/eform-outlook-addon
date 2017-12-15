@@ -147,7 +147,7 @@ namespace OutlookSql
                     newAppo.processing_state = "Processed";
                     newAppo.body = appointment.Body;
                     newAppo.microting_uuid = appointment.MicrotingUId;
-                    newAppo.completed = 1;
+                    newAppo.completed = 0;
                     //newAppo.site_ids = t.IntLst(appointment.SiteIds);// TODO
                     newAppo.start_at = appointment.Start;
                     newAppo.subject = appointment.Subject;
@@ -165,6 +165,27 @@ namespace OutlookSql
 
                     db.appointment_versions.Add(MapAppointmentVersions(newAppo));
                     db.SaveChanges();
+
+                    foreach (AppoinntmentSite appSite in appointment.AppointmentSites)
+                    {
+                        appointment_sites newAppoSite = new appointment_sites();
+
+                        newAppoSite.appointment_id = newAppo.id;
+                        newAppoSite.microting_site_uid = appSite.MicrotingSiteUid;
+                        newAppoSite.processing_state = appSite.ProcessingState;
+                        newAppoSite.microting_uuid = null;
+                        newAppoSite.version = 1;
+                        newAppoSite.workflow_state = "Created";
+                        newAppoSite.created_at = DateTime.Now;
+                        newAppoSite.updated_at = DateTime.Now;
+                        newAppoSite.completed = 0;
+
+                        db.appointment_sites.Add(newAppoSite);
+                        db.SaveChanges();
+
+                        db.appointment_site_versions.Add(MapAppointmentSiteVersions(newAppoSite));
+                        db.SaveChanges();
+                    }
 
                     return newAppo.id;
                 }
@@ -224,7 +245,7 @@ namespace OutlookSql
             }
         }
 
-        public appointments         AppointmentsFindOne(LocationOptions location)
+        public appointments         AppointmentsFindOne(ProcessingStateOptions location)
         {
             try
             {
@@ -258,7 +279,7 @@ namespace OutlookSql
             }
         }
 
-        public bool                 AppointmentsUpdate(string globalId, LocationOptions location, string body, string expectionString, string response)
+        public bool                 AppointmentsUpdate(string globalId, ProcessingStateOptions location, string body, string expectionString, string response)
         {
             log.LogEverything("Not Specified", "AppointmentsUpdate called and globalId is " + globalId);
 
@@ -420,7 +441,7 @@ namespace OutlookSql
 
             // read input
             #region create
-            appointments appoint = AppointmentsFindOne(LocationOptions.Processed);
+            appointments appoint = AppointmentsFindOne(ProcessingStateOptions.Processed);
 
             if (appoint != null)
             {
@@ -441,14 +462,14 @@ namespace OutlookSql
             #endregion
 
             #region delete
-            appoint = AppointmentsFindOne(LocationOptions.Canceled);
+            appoint = AppointmentsFindOne(ProcessingStateOptions.Canceled);
 
             if (appoint != null)
             {
                 log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Canceled");
                 if (InteractionCaseDelete(appoint))
                 {
-                    bool isUpdated = AppointmentsUpdate(appoint.global_id, LocationOptions.Revoked, appoint.body, appoint.exceptionString, null);
+                    bool isUpdated = AppointmentsUpdate(appoint.global_id, ProcessingStateOptions.Revoked, appoint.body, appoint.exceptionString, null);
 
                     if (isUpdated)
                         return true;
@@ -1124,6 +1145,25 @@ namespace OutlookSql
             version.color_rule = appointment.color_rule;
 
             version.appointment_id = appointment.id; //<<--
+
+            return version;
+        }
+
+        private appointment_site_versions MapAppointmentSiteVersions(appointment_sites appointment_site)
+        {
+            appointment_site_versions version = new appointment_site_versions();
+
+            version.appointment_id = appointment_site.id;
+            version.microting_site_uid = appointment_site.microting_site_uid;
+            version.processing_state = appointment_site.processing_state;
+            version.microting_uuid = appointment_site.microting_uuid;
+            version.version = appointment_site.version;
+            version.workflow_state = appointment_site.workflow_state;
+            version.created_at = appointment_site.created_at;
+            version.updated_at = appointment_site.updated_at;
+            version.completed = appointment_site.completed;
+
+            version.appointment_site_id = appointment_site.id; //<<--
 
             return version;
         }

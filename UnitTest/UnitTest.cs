@@ -644,11 +644,11 @@ namespace UnitTest
                 sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false));
                 sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false));
 
-                sqlController.AppointmentsUpdate("globalId1", LocationOptions.Created, null, "", "");
-                sqlController.AppointmentsUpdate("globalId2", LocationOptions.Created, null, "", "");
-                sqlController.AppointmentsUpdate("globalId3", LocationOptions.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId1", ProcessingStateOptions.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId2", ProcessingStateOptions.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Created, null, "", "");
 
-                sqlController.AppointmentsUpdate("globalId3", LocationOptions.Completed, null, "", "");
+                sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Completed, null, "", "");
 
                 checkValueB = AppointmentsFindAll();
 
@@ -675,18 +675,18 @@ namespace UnitTest
                 sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false));
                 sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false));
 
-                sqlController.AppointmentsUpdate("globalId1", LocationOptions.Created, null, "", "");
-                sqlController.AppointmentsUpdate("globalId2", LocationOptions.Created, null, "", "");
-                sqlController.AppointmentsUpdate("globalId3", LocationOptions.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId1", ProcessingStateOptions.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId2", ProcessingStateOptions.Created, null, "", "");
+                sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Created, null, "", "");
 
                 sqlController.AppointmentsReflected("globalId1");
                 sqlController.AppointmentsReflected("globalId3");
 
                 checkValueB1 = AppointmentsFindAll();
 
-                sqlController.AppointmentsUpdate("globalId1", LocationOptions.Sent, null, "", "");
-                sqlController.AppointmentsUpdate("globalId2", LocationOptions.Retrived, null, "", "");
-                sqlController.AppointmentsUpdate("globalId3", LocationOptions.Canceled, null, "", "");
+                sqlController.AppointmentsUpdate("globalId1", ProcessingStateOptions.Sent, null, "", "");
+                sqlController.AppointmentsUpdate("globalId2", ProcessingStateOptions.Retrived, null, "", "");
+                sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Canceled, null, "", "");
 
                 sqlController.AppointmentsReflected("globalId1");
                 sqlController.AppointmentsReflected("globalId3");
@@ -1069,10 +1069,10 @@ namespace UnitTest
                 OutlookOnlineController_Fake oCon = new OutlookOnlineController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
 
                 //Act
-                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, LocationOptions.Processed, appoBase.Body);
-                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, LocationOptions.Created, appoBase.Body);
-                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, LocationOptions.Exception, appoBase.Body);
-                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, LocationOptions.Failed_to_intrepret, appoBase.Body);
+                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, ProcessingStateOptions.Processed, appoBase.Body);
+                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, ProcessingStateOptions.Created, appoBase.Body);
+                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, ProcessingStateOptions.Exception, appoBase.Body);
+                oCon.CalendarItemUpdate(appoBase.GlobalId, appoBase.Start, ProcessingStateOptions.ParsingFailed, appoBase.Body);
                 checkValueB = true;
 
                 //Assert
@@ -1415,8 +1415,8 @@ namespace UnitTest
             {
                 string id = AppointmentCreate();
 
-                WaitForStat(id, LocationOptions.Created);
-                var found = sqlController.AppointmentsFindOne(LocationOptions.Created);
+                WaitForStat(id, ProcessingStateOptions.Created);
+                var found = sqlController.AppointmentsFindOne(ProcessingStateOptions.Created);
 
                 if (found != null)
                     checkValueB = "Appointment created";
@@ -1445,7 +1445,7 @@ namespace UnitTest
             try
             {
                 string globalId = AppointmentCreate();
-                WaitForStat(globalId, LocationOptions.Created);
+                WaitForStat(globalId, ProcessingStateOptions.Created);
 
                 if (coreOut.AppointmentRead(globalId + 42) == null) //wrong id
                     checkValueB = "No match";
@@ -1472,7 +1472,7 @@ namespace UnitTest
             try
             {
                 string globalId = AppointmentCreate();
-                WaitForStat(globalId, LocationOptions.Created);
+                WaitForStat(globalId, ProcessingStateOptions.Created);
 
                 if (coreOut.AppointmentRead(globalId) != null)
                     checkValueB = "True";
@@ -1499,7 +1499,7 @@ namespace UnitTest
             try
             {
                 string globalId = AppointmentCreate();
-                WaitForStat(globalId, LocationOptions.Created);
+                WaitForStat(globalId, ProcessingStateOptions.Created);
 
                 if (coreOut.AppointmentCancel(globalId + 42) == null) //wrong id
                     checkValueB = "No match";
@@ -1526,7 +1526,7 @@ namespace UnitTest
             try
             {
                 string globalId = AppointmentCreate();
-                WaitForStat(globalId, LocationOptions.Created);
+                WaitForStat(globalId, ProcessingStateOptions.Created);
 
                 checkValueB = coreOut.AppointmentCancel(globalId).ToString();
             }
@@ -1554,13 +1554,13 @@ namespace UnitTest
                 string globaldId1 = AppointmentCreate();
                 string globalId2 = AppointmentCreate();
 
-                WaitForStat(globalId2, LocationOptions.Created);
-                WaitForStat(globaldId1, LocationOptions.Created);
+                WaitForStat(globalId2, ProcessingStateOptions.Created);
+                WaitForStat(globaldId1, ProcessingStateOptions.Created);
 
                 coreOut.AppointmentCancel(globalId2).ToString();
                 coreOut.AppointmentCancel(globaldId1).ToString();
 
-                if (sqlController.AppointmentsFindOne(LocationOptions.Created) == null)
+                if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created) == null)
                     checkValueB = "Canceled Correctly";
             }
             catch (Exception ex)
@@ -1585,7 +1585,7 @@ namespace UnitTest
             try
             {
                 string globalId = AppointmentCreate();
-                WaitForStat(globalId, LocationOptions.Created);
+                WaitForStat(globalId, ProcessingStateOptions.Created);
 
                 if (coreOut.AppointmentDelete(globalId + 42) == null) //wrong id
                     checkValueB = "No match";
@@ -1612,7 +1612,7 @@ namespace UnitTest
             try
             {
                 string globaldId = AppointmentCreate();
-                WaitForStat(globaldId, LocationOptions.Created);
+                WaitForStat(globaldId, ProcessingStateOptions.Created);
 
                 checkValueB = coreOut.AppointmentDelete(globaldId).ToString();
             }
@@ -1640,13 +1640,13 @@ namespace UnitTest
                 string globalId1 = AppointmentCreate();
                 string globalId2 = AppointmentCreate();
 
-                WaitForStat(globalId2, LocationOptions.Created);
-                WaitForStat(globalId1, LocationOptions.Created);
+                WaitForStat(globalId2, ProcessingStateOptions.Created);
+                WaitForStat(globalId1, ProcessingStateOptions.Created);
 
                 coreOut.AppointmentDelete(globalId2).ToString();
                 coreOut.AppointmentDelete(globalId1).ToString();
 
-                if (sqlController.AppointmentsFindOne(LocationOptions.Created) == null)
+                if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created) == null)
                     checkValueB = "Deleted Correctly";
             }
             catch (Exception ex)
@@ -1672,21 +1672,21 @@ namespace UnitTest
             if (sqlController.AppointmentsFindOne(3) != null) returnValue += "3";
             if (sqlController.AppointmentsFindOne(4) != null) returnValue += "4";
 
-            if (sqlController.AppointmentsFindOne(LocationOptions.Canceled) != null) returnValue += "Canceled";
-            if (sqlController.AppointmentsFindOne(LocationOptions.Completed) != null) returnValue += "Completed";
-            if (sqlController.AppointmentsFindOne(LocationOptions.Created) != null) returnValue += "Created";
-            if (sqlController.AppointmentsFindOne(LocationOptions.Exception) != null) returnValue += "Exception";
-            if (sqlController.AppointmentsFindOne(LocationOptions.Failed_to_intrepret) != null) returnValue += "Failed_to_intrepid";
-            if (sqlController.AppointmentsFindOne(LocationOptions.Planned) != null) returnValue += "Planned";
-            if (sqlController.AppointmentsFindOne(LocationOptions.Processed) != null) returnValue += "Processed";
-            if (sqlController.AppointmentsFindOne(LocationOptions.Retrived) != null) returnValue += "Retrived";
-            if (sqlController.AppointmentsFindOne(LocationOptions.Revoked) != null) returnValue += "Revoked";
-            if (sqlController.AppointmentsFindOne(LocationOptions.Sent) != null) returnValue += "Sent";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Canceled) != null) returnValue += "Canceled";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Completed) != null) returnValue += "Completed";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created) != null) returnValue += "Created";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Exception) != null) returnValue += "Exception";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.ParsingFailed) != null) returnValue += "Failed_to_intrepid";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Planned) != null) returnValue += "Planned";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed) != null) returnValue += "Processed";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Retrived) != null) returnValue += "Retrived";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Revoked) != null) returnValue += "Revoked";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Sent) != null) returnValue += "Sent";
 
             return returnValue;
         }
 
-        private bool WaitForStat(string globalId, LocationOptions location)
+        private bool WaitForStat(string globalId, ProcessingStateOptions location)
         {
             try
             {

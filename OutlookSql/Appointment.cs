@@ -14,7 +14,7 @@ namespace OutlookSql
         public DateTime Start { get; set; }
         public int Duration { get; set; }
         public string Subject { get; set; }
-        public string Location { get; set; }
+        public string ProcessingState { get; set; }
         public string Body { get; set; }
 
         public int TemplateId { get; set; }
@@ -37,13 +37,13 @@ namespace OutlookSql
 
         }
 
-        public Appointment(string globalId, DateTime start, int duration, string subject, string location, string body, bool colorRule, bool parseBodyContent)
+        public Appointment(string globalId, DateTime start, int duration, string subject, string processingState, string body, bool colorRule, bool parseBodyContent)
         {
             GlobalId = globalId;
             Start = start;
             Duration = duration;
             Subject = subject;
-            Location = location;
+            ProcessingState = processingState;
             Body = body;
 
             TemplateId = -1;
@@ -79,8 +79,8 @@ namespace OutlookSql
             if (Title != null)
                 title = Title;
 
-            if (Location != null)
-                location = Location;
+            if (ProcessingState != null)
+                location = ProcessingState;
 
             return "GlobalId:" + globalId + " / Start:" + start + " / Title:" + title + " / Location:" + location;
         }
@@ -99,7 +99,7 @@ namespace OutlookSql
 
                 if (parsedFailedStr != "")
                 {
-                    Location = LocationOptions.Failed_to_intrepret.ToString();
+                    ProcessingState = ProcessingStateOptions.ParsingFailed.ToString();
                     Body =
                     "<<< Interpret error: Start >>>" + Environment.NewLine +
                     parsedFailedStr + Environment.NewLine +
@@ -110,7 +110,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                Location = LocationOptions.Exception.ToString();
+                ProcessingState = ProcessingStateOptions.Exception.ToString();
                 Body =
                 "<<< Exception: Start >>>" + Environment.NewLine +
                 t.PrintException("Failed to intrepid this event, for the following reason:", ex) + Environment.NewLine +
@@ -162,7 +162,7 @@ namespace OutlookSql
 
                         foreach (var item in t.TextLst(lineNoComma))
                         {
-                            AppoinntmentSite appointmentSite = new AppoinntmentSite();
+                            AppoinntmentSite appointmentSite = new AppoinntmentSite(int.Parse(item), ProcessingStateOptions.Planned.ToString(), null);
                             AppointmentSites.Add(appointmentSite);
                         }
 
@@ -291,9 +291,9 @@ namespace OutlookSql
         #endregion
     }
 
-    public enum LocationOptions
+    public enum ProcessingStateOptions
     {
-        //Appointment locations options / WorkflowState options
+        //Appointment locations options / ProcessingState options
         Pre_created,
         Planned,
         Processed,
@@ -303,7 +303,7 @@ namespace OutlookSql
         Completed,
         Canceled,
         Revoked,
-        Failed_to_intrepret,
+        ParsingFailed,
         Exception,
         Unknown_location
     }
