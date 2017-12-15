@@ -216,8 +216,7 @@ namespace OutlookExchangeOnlineAPI
             string response = result.Content.ReadAsStringAsync().Result;
             if (response.Contains("odata"))
             {
-                Event UpdatedEvent = JsonConvert.DeserializeObject<Event>(response);
-                return UpdatedEvent;
+                return JsonConvert.DeserializeObject<Event>(response);
             } else
             {
                 return null;
@@ -230,8 +229,14 @@ namespace OutlookExchangeOnlineAPI
             string requestUrl = String.Format("/users/{0}/calendars/{1}/events", userEmail, CalendarID);
             HttpResponseMessage httpresult = MakeApiCall("POST", requestUrl, userEmail, eventObject, null);
             string response = httpresult.Content.ReadAsStringAsync().Result;
-            Event newEvent = JsonConvert.DeserializeObject<Event>(response);
-            return newEvent;
+            if (response.Contains("odata"))
+            {
+                return JsonConvert.DeserializeObject<Event>(response);
+            }
+            else
+            {
+                return null;
+            }
 
         }
         public void DeleteEvent(string userEmail, string EventID)
