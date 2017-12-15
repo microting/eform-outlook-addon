@@ -568,7 +568,7 @@ namespace OutlookCore
                     //while (coreThreadRunning && outlookController.CalendarItemReflecting(null))
                     //    log.LogEverything("Not Specified", "outlookController.CalendarItemReflecting() completed");
 
-                    while (coreThreadRunning && outlookOnlineController.CalendarItemIntrepret())
+                    while (coreThreadRunning && outlookOnlineController.ParseCalendarItems())
                         log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
 
                     while (coreThreadRunning && outlookOnlineController.CalendarItemReflecting(null))

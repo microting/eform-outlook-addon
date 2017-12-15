@@ -8,7 +8,7 @@ namespace OutlookOfficeOnline
     {
         bool CalendarItemConvertRecurrences();
 
-        bool CalendarItemIntrepret();
+        bool ParseCalendarItems();
 
         bool CalendarItemReflecting(string globalId);
 

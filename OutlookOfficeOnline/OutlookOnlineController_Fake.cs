@@ -43,7 +43,7 @@ namespace OutlookOfficeOnline
             return flag;
         }
 
-        public bool                 CalendarItemIntrepret()
+        public bool                 ParseCalendarItems()
         {
             log.LogEverything("Unit test", t.GetMethodName() + " called");
 

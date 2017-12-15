@@ -121,12 +121,12 @@ namespace OutlookOfficeOnline
             }
         }
 
-        public bool CalendarItemIntrepret()
+        public bool ParseCalendarItems()
         {
             try
             {
-                log.LogStandard("Not Specified", "CalendarItemIntrepret called. Before setting all vars");
-                bool AllIntrepret = false;
+                log.LogStandard("Not Specified", "ParseCalendarItems called. Before setting all vars");
+                bool AllParsed = false;
                 #region var
                 DateTime checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
                 double checkPreSend_Hours = double.Parse(sqlController.SettingRead(Settings.checkPreSend_Hours));
@@ -139,13 +139,13 @@ namespace OutlookOfficeOnline
                 DateTime tLimitFrom = checkLast_At.AddHours(-checkRetrace_Hours);
                 #endregion
 
-                log.LogStandard("Not Specified", "CalendarItemIntrepret called. After setting all vars");
+                log.LogStandard("Not Specified", "ParseCalendarItems called. After setting all vars");
 
                 #region process appointments
                 List<Event> eventList = GetCalendarItems(tLimitFrom, tLimitTo);
                 if (eventList == null)
                 {
-                    AllIntrepret = true;
+                    AllParsed = true;
                 }
                 else
                 {
@@ -248,7 +248,7 @@ namespace OutlookOfficeOnline
                                     else
                                         CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepret, appo.Body);
 
-                                    AllIntrepret = true;
+                                    AllParsed = true;
                                 }
                                 #endregion
 
@@ -264,7 +264,7 @@ namespace OutlookOfficeOnline
                                     else
                                         CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Failed_to_intrepret, appo.Body);
 
-                                    AllIntrepret = true;
+                                    AllParsed = true;
                                 }
                                 #endregion
 
@@ -283,7 +283,7 @@ namespace OutlookOfficeOnline
                                         com.CheckStatusUpdateIfNeeded(aCase.microting_uid);
 
                                     CalendarItemReflecting(item.Id);
-                                    AllIntrepret = true;
+                                    AllParsed = true;
                                 }
                                 #endregion
                             }
@@ -295,7 +295,7 @@ namespace OutlookOfficeOnline
                 sqlController.SettingUpdate(Settings.checkLast_At, timeOfRun.ToString());
                 log.LogVariable("Not Specified", nameof(Settings.checkLast_At), timeOfRun.ToString());
 
-                return AllIntrepret;
+                return AllParsed;
             }
             catch (Exception ex)
             {
