@@ -89,7 +89,7 @@ namespace OutlookOfficeOnline
         public string               CalendarItemCreate(string location, DateTime start, int duration, string subject, string body)
         {
             string globalId = "Faked GlobalId:" + t.GetRandomInt(8);
-            sqlController.AppointmentsCreate(new Appointment(globalId, start, duration, subject, location, body, false, false, null));
+            sqlController.AppointmentsCreate(new Appointment(globalId, start, duration, subject, location, body, false, false));
             return globalId;
         }
 

@@ -14,6 +14,8 @@
         [ForeignKey("appointment")]
         public int? appointment_id { get; set; }
 
+        public int microting_site_uid { get; set; }
+
         [StringLength(255)]
         public string workflow_state { get; set; }
 

@@ -27,17 +27,17 @@ namespace OutlookSql
         public int Expire { get; set; }
         public bool ColorRule { get; set; }
         public string MicrotingUId { get; set; }
-   
+
         Tools t = new Tools();
         #endregion
 
         #region con
-        public          Appointment()
+        public Appointment()
         {
 
         }
 
-        public          Appointment(string globalId, DateTime start, int duration, string subject, string location, string body, bool colorRule, bool interpretBodyContent, Func<string, string> Lookup)
+        public Appointment(string globalId, DateTime start, int duration, string subject, string location, string body, bool colorRule, bool parseBodyContent)
         {
             GlobalId = globalId;
             Start = start;
@@ -57,8 +57,8 @@ namespace OutlookSql
             ColorRule = colorRule;
             MicrotingUId = "";
 
-            if (interpretBodyContent)
-                BodyToFields(body, Lookup);
+            if (parseBodyContent)
+                BodyToFields(body);
         }
         #endregion
 
@@ -87,7 +87,7 @@ namespace OutlookSql
         #endregion
 
         #region private
-        private void BodyToFields(string body, Func<string, string> Lookup)
+        private void BodyToFields(string body)
         {
             if (body == null)
                 body = "";
@@ -95,14 +95,14 @@ namespace OutlookSql
             //KeyPoint
             try
             {
-                string intrepidFailedStr = ReadingFields(body, Lookup);
+                string parsedFailedStr = ReadingFields(body);
 
-                if (intrepidFailedStr != "")
+                if (parsedFailedStr != "")
                 {
                     Location = LocationOptions.Failed_to_intrepret.ToString();
                     Body =
                     "<<< Interpret error: Start >>>" + Environment.NewLine +
-                    intrepidFailedStr + Environment.NewLine +
+                    parsedFailedStr + Environment.NewLine +
                     "<<< Interpret error: End >>>" + Environment.NewLine +
                     Environment.NewLine +
                     Body;
@@ -120,7 +120,7 @@ namespace OutlookSql
             }
         }
 
-        private string ReadingFields(string body, Func<string, string> Lookup)
+        private string ReadingFields(string body)
         {
             #region var
             string[] lines = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
@@ -145,9 +145,6 @@ namespace OutlookSql
                     {
                         string itemStr = line.Remove(0, check.Length).Trim();
 
-                        if (itemStr.Contains("'") || itemStr.Contains("’"))
-                            itemStr = Lookup(itemStr.Replace("'", "").Replace("’", "").Trim());
-
                         if (itemStr.Contains("failed, for title"))
                             rtrnMsg = itemStr + Environment.NewLine +
                                 "" + Environment.NewLine + rtrnMsg;
@@ -165,27 +162,8 @@ namespace OutlookSql
 
                         foreach (var item in t.TextLst(lineNoComma))
                         {
-                            if (item.Contains("'") || item.Contains("’"))
-                            {
-                                string itemStr = Lookup(item.Replace("'", "").Replace("’", "").Trim());
-
-                                if (itemStr.Contains("failed, for title"))
-                                {
-                                    rtrnMsg = itemStr + Environment.NewLine + "" + Environment.NewLine + rtrnMsg;
-                                }
-                                else
-                                {
-                                    AppoinntmentSite appointmentSite = new AppoinntmentSite();
-                                    AppointmentSites.Add(appointmentSite);
-                                    //AppointmentSites.AddRange(t.IntLst(itemStr));
-                                }                                    
-                            }
-                            else
-                            {
-                                AppoinntmentSite appointmentSite = new AppoinntmentSite();
-                                AppointmentSites.Add(appointmentSite);
-                            }
-                                //AppointmentSites.Add(int.Parse(item));
+                            AppoinntmentSite appointmentSite = new AppoinntmentSite();
+                            AppointmentSites.Add(appointmentSite);
                         }
 
                         AppointmentSites = AppointmentSites.Distinct().ToList();

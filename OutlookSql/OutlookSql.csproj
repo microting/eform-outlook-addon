@@ -106,9 +106,9 @@
   <ItemGroup>
     <Compile Include="AppoinntmentSite.cs" />
     <Compile Include="Appointment.cs" />
-    <Compile Include="Migrations\201712141856275_InitialDb.cs" />
-    <Compile Include="Migrations\201712141856275_InitialDb.Designer.cs">
-      <DependentUpon>201712141856275_InitialDb.cs</DependentUpon>
+    <Compile Include="Migrations\201712151252232_InitialDb.cs" />
+    <Compile Include="Migrations\201712151252232_InitialDb.Designer.cs">
+      <DependentUpon>201712151252232_InitialDb.cs</DependentUpon>
     </Compile>
     <Compile Include="OutlookContextInterface.cs" />
     <Compile Include="OutlookDbMy.cs" />
@@ -116,7 +116,6 @@
     <Compile Include="table\appointment_sites.cs" />
     <Compile Include="table\logs.cs" />
     <Compile Include="table\log_exceptions.cs" />
-    <Compile Include="table\lookups.cs" />
     <Compile Include="table\appointments.cs" />
     <Compile Include="table\appointment_versions.cs" />
     <Compile Include="OutlookDbMs.cs" />
@@ -130,8 +129,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201712141856275_InitialDb.resx">
-      <DependentUpon>201712141856275_InitialDb.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201712151252232_InitialDb.resx">
+      <DependentUpon>201712151252232_InitialDb.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

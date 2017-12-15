@@ -11,7 +11,9 @@
         [Key]
         public int id { get; set; }
 
-        public int? appointment_site_id { get; set; }
+        public int? appointment_id { get; set; }
+
+        public int microting_site_uid { get; set; }
 
         [StringLength(255)]
         public string workflow_state { get; set; }
@@ -32,6 +34,6 @@
 
         public short? completed { get; set; }
 
-        public virtual appointments appointment { get; set; }
+        public int? appointment_site_id { get; set; }
     }
 }

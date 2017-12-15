@@ -9,12 +9,13 @@ namespace OutlookSql
 {
     interface OutlookContextInterface : IDisposable
     {
-        DbSet<appointment_versions>     appointment_versions { get; set; }
-        DbSet<appointments>             appointments { get; set; }
-        DbSet<log_exceptions>           log_exceptions { get; set; }
-        DbSet<logs>                     logs { get; set; }
-        DbSet<lookups>                  lookups { get; set; }
-        DbSet<settings>                 settings { get; set; }
+        DbSet<appointments> appointments { get; set; }
+        DbSet<appointment_versions> appointment_versions { get; set; }
+        DbSet<appointment_sites> appointment_sites { get; set; }
+        DbSet<appointment_site_versions> appointment_site_versions { get; set; }
+        DbSet<log_exceptions> log_exceptions { get; set; }
+        DbSet<logs> logs { get; set; }
+        DbSet<settings> settings { get; set; }
 
         int SaveChanges();
 

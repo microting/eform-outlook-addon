@@ -396,7 +396,7 @@ namespace OutlookCore
                 }
 
                 Appointment appointment = 
-                    new Appointment(appo.global_id, t.Date(appo.start_at), t.Int(appo.duration), appo.subject, appo.processing_state, appo.body, t.Bool(appo.color_rule), true, sqlController.LookupRead);
+                    new Appointment(appo.global_id, t.Date(appo.start_at), t.Int(appo.duration), appo.subject, appo.processing_state, appo.body, t.Bool(appo.color_rule), true);
 
                 return appointment;
             }
@@ -491,11 +491,11 @@ namespace OutlookCore
 
                         Thread syncOutlookConvertThread
                             = new Thread(() => SyncOutlookConvert());
-                        syncOutlookConvertThread.Start();
+                        syncOutlookConvertThread.Start(); // This thread takes recurring events and convert the needed ones into single events.
 
                         Thread syncOutlookAppsThread
                             = new Thread(() => SyncOutlookApps());
-                        syncOutlookAppsThread.Start();
+                        syncOutlookAppsThread.Start(); // This thread takes single events and create the corresponding Appointment
 
                         #region TODO
                         //Thread syncInteractionCaseCreateThread

@@ -13,7 +13,7 @@ namespace OutlookSql.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201712141856275_InitialDb"; }
+            get { return "201712151252232_InitialDb"; }
         }
         
         string IMigrationMetadata.Source

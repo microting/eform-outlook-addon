@@ -156,9 +156,14 @@ namespace OutlookOfficeOnline
                             if (tLimitFrom <= item.Start.DateTime && item.Start.DateTime <= tLimitTo)
                             {
                                 #region location "planned"?
-                                string location = item.Location.DisplayName;
+                                string location = null;
+                                try
+                                {
+                                    location = item.Location.DisplayName;
+                                } catch { }
+                                
 
-                                if (location == string.Empty)
+                                if (string.IsNullOrEmpty(location))
                                 {
                                     if (includeBlankLocations)
                                         location = "planned";
@@ -184,11 +189,16 @@ namespace OutlookOfficeOnline
                                             }
 
                                     log.LogStandard("Not Specified", "Trying to do UpdateEvent on item.Id:" + item.Id + " to have new location location : " + location);
-                                    Event Updateditem = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, "{\"Location\": {\"DisplayName\": \"" + location + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(item.BodyPreview) + "\"}}");
+                                    Event updatedItem = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, "{\"Location\": {\"DisplayName\": \"" + location + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(item.BodyPreview) + "\"}}");
 
-                                    log.LogStandard("Not Specified", "Trying create new appointment for item.Id : " + item.Id + " and the UpdateEvent returned Updateditem: " + Updateditem.ToString());
+                                    if (updatedItem == null)
+                                    {
+                                        return false;
+                                    }
 
-                                    Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, Updateditem.Location.DisplayName, Updateditem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
+                                    log.LogStandard("Not Specified", "Trying create new appointment for item.Id : " + item.Id + " and the UpdateEvent returned Updateditem: " + updatedItem.ToString());
+
+                                    Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, updatedItem.Location.DisplayName, updatedItem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
 
                                     if (appo.Location == null)
                                         appo.Location = "planned";
@@ -247,7 +257,7 @@ namespace OutlookOfficeOnline
                                 {
                                     log.LogVariable("Not Specified", nameof(location), location);
 
-                                    Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, ReplaceLinesInBody(item.BodyPreview), t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead);
+                                    Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, ReplaceLinesInBody(item.BodyPreview), t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
 
                                     if (sqlController.AppointmentsCancel(appo.GlobalId))
                                         CalendarItemUpdate(appo.GlobalId, appo.Start, LocationOptions.Canceled, appo.Body);
@@ -656,7 +666,7 @@ namespace OutlookOfficeOnline
                         else
                         {
                             if (startPoint <= item.Start.DateTime && item.Start.DateTime <= endPoint)
-                                lstAppoint.Add(new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, item.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, sqlController.LookupRead));
+                                lstAppoint.Add(new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, item.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true));
                         }
 
                 return lstAppoint;

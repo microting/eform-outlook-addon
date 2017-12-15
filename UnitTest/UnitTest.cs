@@ -457,7 +457,7 @@ namespace UnitTest
                 bool checkValueB = false;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false);
                 if (sqlController.AppointmentsCreate(appoBase) > 0)
                     checkValueB = true;
                 
@@ -478,7 +478,7 @@ namespace UnitTest
                 int checkValueB = 1;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false);
                 checkValueB = sqlController.AppointmentsCreate(appoBase);
                 checkValueB = sqlController.AppointmentsCreate(appoBase);
 
@@ -518,7 +518,7 @@ namespace UnitTest
                 bool checkValueB = true;
 
                 //Act
-                sqlController.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false));
                 checkValueB = sqlController.AppointmentsCancel("no match");
 
                 //Assert
@@ -538,7 +538,7 @@ namespace UnitTest
                 bool checkValueB = false;
 
                 //Act
-                var temp = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                var temp = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false);
                 sqlController.AppointmentsCreate(temp);
                 checkValueB = sqlController.AppointmentsCancel("globalId");
 
@@ -578,7 +578,7 @@ namespace UnitTest
                 string checkValueB = "Not the right reply";
 
                 //Act
-                sqlController.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Bla bla", "body", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId", DateTime.Now, 30, "Test", "Bla bla", "body", false, false));
                 var match = sqlController.AppointmentsFind("globalId");
                 checkValueB = match.processing_state + " " + match.subject;
 
@@ -618,9 +618,9 @@ namespace UnitTest
                 string checkValueB = "Not the right reply";
 
                 //Act
-                sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlController.LookupRead));
-                sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlController.LookupRead));
-                sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false));
+                sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false));
+                sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false));
                 checkValueB = AppointmentsFindAll();
 
                 //Assert
@@ -640,9 +640,9 @@ namespace UnitTest
                 string checkValueB = "Not the right reply";
 
                 //Act
-                sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlController.LookupRead));
-                sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlController.LookupRead));
-                sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false));
+                sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false));
+                sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false));
 
                 sqlController.AppointmentsUpdate("globalId1", LocationOptions.Created, null, "", "");
                 sqlController.AppointmentsUpdate("globalId2", LocationOptions.Created, null, "", "");
@@ -671,9 +671,9 @@ namespace UnitTest
                 string checkValueB2 = "Not the right reply";
 
                 //Act
-                sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false, sqlController.LookupRead));
-                sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false, sqlController.LookupRead));
-                sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false, sqlController.LookupRead));
+                sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false));
+                sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false));
+                sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false));
 
                 sqlController.AppointmentsUpdate("globalId1", LocationOptions.Created, null, "", "");
                 sqlController.AppointmentsUpdate("globalId2", LocationOptions.Created, null, "", "");
@@ -702,207 +702,7 @@ namespace UnitTest
                 Assert.Equal(checkValueA2, checkValueB2);
             }
         }
-        #endregion
-
-        #region - test 003x - sqlController (Lookup)
-        [Fact]
-        public void Test003_SqlController_1a_LookupCreate_Withxpection()
-        {
-            lock (_lockTest)
-            {
-                //Arrange
-                TestPrepare(t.GetMethodName(), false, false);
-                bool checkValueA = false;
-                bool checkValueB1 = true;
-                bool checkValueB2 = true;
-                bool checkValueB3 = true;
-                bool checkValueB4 = true;
-
-                //Act
-                checkValueB1 = sqlController.LookupCreateUpdate(null, null);
-                checkValueB2 = sqlController.LookupCreateUpdate("", null);
-                checkValueB3 = sqlController.LookupCreateUpdate(null, "");
-                checkValueB4 = sqlController.LookupCreateUpdate("", "");
-
-                //Assert
-                TestTeardown();
-                Assert.Equal(checkValueA, checkValueB1);
-                Assert.Equal(checkValueA, checkValueB2);
-                Assert.Equal(checkValueA, checkValueB3);
-                Assert.Equal(checkValueA, checkValueB4);
-            }
-        }
-
-        [Fact]
-        public void Test003_SqlController_1b_LookupCreate()
-        {
-            lock (_lockTest)
-            {
-                //Arrange
-                TestPrepare(t.GetMethodName(), false, false);
-                bool checkValueA = true;
-                bool checkValueB1 = false;
-                bool checkValueB2 = false;
-                bool checkValueB3 = false;
-                bool checkValueB4 = false;
-
-                //Act
-                checkValueB1 = sqlController.LookupCreateUpdate("a", "1");
-                checkValueB2 = sqlController.LookupCreateUpdate("b", "2");
-                checkValueB3 = sqlController.LookupCreateUpdate("c", "3");
-                checkValueB4 = sqlController.LookupCreateUpdate("d", "4");
-
-                //Assert
-                TestTeardown();
-                Assert.Equal(checkValueA, checkValueB1);
-                Assert.Equal(checkValueA, checkValueB2);
-                Assert.Equal(checkValueA, checkValueB3);
-                Assert.Equal(checkValueA, checkValueB4);
-            }
-        }
-
-        [Fact]
-        public void Test003_SqlController_1c_LookupCreateAndUpdate()
-        {
-            lock (_lockTest)
-            {
-                //Arrange
-                TestPrepare(t.GetMethodName(), false, false);
-
-                bool checkValueA1 = true;
-                bool checkValueA2 = false;
-
-                bool checkValueB1 = false;
-                bool checkValueB2 = false;
-                bool checkValueB3 = false;
-                bool checkValueB4 = false;
-                bool checkValueB5 = false;
-                bool checkValueB6 = false;
-                bool checkValueB7 = false;
-                bool checkValueB8 = false;
-                bool checkValueB9 = false;
-
-                //Act
-                checkValueB1 = sqlController.LookupCreateUpdate("a", "1");
-                checkValueB2 = sqlController.LookupCreateUpdate("b", "2");
-                checkValueB3 = sqlController.LookupCreateUpdate("c", "3");
-                checkValueB4 = sqlController.LookupCreateUpdate("c", "4");
-                checkValueB5 = sqlController.LookupCreateUpdate("b", "5");
-                checkValueB6 = sqlController.LookupCreateUpdate("d", "6");
-                checkValueB7 = sqlController.LookupCreateUpdate("", "4");
-                checkValueB8 = sqlController.LookupCreateUpdate("c", null);
-                checkValueB9 = sqlController.LookupCreateUpdate("c", "9");
-
-                //Assert
-                TestTeardown();
-                Assert.Equal(checkValueA1, checkValueB1);
-                Assert.Equal(checkValueA1, checkValueB2);
-                Assert.Equal(checkValueA1, checkValueB3);
-                Assert.Equal(checkValueA1, checkValueB4);
-                Assert.Equal(checkValueA1, checkValueB5);
-                Assert.Equal(checkValueA1, checkValueB6);
-                Assert.Equal(checkValueA2, checkValueB7);
-                Assert.Equal(checkValueA2, checkValueB8);
-                Assert.Equal(checkValueA1, checkValueB9);
-            }
-        }
-
-        [Fact]
-        public void Test003_SqlController_2a_LookupRead()
-        {
-            lock (_lockTest)
-            {
-                //Arrange
-                TestPrepare(t.GetMethodName(), false, false);
-
-                string checkValueA1 = "1A1b1k";
-                string checkValueA2 = "2C2d2m";
-
-                string checkValueB1 = "";
-                string checkValueB2 = "";
-
-                //Act
-                sqlController.LookupCreateUpdate("Ab", "1A1b1k");
-                sqlController.LookupCreateUpdate("CD", "2C2d2m");
-
-                checkValueB1 = sqlController.LookupRead("aB");
-                checkValueB2 = sqlController.LookupRead("Cd");
-
-                //Assert
-                TestTeardown();
-                Assert.Equal(checkValueA1, checkValueB1);
-                Assert.Equal(checkValueA2, checkValueB2);
-                Assert.NotEqual(checkValueA1, checkValueB2.ToUpper());
-                Assert.NotEqual(checkValueA1, checkValueB2.ToLower());
-                Assert.NotEqual(checkValueA2, checkValueB2.ToUpper());
-                Assert.NotEqual(checkValueA2, checkValueB2.ToLower());
-            }
-        }
-
-        [Fact]
-        public void Test003_SqlController_3a_LookupReadAll()
-        {
-            lock (_lockTest)
-            {
-                //Arrange
-                TestPrepare(t.GetMethodName(), false, false);
-                string checkValueA = "1A1b1k2C2d2m3e3F3k4G4H4m";
-                string checkValueB = "";
-
-                //Act
-                sqlController.LookupCreateUpdate("Ab", "1A1b1k");
-                sqlController.LookupCreateUpdate("CD", "2C2d2m");
-                sqlController.LookupCreateUpdate("EF", "3e3F3k");
-                sqlController.LookupCreateUpdate("GH", "4G4H4m");
-
-                var lst = sqlController.LookupReadAll();
-
-                foreach (var item in lst)
-                    checkValueB += item.value;
-
-                //Assert
-                TestTeardown();
-                Assert.Equal(checkValueA, checkValueB);
-            }
-        }
-
-        [Fact]
-        public void Test003_SqlController_4a_LookupDelete()
-        {
-            lock (_lockTest)
-            {
-                //Arrange
-                TestPrepare(t.GetMethodName(), false, false);
-                string checkValueA = "1A1b1k3e3F3k1A1b1k";
-                string checkValueB = "";
-
-                //Act
-                sqlController.LookupCreateUpdate("Ab", "1A1b1k");
-                sqlController.LookupCreateUpdate("CD", "2C2d2m");
-                sqlController.LookupCreateUpdate("EF", "3e3F3k");
-                sqlController.LookupCreateUpdate("GH", "4G4H4m");
-
-                sqlController.LookupDelete("Cd");
-                sqlController.LookupDelete("gH");
-
-                var lst = sqlController.LookupReadAll();
-
-                foreach (var item in lst)
-                    checkValueB += item.value;
-
-                sqlController.LookupDelete("ef");
-
-                lst = sqlController.LookupReadAll();
-
-                foreach (var item in lst)
-                    checkValueB += item.value;
-
-                //Assert
-                TestTeardown();
-                Assert.Equal(checkValueA, checkValueB);
-            }
-        }
-        #endregion
+        #endregion        
 
         #region - test 004x - sqlController (SDK)
         [Fact]
@@ -916,7 +716,7 @@ namespace UnitTest
                 int checkValueB = 1;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Other", "body", false, false, sqlController.LookupRead);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Other", "body", false, false);
                 sqlController.AppointmentsCreate(appoBase);
                 sqlController.SyncInteractionCase("SomeUnitTestAddress");
 
@@ -937,7 +737,7 @@ namespace UnitTest
                 bool checkValueB = false;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false);
                 int id = sqlController.AppointmentsCreate(appoBase);
                 var app = sqlController.AppointmentsFind("globalId");
 
@@ -960,7 +760,7 @@ namespace UnitTest
                 bool checkValueB = false;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false);
                 int id = sqlController.AppointmentsCreate(appoBase);
                 var app = sqlController.AppointmentsFind("globalId");
 
@@ -984,7 +784,7 @@ namespace UnitTest
                 bool checkValueB = false;
 
                 //Act
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false);
                 int id = sqlController.AppointmentsCreate(appoBase);
                 var app = sqlController.AppointmentsFind("globalId");
 
@@ -1265,7 +1065,7 @@ namespace UnitTest
                 TestPrepare(t.GetMethodName(), false, false);
                 bool checkValueA = true;
                 bool checkValueB = false;
-                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false, sqlController.LookupRead);
+                Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false);
                 OutlookOnlineController_Fake oCon = new OutlookOnlineController_Fake(sqlController, new Log(coreOut, new LogWriter(), 4));
 
                 //Act
