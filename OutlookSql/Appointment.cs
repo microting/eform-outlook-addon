@@ -12,10 +12,12 @@ namespace OutlookSql
         #region var/pop
         public string GlobalId { get; set; }
         public DateTime Start { get; set; }
+        public DateTime End { get; set; }
         public int Duration { get; set; }
         public string Subject { get; set; }
         public string ProcessingState { get; set; }
         public string Body { get; set; }
+        public bool Completed { get; set; }
 
         public int TemplateId { get; set; }
         public List<AppoinntmentSite> AppointmentSites { get; set; }
@@ -162,7 +164,7 @@ namespace OutlookSql
 
                         foreach (var item in t.TextLst(lineNoComma))
                         {
-                            AppoinntmentSite appointmentSite = new AppoinntmentSite(int.Parse(item), ProcessingStateOptions.Processed.ToString(), null);
+                            AppoinntmentSite appointmentSite = new AppoinntmentSite(null, int.Parse(item), ProcessingStateOptions.Processed.ToString(), null);
                             AppointmentSites.Add(appointmentSite);
                         }
 

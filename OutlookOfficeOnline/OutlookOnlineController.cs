@@ -268,23 +268,23 @@ namespace OutlookOfficeOnline
                                 }
                                 #endregion
 
-                                if (processingState.ToLower() == "check")
-                                #region ...
-                                {
-                                    log.LogVariable("Not Specified", nameof(processingState), processingState);
+                                //if (processingState.ToLower() == "check")
+                                //#region ...
+                                //{
+                                //    log.LogVariable("Not Specified", nameof(processingState), processingState);
 
-                                    eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb));
-                                    eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting, log);
+                                //    eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb));
+                                //    eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting, log);
 
-                                    var temp = sqlController.AppointmentsFind(item.Id);
+                                //    var temp = sqlController.AppointmentsFind(item.Id);
 
-                                    var list = sqlMicroting.InteractionCaseListRead(int.Parse(temp.microting_uuid));
-                                    foreach (var aCase in list)
-                                        com.CheckStatusUpdateIfNeeded(aCase.microting_uid);
+                                //    var list = sqlMicroting.InteractionCaseListRead(int.Parse(temp.MicrotingUId));
+                                //    foreach (var aCase in list)
+                                //        com.CheckStatusUpdateIfNeeded(aCase.microting_uid);
 
-                                    CalendarItemReflecting(item.Id);
-                                    AllParsed = true;
-                                }
+                                //    CalendarItemReflecting(item.Id);
+                                //    AllParsed = true;
+                                //}
                                 #endregion
                             }
                         }
@@ -323,8 +323,8 @@ namespace OutlookOfficeOnline
                 string Categories = null;
                 if (globalId == null)
                     appointment = sqlController.AppointmentsFindOne(0);
-                else
-                    appointment = sqlController.AppointmentsFind(globalId);
+                //else
+                //    appointment = sqlController.AppointmentsFind(globalId);
 
                 if (appointment == null) //double checks status if no new found
                     appointment = sqlController.AppointmentsFindOne(1);
@@ -416,12 +416,13 @@ namespace OutlookOfficeOnline
                     if (eresult == null)
                     {
                         return false;
-                    } else
+                    }
+                    else
                     {
                         log.LogStandard("Not Specified", "globalId:'" + appointment.global_id + "' reflected in calendar");
                     }
-                        
-                    
+
+
                 }
                 else
                     log.LogWarning("Not Specified", "globalId:'" + appointment.global_id + "' no longer in calendar, so hence is considered to be reflected in calendar");
@@ -523,7 +524,7 @@ namespace OutlookOfficeOnline
             }
             
         }
-        #endregion
+        //#endregion
 
         #region private
         private DateTime RoundTime(DateTime dTime)

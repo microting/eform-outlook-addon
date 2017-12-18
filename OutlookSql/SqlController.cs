@@ -228,14 +228,30 @@ namespace OutlookSql
             }
         }
 
-        public appointments         AppointmentsFind(string globalId)
+        public Appointment AppointmentsFind(string globalId)
         {
             try
             {
                 using (var db = GetContextO())
                 {
                     var match = db.appointments.SingleOrDefault(x => x.global_id == globalId);
-                    return match;
+                    if (match != null)
+                    {
+                        bool color_rule = match.color_rule == 0 ? true : false;
+                        Appointment appo = new Appointment(match.global_id, (DateTime)match.start_at, (int)match.duration, match.subject, match.processing_state, match.body, color_rule, false);
+                        appo.Completed = match.completed == 0 ? false : true;
+
+                        foreach (appointment_sites appo_site in match.appointment_sites)
+                        {
+                            AppoinntmentSite appoSite = new AppoinntmentSite(appo_site.id, appo_site.microting_site_uid, appo_site.processing_state, appo_site.microting_uuid);
+                            appo.AppointmentSites.Add(appoSite);
+                        }
+                        return appo;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
             }
             catch (Exception ex)
@@ -245,14 +261,28 @@ namespace OutlookSql
             }
         }
 
-        public appointments         AppointmentsFindOne(ProcessingStateOptions location)
+        public Appointment AppointmentsFindOne(ProcessingStateOptions location)
         {
             try
             {
                 using (var db = GetContextO())
                 {
                     var match = db.appointments.FirstOrDefault(x => x.processing_state == location.ToString());
-                    return match;
+                    if (match != null)
+                    {
+                        bool color_rule = match.color_rule == 0 ? true : false;
+                        Appointment appo = new Appointment(match.global_id, (DateTime)match.start_at, (int)match.duration, match.subject, match.processing_state, match.body, color_rule, false);
+
+                        foreach (appointment_sites appo_site in match.appointment_sites)
+                        {
+                            AppoinntmentSite appoSite = new AppoinntmentSite(appo_site.id, appo_site.microting_site_uid, appo_site.processing_state, appo_site.microting_uuid);
+                            appo.AppointmentSites.Add(appoSite);
+                        }
+                        return appo;
+                    } else
+                    {
+                        return null;
+                    }
                 }
             }
             catch (Exception ex)
@@ -279,7 +309,7 @@ namespace OutlookSql
             }
         }
 
-        public bool                 AppointmentsUpdate(string globalId, ProcessingStateOptions location, string body, string expectionString, string response)
+        public bool                 AppointmentsUpdate(string globalId, ProcessingStateOptions processingState, string body, string expectionString, string response, bool completed)
         {
             log.LogEverything("Not Specified", "AppointmentsUpdate called and globalId is " + globalId);
 
@@ -292,9 +322,9 @@ namespace OutlookSql
                     if (match == null)
                         return false;
 
-                    match.processing_state = location.ToString();
+                    match.processing_state = processingState.ToString();
                     match.updated_at = DateTime.Now;
-                    match.completed = 0;
+                    //match.completed = 0;
                     #region match.body = body ...
                     if (body != null)
                         match.body = body;
@@ -425,189 +455,223 @@ namespace OutlookSql
                 return false;
             }
         }
+
+        public bool AppointmentSiteUpdate(int id, string microtingUuid, ProcessingStateOptions processingState)
+        {
+            try
+            {
+                using (var db = GetContextO())
+                {
+                    var match = db.appointments.SingleOrDefault(x => x.id == id);
+
+                    if (match == null)
+                        return false;
+
+                    match.updated_at = DateTime.Now;
+                    match.microting_uuid = microtingUuid;
+                    match.processing_state = processingState.ToString();
+                    match.version = match.version + 1;
+
+                    db.appointment_versions.Add(MapAppointmentVersions(match));
+                    db.SaveChanges();
+
+                    db.appointments.Remove(match);
+                    db.SaveChanges();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                return false;
+            }
+        }
+
         #endregion
        
 
+
         #region public SDK
-        public bool                 SyncInteractionCase(string serverAddress)
-        {
-            return false; // TODO
-            if (string.IsNullOrEmpty(serverAddress))
-            {
-                log.LogVariable("Not Specified", nameof(serverAddress), serverAddress);
-                return false;
-            }
-            log.LogEverything("Not Specified", "SyncInteractionCase called and serverAddress is " + serverAddress);
+        //public bool                 SyncInteractionCase(string serverAddress)
+        //{
+        //    return false; // TODO
+        //    if (string.IsNullOrEmpty(serverAddress))
+        //    {
+        //        log.LogVariable("Not Specified", nameof(serverAddress), serverAddress);
+        //        return false;
+        //    }
+        //    log.LogEverything("Not Specified", "SyncInteractionCase called and serverAddress is " + serverAddress);
 
-            // read input
-            #region create
-            appointments appoint = AppointmentsFindOne(ProcessingStateOptions.Processed);
+        //    // read input
+        //    #region create
+        //    appointments appoint = AppointmentsFindOne(ProcessingStateOptions.Processed);
 
-            if (appoint != null)
-            {
-                log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Processed");
-                if (InteractionCaseCreate(appoint))
-                {
-                    log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-                    log.LogStandard("Not Specified", "Appointment created in SDK input");
-                    return true;
-                }
-                else
-                {
-                    log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-                    log.LogException("Not Specified", "Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
-                    return false;
-                }
-            }
-            #endregion
+        //    if (appoint != null)
+        //    {
+        //        log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Processed");
+        //        if (InteractionCaseCreate(appoint))
+        //        {
+        //            log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+        //            log.LogStandard("Not Specified", "Appointment created in SDK input");
+        //            return true;
+        //        }
+        //        else
+        //        {
+        //            log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+        //            log.LogException("Not Specified", "Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
+        //            return false;
+        //        }
+        //    }
+        //    #endregion
 
-            #region delete
-            appoint = AppointmentsFindOne(ProcessingStateOptions.Canceled);
+        //    #region delete
+        //    appoint = AppointmentsFindOne(ProcessingStateOptions.Canceled);
 
-            if (appoint != null)
-            {
-                log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Canceled");
-                if (InteractionCaseDelete(appoint))
-                {
-                    bool isUpdated = AppointmentsUpdate(appoint.global_id, ProcessingStateOptions.Revoked, appoint.body, appoint.exceptionString, null);
+        //    if (appoint != null)
+        //    {
+        //        log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Canceled");
+        //        if (InteractionCaseDelete(appoint))
+        //        {
+        //            bool isUpdated = AppointmentsUpdate(appoint.global_id, ProcessingStateOptions.Revoked, appoint.body, appoint.exceptionString, null);
 
-                    if (isUpdated)
-                        return true;
-                    else
-                    {
-                        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-                        log.LogException("Not Specified", "Failed to update Outlook appointment, but Appointment deleted in SDK input", new Exception("FATAL issue"), true);
-                    }
-                }
-                else
-                {
-                    log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-                    log.LogException("Not Specified", "Failed to deleted Appointment in SDK input", new Exception("FATAL issue"), true);
-                }
-                log.LogEverything("Not Specified", "SyncInteractionCase called and we are returning false! ");
+        //            if (isUpdated)
+        //                return true;
+        //            else
+        //            {
+        //                log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+        //                log.LogException("Not Specified", "Failed to update Outlook appointment, but Appointment deleted in SDK input", new Exception("FATAL issue"), true);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+        //            log.LogException("Not Specified", "Failed to deleted Appointment in SDK input", new Exception("FATAL issue"), true);
+        //        }
+        //        log.LogEverything("Not Specified", "SyncInteractionCase called and we are returning false! ");
 
-                return false;
-            }
-            //appoint = AppointmentsFindOne(LocationOptions.Created);
+        //        return false;
+        //    }
+        //    //appoint = AppointmentsFindOne(LocationOptions.Created);
 
-            //if (appoint != null)
-            //{
-            //    log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Created");
-            //    if (InteractionCaseCreate(appoint))
-            //    {
-            //        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-            //        log.LogStandard("Not Specified", "Appointment created in SDK input");
-            //        return true;
-            //    }
-            //    else
-            //    {
-            //        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-            //        log.LogException("Not Specified", "Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
-            //        return false;
-            //    }
-            //}
+        //    //if (appoint != null)
+        //    //{
+        //    //    log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Created");
+        //    //    if (InteractionCaseCreate(appoint))
+        //    //    {
+        //    //        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+        //    //        log.LogStandard("Not Specified", "Appointment created in SDK input");
+        //    //        return true;
+        //    //    }
+        //    //    else
+        //    //    {
+        //    //        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
+        //    //        log.LogException("Not Specified", "Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
+        //    //        return false;
+        //    //    }
+        //    //}
 
-            #endregion
+        //    #endregion
 
-            // read output
-            //log.LogEverything("Not Specified", "SyncInteractionCase called and we are returning false! ");
-            //return InteractionCaseProcessed(serverAddress); TODO
-        }
+        //    // read output
+        //    //log.LogEverything("Not Specified", "SyncInteractionCase called and we are returning false! ");
+        //    //return InteractionCaseProcessed(serverAddress); TODO
+        //}
 
-        public bool                 InteractionCaseCreate(appointments appointment)
-        {
+        //public bool                 InteractionCaseCreate(appointments appointment)
+        //{
 
-            return false;
-            //log.LogEverything("Not Specified", "InteractionCaseCreate called ");
+        //    return false;
+        //    //log.LogEverything("Not Specified", "InteractionCaseCreate called ");
 
-            //try
-            //{
-            //    using (var db = GetContextO())
-            //    {
-            //        List<int> siteIds = t.IntLst(appointment.site_ids);
-            //        List<string> replacements = t.TextLst(appointment.replacements);
+        //    //try
+        //    //{
+        //    //    using (var db = GetContextO())
+        //    //    {
+        //    //        List<int> siteIds = t.IntLst(appointment.site_ids);
+        //    //        List<string> replacements = t.TextLst(appointment.replacements);
 
-            //        if (replacements == null)
-            //            replacements = new List<string>();
+        //    //        if (replacements == null)
+        //    //            replacements = new List<string>();
 
-            //        if (appointment.title != "")
-            //            replacements.Add("Title::" + appointment.title);
+        //    //        if (appointment.title != "")
+        //    //            replacements.Add("Title::" + appointment.title);
 
-            //        if (appointment.description != "")
-            //            replacements.Add("Description::" + appointment.description);
+        //    //        if (appointment.description != "")
+        //    //            replacements.Add("Description::" + appointment.description);
 
-            //        if (appointment.info != "")
-            //            replacements.Add("Info::" + appointment.info);
+        //    //        if (appointment.info != "")
+        //    //            replacements.Add("Info::" + appointment.info);
 
-            //        if (appointment.expire_at != DateTime.MinValue)
-            //            replacements.Add("Expire::" + appointment.expire_at.ToString());
+        //    //        if (appointment.expire_at != DateTime.MinValue)
+        //    //            replacements.Add("Expire::" + appointment.expire_at.ToString());
 
-            //        if (replacements.Count == 0)
-            //            replacements = null;
+        //    //        if (replacements.Count == 0)
+        //    //            replacements = null;
 
-            //        #region check for existing a_interaction_case
-            //        // Lets see if the appointment already have an intercationCase and use that one otherwise create a new one.
-            //        //a_interaction_cases existing_case; TODO
-            //        int interCaseId = 0;
+        //    //        #region check for existing a_interaction_case
+        //    //        // Lets see if the appointment already have an intercationCase and use that one otherwise create a new one.
+        //    //        //a_interaction_cases existing_case; TODO
+        //    //        int interCaseId = 0;
 
-            //        //using (var sdk_db = GetContextM())
-            //        //{
-            //        //    existing_case = sdk_db.a_interaction_cases.FirstOrDefault(x => x.custom == appointment.global_id);
-            //        //    if (existing_case == null)
-            //        //    {
-            //        //        interCaseId = sdkSqlCon.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), replacements);
-            //        //    }
-            //        //    else
-            //        //    {
-            //        //        interCaseId = existing_case.id;
-            //        //    }
-            //        //}
-            //        #endregion
+        //    //        //using (var sdk_db = GetContextM())
+        //    //        //{
+        //    //        //    existing_case = sdk_db.a_interaction_cases.FirstOrDefault(x => x.custom == appointment.global_id);
+        //    //        //    if (existing_case == null)
+        //    //        //    {
+        //    //        //        interCaseId = sdkSqlCon.InteractionCaseCreate((int)appointment.template_id, "", siteIds, appointment.global_id, t.Bool(appointment.connected), replacements);
+        //    //        //    }
+        //    //        //    else
+        //    //        //    {
+        //    //        //        interCaseId = existing_case.id;
+        //    //        //    }
+        //    //        //}
+        //    //        #endregion
 
-            //        var match = db.appointments.Single(x => x.global_id == appointment.global_id);
+        //    //        var match = db.appointments.Single(x => x.global_id == appointment.global_id);
 
-            //        match.processing_state = "Created";
-            //        match.completed = 0;
-            //        match.microting_uuid = "" + interCaseId;
-            //        match.updated_at = DateTime.Now;
-            //        match.version = match.version + 1;
+        //    //        match.processing_state = "Created";
+        //    //        match.completed = 0;
+        //    //        match.microting_uuid = "" + interCaseId;
+        //    //        match.updated_at = DateTime.Now;
+        //    //        match.version = match.version + 1;
 
-            //        db.SaveChanges();
+        //    //        db.SaveChanges();
 
-            //        db.appointment_versions.Add(MapAppointmentVersions(match));
-            //        db.SaveChanges();
-            //    }
+        //    //        db.appointment_versions.Add(MapAppointmentVersions(match));
+        //    //        db.SaveChanges();
+        //    //    }
 
-            //    return true;
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
-            //    AppointmentsUpdate(appointment.global_id, LocationOptions.Exception, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
-            //    return false;
-            //}
-        }
+        //    //    return true;
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
+        //    //    AppointmentsUpdate(appointment.global_id, LocationOptions.Exception, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
+        //    //    return false;
+        //    //}
+        //}
 
-        public bool                 InteractionCaseDelete(appointments appointment)
-        {
-            return false;
-            //try
-            //{
-            //    string mUID = appointment.microting_uuid;
+        //public bool                 InteractionCaseDelete(appointments appointment)
+        //{
+        //    return false;
+        //    //try
+        //    //{
+        //    //    string mUID = appointment.microting_uuid;
 
-            //    if (string.IsNullOrEmpty(mUID))
-            //        return true;
+        //    //    if (string.IsNullOrEmpty(mUID))
+        //    //        return true;
 
-            //    sdkSqlCon.InteractionCaseDelete(int.Parse(mUID));
-            //    return true;
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
-            //    AppointmentsUpdate(appointment.global_id, LocationOptions.Exception, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
-            //    return false;
-            //}
-        }
+        //    //    sdkSqlCon.InteractionCaseDelete(int.Parse(mUID));
+        //    //    return true;
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
+        //    //    AppointmentsUpdate(appointment.global_id, LocationOptions.Exception, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
+        //    //    return false;
+        //    //}
+        //}
 
         //public bool InteractionCaseProcessed(string serverAddress)
         //{

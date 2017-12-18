@@ -9,6 +9,7 @@ namespace OutlookSql
     public class AppoinntmentSite
     {
         #region var/pop
+        public int? Id { get; set; }
         public int MicrotingSiteUid { get; set; }
         public string ProcessingState { get; set; }
         public string MicrotingUuId { get; set; }
@@ -20,8 +21,9 @@ namespace OutlookSql
 
         }
 
-        public AppoinntmentSite(int microtingSiteUid, string processingState, string microtingUuid)
+        public AppoinntmentSite(int? id, int microtingSiteUid, string processingState, string microtingUuid)
         {
+            Id = id;
             MicrotingSiteUid = microtingSiteUid;
             ProcessingState = processingState;
             MicrotingUuId = microtingUuid;
