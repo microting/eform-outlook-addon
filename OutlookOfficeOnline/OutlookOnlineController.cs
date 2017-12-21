@@ -87,7 +87,7 @@ namespace OutlookOfficeOnline
                                 try
                                 {
                                     string appointmendId = CalendarItemCreate(location, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject,
-                                    item.BodyPreview);
+                                    item.BodyPreview, item.OriginalStartTimeZone, item.OriginalEndTimeZone);
                                 } catch (Exception ex)
                                 {
                                     log.LogEverything("Not Specified", t.GetMethodName() + " got exception :" + ex.Message + " when trying to do CalendarItemCreate for item with id : " + item.Id);
@@ -437,11 +437,11 @@ namespace OutlookOfficeOnline
             }
         }
 
-        public string CalendarItemCreate(string location, DateTime start, int duration, string subject, string body)
+        public string CalendarItemCreate(string location, DateTime start, int duration, string subject, string body, string originalStartTimeZone, string originalEndTimeZone)
         {
             try
             {
-                Event newAppo = outlookExchangeOnlineAPIClient.CreateEvent(userEmailAddess, GetCalendarID(), CalendarItemCreateBody(subject, body, location, start, start.AddMinutes(duration)));
+                Event newAppo = outlookExchangeOnlineAPIClient.CreateEvent(userEmailAddess, GetCalendarID(), CalendarItemCreateBody(subject, body, location, start, start.AddMinutes(duration), originalStartTimeZone, originalEndTimeZone));
                 log.LogStandard("Not Specified", "Calendar item created in " + calendarName);
                 return newAppo.Id;
             }
@@ -698,10 +698,13 @@ namespace OutlookOfficeOnline
             string UpdateBody = "{\"Location\": {\"DisplayName\": \"" + Location + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(BodyContent) + "\"},\"Categories\": [\"" + Category + "\"]}";
             return UpdateBody;
         }
-        private string CalendarItemCreateBody(string Subject, string BodyContent, string Location, DateTime Start, DateTime End)
+        private string CalendarItemCreateBody(string Subject, string BodyContent, string Location, DateTime Start, DateTime End, string originalStartTimeZone, string originalEndTimeZone)
         {
+            log.LogEverything("Not Specified", "CalendarItemCreateBody called and creating with start : " + Start + " and end : " + End);
+            log.LogEverything("Not Specified", "CalendarItemCreateBody called and creating with originalStartTimeZone : " + originalStartTimeZone + " and originalEndTimeZone : " + originalEndTimeZone);
+
             TimeZone localZone = TimeZone.CurrentTimeZone;
-            string CreateBody = "{\"Subject\": \"" + Subject + "\",\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(BodyContent) + "\"},\"Location\": {\"DisplayName\": \"" + Location + "\"},\"Start\": {\"DateTime\": \"" + Start + "\",\"TimeZone\": \"" + localZone.StandardName + "\"},\"End\":{\"DateTime\":\"" + End + "\",\"TimeZone\": \"" + localZone.StandardName + "\"}}";
+            string CreateBody = "{\"Subject\": \"" + Subject + "\",\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(BodyContent) + "\"},\"Location\": {\"DisplayName\": \"" + Location + "\"},\"Start\": {\"DateTime\": \"" + Start.ToLocalTime() + "\",\"TimeZone\": \"" + localZone.StandardName + "\"},\"End\":{\"DateTime\":\"" + End.ToLocalTime() + "\",\"TimeZone\": \"" + localZone.StandardName + "\"}}";
             return CreateBody;
         }
         private string ReplaceLinesInBody(string BodyPreview)

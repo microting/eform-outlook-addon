@@ -44,6 +44,7 @@ namespace OutlookSql
             GlobalId = globalId;
             Start = start;
             Duration = duration;
+            End = start.AddMinutes(duration);
             Subject = subject;
             ProcessingState = processingState;
             Body = body;

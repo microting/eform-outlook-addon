@@ -139,7 +139,7 @@ namespace OutlookCore
                     string sdkCoreConnectionString = sqlController.SettingRead(Settings.microtingDb);
                     startSdkCore(sdkCoreConnectionString);
 
-                    Thread coreThread = new Thread(() => CoreThread());
+                    Thread coreThread = new Thread(() => CoreThread(sdkCoreConnectionString));
                     coreThread.Start();
                     log.LogStandard("Not Specified", "CoreThread started");
                 }
@@ -194,6 +194,7 @@ namespace OutlookCore
                         Thread.Sleep(secondsDelay * 1000);
                     else
                         log.LogStandard("Not Specified", "Delay skipped");
+                    sdkCore.Close();
 
                     Start(connectionString, serviceLocation);
                     coreRestarting = false;
@@ -234,6 +235,7 @@ namespace OutlookCore
                     //outlookController = null;
                     outlookOnlineController = null;
                     sqlController = null;
+                    sdkCore.Close();
 
                     coreStatChanging = false;
                 }
@@ -369,7 +371,9 @@ namespace OutlookCore
                 #endregion
 
                 //string globalId = outlookController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body);
-                string globalId = outlookOnlineController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body);
+                TimeZone localZone = TimeZone.CurrentTimeZone;
+
+                string globalId = outlookOnlineController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body, localZone.StandardName, localZone.StandardName);
                 return globalId;
             }
             catch (Exception ex)
@@ -464,19 +468,59 @@ namespace OutlookCore
             }
         }
 
+        public bool MarkAppointmentRetrived(string caseId)
+        {
+            //log.LogEverything("Not Specified", "outlookController.MarkAppointmentRetrived() L471");
+            //log.LogEverything("Not Specified", "outlookController.MarkAppointmentRetrived() L471 caseId is " + caseId);
+            Appointment appo = sqlController.AppointmentFindCaseId(caseId);
+            bool result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Retrived, appo.Body);
+            if (result)
+            {
+                //log.LogEverything("Not Specified", "outlookController.MarkAppointmentRetrived() L476");
+                sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Retrived, appo.Body, "", "", false);
+                sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Retrived);
+                return true;
+            } else
+            {
+                //log.LogEverything("Not Specified", "outlookController.MarkAppointmentRetrived() L482");
+                return false;
+            }
+            
+        }
+
+        public bool MarkAppointmentCompleted(string caseId)
+        {
+            //log.LogEverything("Not Specified", "outlookController.MarkAppointmentCompleted() L490");
+            Appointment appo = sqlController.AppointmentFindCaseId(caseId);
+            bool result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Completed, appo.Body);
+            if (result)
+            {
+                //log.LogEverything("Not Specified", "outlookController.MarkAppointmentCompleted() L495");
+                sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Retrived, appo.Body, "", "", true);
+                sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Completed);
+                return true;
+            }
+            else
+            {
+                //log.LogEverything("Not Specified", "outlookController.MarkAppointmentCompleted() L502");
+                return false;
+            }
+        }
+
+
         #region parsing threads
-        private void            CoreThread()
+        private void            CoreThread(string sdkCoreConnectionString)
         {
             bool firstRun = true;
             coreThreadRunning = true;
 
             log.LogEverything("Not Specified", t.GetMethodName() + " initiated");
-            while (coreAvailable)
-            {
+            //while (coreAvailable)
+            //{
                 try
                 {
-                    if (coreThreadRunning)
-                    {
+                    //if (coreThreadRunning)
+                    //{
                         #region warm up
                         log.LogEverything("Not Specified", t.GetMethodName() + " initiated");
 
@@ -499,12 +543,12 @@ namespace OutlookCore
 
                         #region TODO
                         Thread syncAppointmentsToSdk
-                            = new Thread(() => SyncAppointmentsToSdk());
+                            = new Thread(() => SyncAppointmentsToSdk(sdkCoreConnectionString));
                         syncAppointmentsToSdk.Start();
                         #endregion
 
                         Thread.Sleep(2000);
-                    }
+                    //}
 
                     Thread.Sleep(500);
                 }
@@ -516,33 +560,40 @@ namespace OutlookCore
                 {
                     FatalExpection(t.GetMethodName() + "failed", ex);
                 }
-            }
-            log.LogEverything("Not Specified", t.GetMethodName() + " completed");
+            //}
+            //log.LogEverything("Not Specified", t.GetMethodName() + " completed");
 
-            coreThreadRunning = false;
+            //coreThreadRunning = false;
         }
 
         private void            SyncOutlookConvert()
         {
             try
             {
-                if (!syncOutlookConvertRunning)
+
+                while (coreThreadRunning)
                 {
-                    syncOutlookConvertRunning = true;
-
-                    if (coreThreadRunning)
-                    {
-                        while (coreThreadRunning && outlookOnlineController.CalendarItemConvertRecurrences()) { }
-                        //while (coreThreadRunning && outlookController.CalendarItemConvertRecurrences()) { }
-
-                        log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
-
-                        for (int i = 0; i < 6 && coreThreadRunning; i++)
-                            Thread.Sleep(1000);
-                    }
-
-                    syncOutlookConvertRunning = false;
+                    outlookOnlineController.CalendarItemConvertRecurrences();
+                    log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() done and sleeping for 2 seconds");
+                    Thread.Sleep(2000);
                 }
+                //if (!syncOutlookConvertRunning)
+                //{
+                //    syncOutlookConvertRunning = true;
+
+                //    if (coreThreadRunning)
+                //    {
+                //        while (coreThreadRunning && outlookOnlineController.CalendarItemConvertRecurrences()) { }
+                //        //while (coreThreadRunning && outlookController.CalendarItemConvertRecurrences()) { }
+
+                //        log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
+
+                //        for (int i = 0; i < 6 && coreThreadRunning; i++)
+                //            Thread.Sleep(1000);
+                //    }
+
+                //    syncOutlookConvertRunning = false;
+                //}
             }
             catch (ThreadAbortException)
             {
@@ -554,28 +605,38 @@ namespace OutlookCore
             }
         }
 
-        private void            SyncOutlookApps()
+        private void SyncOutlookApps()
         {
             try
             {
-                if (!syncOutlookAppsRunning)
+                while (coreThreadRunning)
                 {
-                    syncOutlookAppsRunning = true;
+                    outlookOnlineController.ParseCalendarItems();
+                    log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
+                    outlookOnlineController.CalendarItemReflecting(null);
+                    log.LogEverything("Not Specified", "outlookController.CalendarItemReflecting() completed");
+                    log.LogEverything("Not Specified", "outlookController.SyncOutlookApps() done and sleeping for 2 seconds");
+                    Thread.Sleep(2000);
 
-                    //while (coreThreadRunning && outlookController.CalendarItemIntrepid())
-                    //    log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
-
-                    //while (coreThreadRunning && outlookController.CalendarItemReflecting(null))
-                    //    log.LogEverything("Not Specified", "outlookController.CalendarItemReflecting() completed");
-
-                    while (coreThreadRunning && outlookOnlineController.ParseCalendarItems())
-                        log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
-
-                    while (coreThreadRunning && outlookOnlineController.CalendarItemReflecting(null))
-                        log.LogEverything("Not Specified", "outlookController.CalendarItemReflecting() completed");
-
-                    syncOutlookAppsRunning = false;
                 }
+                //if (!syncOutlookAppsRunning)
+                //{
+                //    syncOutlookAppsRunning = true;
+
+                //    //while (coreThreadRunning && outlookController.CalendarItemIntrepid())
+                //    //    log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
+
+                //    //while (coreThreadRunning && outlookController.CalendarItemReflecting(null))
+                //    //    log.LogEverything("Not Specified", "outlookController.CalendarItemReflecting() completed");
+
+                //    while (coreThreadRunning && outlookOnlineController.ParseCalendarItems())
+                //        log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
+
+                //    while (coreThreadRunning && outlookOnlineController.CalendarItemReflecting(null))
+                //        log.LogEverything("Not Specified", "outlookController.CalendarItemReflecting() completed");
+
+                //    syncOutlookAppsRunning = false;
+                //}
             }
             catch (ThreadAbortException)
             {
@@ -587,69 +648,111 @@ namespace OutlookCore
             }
         }
 
-        private void            SyncAppointmentsToSdk()
+        private void SyncAppointmentsToSdk(string sdkConnectionString)
         {
-
+            //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L594 sdkConnectionString is " + sdkConnectionString);
             try
             {
-                if (!syncAppointmentsToSdkRunning)
+                //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L597");
+
+                //if (!syncAppointmentsToSdkRunning)
+                //{
+                //    log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L601");
+
+                //    syncAppointmentsToSdkRunning = true;
+
+                if (sdkCore == null)
                 {
-                    syncAppointmentsToSdkRunning = true;
+                    //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L607");
 
-                    string serverAddress = sdkCore.GetHttpServerAddress();
+                    startSdkCore(sdkConnectionString);
+                }
+                //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L611");
 
-                    while (coreThreadRunning && syncAppointmentsToSdkRunning)
+                string serverAddress = sdkCore.GetHttpServerAddress();
+                //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L614");
+
+                while (coreThreadRunning)
+                {
+                    //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L618");
+                    Appointment appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true);
+                    //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L620");
+                    if (appo != null)
                     {
-                        Appointment appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed);
-
-                        if (appo != null)
+                        //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L623");
+                        eFormData.MainElement mainElement = sdkCore.TemplateRead((int)appo.TemplateId);
+                        if (mainElement == null)
                         {
-                            var mainElement = sdkCore.TemplateRead((int)appo.TemplateId);
-                            mainElement.Repeated = 1;
-                            mainElement.EndDate = ((DateTime)appo.Start).ToUniversalTime();
-                            mainElement.StartDate = ((DateTime)appo.End).ToUniversalTime();
+                            log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L625 mainElement is NULL!!!");
+                        }
 
-                            bool allGood = false;
-                            foreach (AppoinntmentSite appo_site in appo.AppointmentSites)
+                        mainElement.Repeated = 1;
+                        mainElement.StartDate = ((DateTime)appo.Start).ToUniversalTime();
+                        mainElement.EndDate = ((DateTime)appo.End.AddDays(1)).ToUniversalTime();
+                        //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L629");
+                        log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() StartDate is " + mainElement.StartDate);
+                        log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() EndDate is " + mainElement.EndDate);
+
+                        bool allGood = false;
+                        List<AppoinntmentSite> appoSites = appo.AppointmentSites;
+                        if (appoSites == null)
+                        {
+                            log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L635 appoSites is NULL!!! for appo.GlobalId" + appo.GlobalId);
+                        }
+                        else
+                        {
+                            foreach (AppoinntmentSite appo_site in appoSites)
                             {
+                                log.LogEverything("Not Specified", "outlookController.foreach AppoinntmentSite appo_site is : " + appo_site.MicrotingSiteUid);
+                                //List<int> siteIds = new List<int>();
+                                //siteIds.Add(appo_site.MicrotingSiteUid);
                                 string resultId = sdkCore.CaseCreate(mainElement, "", appo_site.MicrotingSiteUid);
+                                log.LogEverything("Not Specified", "outlookController.foreach resultId is : " + resultId);
+                                int localCaseId = (int)sdkCore.CaseLookupMUId(resultId).CaseId;
+
+                                //string localCaseId = .First().CaseId.ToString();
                                 if (!string.IsNullOrEmpty(resultId))
                                 {
+                                    //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L649");
                                     appo_site.MicrotingUuId = resultId;
-                                    sqlController.AppointmentSiteUpdate((int)appo_site.Id, resultId, ProcessingStateOptions.Sent);
+                                    sqlController.AppointmentSiteUpdate((int)appo_site.Id, localCaseId.ToString(), ProcessingStateOptions.Sent);
                                     allGood = true;
                                 }
                                 else
                                 {
+                                    log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L656");
                                     allGood = false;
                                 }
                             }
 
                             if (allGood)
                             {
+                                //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L663");
                                 bool updateStatus = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, (DateTime)appo.Start, ProcessingStateOptions.Sent, appo.Body);
                                 if (updateStatus)
                                 {
+                                    //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L667");
                                     sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Sent, appo.Body, "", "", appo.Completed);
                                 }
                             }
                             else
                             {
-                                syncAppointmentsToSdkRunning = false;
+                                //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L673");
+                                //syncAppointmentsToSdkRunning = false;
                             }
-                        } else
-                        {
-                            Thread.Sleep(5000); // This is done, so if we don't find an appointment, we don't hammer the db
-                            // TODO find better way of solving this.
                         }
-
-                        
-
-                        log.LogEverything("Not Specified", t.GetMethodName() + " completed");
-                    }                        
-
-                    syncAppointmentsToSdkRunning = false;
+                    }
+                    else
+                    {
+                        //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L679");
+                        Thread.Sleep(5000); // This is done, so if we don't find an appointment, we don't hammer the db
+                                            // TODO find better way of solving this.
+                    }
+                    log.LogEverything("Not Specified", t.GetMethodName() + " completed");
                 }
+
+                //syncAppointmentsToSdkRunning = false;
+                //}
             }
             catch (ThreadAbortException)
             {

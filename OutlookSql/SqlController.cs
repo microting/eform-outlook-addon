@@ -261,17 +261,28 @@ namespace OutlookSql
             }
         }
 
-        public Appointment AppointmentsFindOne(ProcessingStateOptions location)
+        public Appointment AppointmentsFindOne(ProcessingStateOptions location, bool onlyNew)
         {
             try
             {
                 using (var db = GetContextO())
                 {
-                    var match = db.appointments.FirstOrDefault(x => x.processing_state == location.ToString());
+                    appointments match = null;
+                    if (onlyNew)
+                    {
+                        DateTime dt = DateTime.UtcNow.AddHours(-1);
+                        match = db.appointments.Where(x => x.start_at > dt).FirstOrDefault(x => x.processing_state == location.ToString());
+                    }
+                    else
+                    {
+                        match = db.appointments.FirstOrDefault(x => x.processing_state == location.ToString());
+                    }
+                    
                     if (match != null)
                     {
                         bool color_rule = match.color_rule == 0 ? true : false;
                         Appointment appo = new Appointment(match.global_id, (DateTime)match.start_at, (int)match.duration, match.subject, match.processing_state, match.body, color_rule, false);
+                        appo.TemplateId = (int)match.template_id;
 
                         foreach (appointment_sites appo_site in match.appointment_sites)
                         {
@@ -456,13 +467,50 @@ namespace OutlookSql
             }
         }
 
+        public Appointment AppointmentFindCaseId(string microting_uuid)
+        {
+            try
+            {
+                using (var db = GetContextO())
+                {
+                    appointment_sites _appo_site = db.appointment_sites.SingleOrDefault(x => x.microting_uuid == microting_uuid);
+
+                    if (_appo_site == null)
+                        return null;
+
+                    appointments _appo = _appo_site.appointment;
+                    Appointment appo = new Appointment(_appo.global_id, (DateTime)_appo.start_at, (int)_appo.duration, _appo.subject, _appo.processing_state, _appo.body, (_appo.color_rule == 0 ? false : true), false);
+                    AppoinntmentSite appo_site = new AppoinntmentSite((int)_appo_site.id, _appo_site.microting_site_uid, _appo_site.processing_state, _appo_site.microting_uuid);
+                    appo.AppointmentSites.Add(appo_site);
+
+                    return appo;
+                    //match.updated_at = DateTime.Now;
+                    //match.microting_uuid = microtingUuid;
+                    //match.processing_state = processingState.ToString();
+                    //match.version = match.version + 1;
+
+                    //db.appointment_site_versions.Add(MapAppointmentSiteVersions(match));
+                    //db.SaveChanges();
+
+                    //return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                return null;
+            }
+
+            return new Appointment();
+        }
+
         public bool AppointmentSiteUpdate(int id, string microtingUuid, ProcessingStateOptions processingState)
         {
             try
             {
                 using (var db = GetContextO())
                 {
-                    var match = db.appointments.SingleOrDefault(x => x.id == id);
+                    var match = db.appointment_sites.SingleOrDefault(x => x.id == id);
 
                     if (match == null)
                         return false;
@@ -472,10 +520,7 @@ namespace OutlookSql
                     match.processing_state = processingState.ToString();
                     match.version = match.version + 1;
 
-                    db.appointment_versions.Add(MapAppointmentVersions(match));
-                    db.SaveChanges();
-
-                    db.appointments.Remove(match);
+                    db.appointment_site_versions.Add(MapAppointmentSiteVersions(match));
                     db.SaveChanges();
 
                     return true;
