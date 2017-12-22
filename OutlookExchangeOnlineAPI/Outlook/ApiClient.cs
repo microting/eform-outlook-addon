@@ -21,6 +21,8 @@ namespace OutlookExchangeOnlineAPI
         public string AccessToken { get; set; }
         string serviceLocation;
         public Log log;
+        string certPath = @"cert\cert.pfx";
+        string certPass = "123qweASDZXC";
 
 
         public OutlookExchangeOnlineAPIClient(string serviceLocation, Log logger)
@@ -29,10 +31,10 @@ namespace OutlookExchangeOnlineAPI
             log = logger;
             this.serviceLocation = serviceLocation;
             ApiEndpoint = "https://outlook.office.com/api/v2.0";
-            AccessToken = GetAppToken(GetServiceLocation() + @"cert\cert.pfx", "123qweASDZXC"); //the pfx file is encrypted with this password
+            AccessToken = GetAppToken(GetServiceLocation() + certPath, certPass); //the pfx file is encrypted with this password
         }
 
-        private string GetAppToken(string certFile, string certPass)
+        public string GetAppToken(string certFile, string certPass)
         {
             string directory_id = File.ReadAllText(GetServiceLocation() + @"cert\directory_id.txt").Trim();
             application_id = File.ReadAllText(GetServiceLocation() + @"cert\application_id.txt").Trim();
@@ -126,6 +128,10 @@ namespace OutlookExchangeOnlineAPI
                                     return result;
                                 } else
                                 {
+                                    if (result.StatusCode.Equals(HttpStatusCode.Unauthorized))
+                                    {
+                                        AccessToken = GetAppToken(GetServiceLocation() + certPath, certPass); //the pfx file is encrypted with this password
+                                    }
                                     log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK or Created and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
                                     log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
                                     System.Threading.Thread.Sleep(backoffInteval * 1000);

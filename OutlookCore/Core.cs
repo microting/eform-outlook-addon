@@ -496,7 +496,7 @@ namespace OutlookCore
             if (result)
             {
                 //log.LogEverything("Not Specified", "outlookController.MarkAppointmentCompleted() L495");
-                sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Retrived, appo.Body, "", "", true);
+                sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Completed, appo.Body, "", "", true);
                 sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Completed);
                 return true;
             }
@@ -509,7 +509,7 @@ namespace OutlookCore
 
 
         #region parsing threads
-        private void            CoreThread(string sdkCoreConnectionString)
+        private void CoreThread(string sdkCoreConnectionString)
         {
             bool firstRun = true;
             coreThreadRunning = true;
@@ -517,49 +517,94 @@ namespace OutlookCore
             log.LogEverything("Not Specified", t.GetMethodName() + " initiated");
             //while (coreAvailable)
             //{
-                try
-                {
-                    //if (coreThreadRunning)
-                    //{
-                        #region warm up
-                        log.LogEverything("Not Specified", t.GetMethodName() + " initiated");
+            try
+            {
+                //if (coreThreadRunning)
+                //{
+                #region warm up
+                //log.LogEverything("Not Specified", t.GetMethodName() + " initiated");
 
-                        if (firstRun)
+                if (firstRun)
+                {
+                    //outlookController.CalendarItemConvertRecurrences();
+                    outlookOnlineController.CalendarItemConvertRecurrences();
+                    //bool 
+                    //while ()
+                    int? currentId = null;
+                    while (firstRun)
+                    {
+                        if (sdkCore == null)
                         {
-                            //outlookController.CalendarItemConvertRecurrences();
-                            outlookOnlineController.CalendarItemConvertRecurrences();
-                            firstRun = false;
-                            log.LogStandard("Not Specified", t.GetMethodName() + " warm up completed");
+                            startSdkCore(sdkCoreConnectionString);
                         }
-                        #endregion
-
-                        Thread syncOutlookConvertThread
-                            = new Thread(() => SyncOutlookConvert());
-                        syncOutlookConvertThread.Start(); // This thread takes recurring events and convert the needed ones into single events.
-
-                        Thread syncOutlookAppsThread
-                            = new Thread(() => SyncOutlookApps());
-                        syncOutlookAppsThread.Start(); // This thread takes single events and create the corresponding Appointment
-
-                        #region TODO
-                        Thread syncAppointmentsToSdk
-                            = new Thread(() => SyncAppointmentsToSdk(sdkCoreConnectionString));
-                        syncAppointmentsToSdk.Start();
-                        #endregion
-
-                        Thread.Sleep(2000);
-                    //}
-
-                    Thread.Sleep(500);
+                        log.LogEverything("Not Specified", t.GetMethodName() + " checking Appointments which are sent and currentId is now " + currentId.ToString());
+                        Appointment appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Sent, false, currentId);
+                        if (appo != null)
+                        {
+                            foreach (AppoinntmentSite appo_site in appo.AppointmentSites)
+                            {
+                                log.LogEverything("Not Specified", t.GetMethodName() + " checking appointment_site with MicrotingUuId : " + appo_site.MicrotingUuId.ToString());
+                                string result = sdkCore.CaseCheck(appo_site.MicrotingUuId);
+                                log.LogEverything("Not Specified", t.GetMethodName() + " kase IS NULL!");
+                                Case_Dto kase = sdkCore.CaseReadByCaseId(int.Parse(appo_site.MicrotingUuId));
+                                if (kase == null)
+                                {
+                                    log.LogEverything("Not Specified", t.GetMethodName() + " kase IS NULL!");
+                                    //firstRun = false;
+                                }
+                                
+                                if (kase.Stat == "Retrived")
+                                {
+                                    MarkAppointmentRetrived(kase.CaseId.ToString());
+                                }
+                                else if (kase.Stat == "Completed")
+                                {
+                                    MarkAppointmentCompleted(kase.CaseId.ToString());
+                                } else
+                                {
+                                    currentId = appo_site.Id;
+                                }
+                                //sdkCore.CaseCheck(appo_site.MicrotingUuId);
+                            }
+                            
+                        } else
+                        {
+                            firstRun = false;
+                        }
+                    }
+                    
+                    
+                    log.LogStandard("Not Specified", t.GetMethodName() + " warm up completed");
                 }
-                catch (ThreadAbortException)
-                {
-                    log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
-                }
-                catch (Exception ex)
-                {
-                    FatalExpection(t.GetMethodName() + "failed", ex);
-                }
+                #endregion
+
+                Thread syncOutlookConvertThread
+                    = new Thread(() => SyncOutlookConvert());
+                syncOutlookConvertThread.Start(); // This thread takes recurring events and convert the needed ones into single events.
+
+                Thread syncOutlookAppsThread
+                    = new Thread(() => SyncOutlookApps());
+                syncOutlookAppsThread.Start(); // This thread takes single events and create the corresponding Appointment
+
+                #region TODO
+                Thread syncAppointmentsToSdk
+                    = new Thread(() => SyncAppointmentsToSdk(sdkCoreConnectionString));
+                syncAppointmentsToSdk.Start();
+                #endregion
+
+                Thread.Sleep(2000);
+                //}
+
+                Thread.Sleep(500);
+            }
+            catch (ThreadAbortException)
+            {
+                log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
+            }
+            catch (Exception ex)
+            {
+                FatalExpection(t.GetMethodName() + "failed", ex);
+            }
             //}
             //log.LogEverything("Not Specified", t.GetMethodName() + " completed");
 
@@ -675,7 +720,7 @@ namespace OutlookCore
                 while (coreThreadRunning)
                 {
                     //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L618");
-                    Appointment appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true);
+                    Appointment appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true, null);
                     //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L620");
                     if (appo != null)
                     {
@@ -687,8 +732,12 @@ namespace OutlookCore
                         }
 
                         mainElement.Repeated = 1;
-                        mainElement.StartDate = ((DateTime)appo.Start).ToUniversalTime();
-                        mainElement.EndDate = ((DateTime)appo.End.AddDays(1)).ToUniversalTime();
+                        DateTime startDt = new DateTime(appo.Start.Year, appo.Start.Month, appo.Start.Day, 0, 0, 0);
+                        DateTime endDt = new DateTime(appo.End.AddDays(1).Year, appo.End.AddDays(1).Month, appo.End.AddDays(1).Day, 23, 59, 59);
+                        //mainElement.StartDate = ((DateTime)appo.Start).ToUniversalTime();
+                        mainElement.StartDate = startDt;
+                        //mainElement.EndDate = ((DateTime)appo.End.AddDays(1)).ToUniversalTime();
+                        mainElement.EndDate = endDt;
                         //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L629");
                         log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() StartDate is " + mainElement.StartDate);
                         log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() EndDate is " + mainElement.EndDate);
@@ -750,7 +799,6 @@ namespace OutlookCore
                     }
                     log.LogEverything("Not Specified", t.GetMethodName() + " completed");
                 }
-
                 //syncAppointmentsToSdkRunning = false;
                 //}
             }

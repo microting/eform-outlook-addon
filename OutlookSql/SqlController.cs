@@ -261,21 +261,34 @@ namespace OutlookSql
             }
         }
 
-        public Appointment AppointmentsFindOne(ProcessingStateOptions location, bool onlyNew)
+        public Appointment AppointmentsFindOne(ProcessingStateOptions location, bool onlyNew, int? idOffset)
         {
             try
             {
                 using (var db = GetContextO())
                 {
+                    db.Database.Log = (query) => log.LogEverything("Not specified", "DB query is : " + query);
                     appointments match = null;
                     if (onlyNew)
                     {
                         DateTime dt = DateTime.UtcNow.AddHours(-1);
-                        match = db.appointments.Where(x => x.start_at > dt).FirstOrDefault(x => x.processing_state == location.ToString());
+                        if (idOffset != null)
+                        {
+                            match = db.appointments.Where(x => x.start_at > dt).Where(x => x.id > idOffset).FirstOrDefault(x => x.processing_state == location.ToString());
+                        } else
+                        {
+                            match = db.appointments.Where(x => x.start_at > dt).FirstOrDefault(x => x.processing_state == location.ToString());
+                        }
                     }
                     else
                     {
-                        match = db.appointments.FirstOrDefault(x => x.processing_state == location.ToString());
+                        if (idOffset != null)
+                        {
+                            match = db.appointments.Where(x => x.id > idOffset).FirstOrDefault(x => x.processing_state == location.ToString());
+                        } else
+                        {
+                            match = db.appointments.FirstOrDefault(x => x.processing_state == location.ToString());
+                        }
                     }
                     
                     if (match != null)

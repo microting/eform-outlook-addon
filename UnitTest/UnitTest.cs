@@ -1416,7 +1416,7 @@ namespace UnitTest
                 string id = AppointmentCreate();
 
                 WaitForStat(id, ProcessingStateOptions.Created);
-                var found = sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false);
+                var found = sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false, null);
 
                 if (found != null)
                     checkValueB = "Appointment created";
@@ -1560,7 +1560,7 @@ namespace UnitTest
                 coreOut.AppointmentCancel(globalId2).ToString();
                 coreOut.AppointmentCancel(globaldId1).ToString();
 
-                if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false) == null)
+                if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false, null) == null)
                     checkValueB = "Canceled Correctly";
             }
             catch (Exception ex)
@@ -1646,7 +1646,7 @@ namespace UnitTest
                 coreOut.AppointmentDelete(globalId2).ToString();
                 coreOut.AppointmentDelete(globalId1).ToString();
 
-                if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false) == null)
+                if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false, null) == null)
                     checkValueB = "Deleted Correctly";
             }
             catch (Exception ex)
@@ -1672,16 +1672,16 @@ namespace UnitTest
             if (sqlController.AppointmentsFindOne(3) != null) returnValue += "3";
             if (sqlController.AppointmentsFindOne(4) != null) returnValue += "4";
 
-            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Canceled, false) != null) returnValue += "Canceled";
-            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Completed, false) != null) returnValue += "Completed";
-            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false) != null) returnValue += "Created";
-            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Exception, false) != null) returnValue += "Exception";
-            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.ParsingFailed, false) != null) returnValue += "Failed_to_intrepid";
-            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Planned, false) != null) returnValue += "Planned";
-            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, false) != null) returnValue += "Processed";
-            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Retrived, false) != null) returnValue += "Retrived";
-            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Revoked, false) != null) returnValue += "Revoked";
-            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Sent, false) != null) returnValue += "Sent";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Canceled, false, null) != null) returnValue += "Canceled";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Completed, false, null) != null) returnValue += "Completed";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false, null) != null) returnValue += "Created";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Exception, false, null) != null) returnValue += "Exception";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.ParsingFailed, false, null) != null) returnValue += "Failed_to_intrepid";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Planned, false, null) != null) returnValue += "Planned";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, false, null) != null) returnValue += "Processed";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Retrived, false, null) != null) returnValue += "Retrived";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Revoked, false, null) != null) returnValue += "Revoked";
+            if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Sent, false, null) != null) returnValue += "Sent";
 
             return returnValue;
         }
