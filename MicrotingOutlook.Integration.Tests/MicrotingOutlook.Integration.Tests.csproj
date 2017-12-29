@@ -107,21 +107,9 @@
     <Analyzer Include="..\packages\AWSSDK.SQS.3.3.3\analyzers\dotnet\cs\AWSSDK.SQS.CodeAnalysis.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OutlookCore\OutlookCore.csproj">
+    <ProjectReference Include="..\OutlookCore\Microting.OutlookAddon.csproj">
       <Project>{448169a7-ab54-4dce-b30a-739c82e49f0c}</Project>
-      <Name>OutlookCore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OutlookExchangeOnlineAPI\OutlookExchangeOnlineAPI.csproj">
-      <Project>{1552369f-ec3d-486d-8f78-847af459a5b6}</Project>
-      <Name>OutlookExchangeOnlineAPI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OutlookOfficeOnline\OutlookOfficeOnline.csproj">
-      <Project>{de4fcf29-8dc3-4f96-9122-e2c8e58f37b8}</Project>
-      <Name>OutlookOfficeOnline</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OutlookSql\OutlookSql.csproj">
-      <Project>{15d8bc36-5bff-4bbb-9e3b-7f19cdc0f1f1}</Project>
-      <Name>OutlookSql</Name>
+      <Name>Microting.OutlookAddon</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

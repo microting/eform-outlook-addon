@@ -1,34 +1,35 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DE4FCF29-8DC3-4F96-9122-E2C8E58F37B8}</ProjectGuid>
+    <ProjectGuid>{448169A7-AB54-4DCE-B30A-739C82E49F0C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OutlookOfficeOnline</RootNamespace>
-    <AssemblyName>OutlookOfficeOnline</AssemblyName>
+    <RootNamespace>Microting.OutlookAddon</RootNamespace>
+    <AssemblyName>Microting.OutlookAddon</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\Compiled\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -55,12 +56,20 @@
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="EPPlus, Version=4.1.1.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
       <HintPath>..\packages\EPPlus.4.1.1\lib\net40\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory, Version=3.17.3.35304, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Clients.ActiveDirectory.3.17.3\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory.Platform, Version=3.17.3.35304, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Clients.ActiveDirectory.3.17.3\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -68,9 +77,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Outlook, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>..\packages\Microsoft.Office.Interop.Outlook.15.0.4797.1003\lib\net20\Microsoft.Office.Interop.Outlook.dll</HintPath>
-      <Private>True</Private>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microting.eForm, Version=1.6.4.19, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\Microting.eForm.2.0.7\lib\net45\Microting.eForm.dll</HintPath>
@@ -83,6 +91,7 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Rebus, Version=4.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Rebus.4.2.1\lib\net45\Rebus.dll</HintPath>
@@ -106,27 +115,56 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IOutlookOnlineController.cs" />
-    <Compile Include="OutlookOnlineController.cs" />
-    <Compile Include="OutlookOnlineController_Fake.cs" />
+    <Compile Include="Core.cs" />
+    <Compile Include="CoreUnitTest.cs" />
+    <Compile Include="OfficeApi\ApiClient.cs" />
+    <Compile Include="OfficeApi\Calendar.cs" />
+    <Compile Include="OfficeApi\EmailAddress.cs" />
+    <Compile Include="OfficeApi\Error.cs" />
+    <Compile Include="OfficeApi\Event.cs" />
+    <Compile Include="OfficeApi\ItemCollection.cs" />
+    <Compile Include="Persistence\AppoinntmentSite.cs" />
+    <Compile Include="Persistence\Appointment.cs" />
+    <Compile Include="Persistence\Migrations\201712151252232_InitialDb.cs" />
+    <Compile Include="Persistence\Migrations\201712151252232_InitialDb.Designer.cs">
+      <DependentUpon>201712151252232_InitialDb.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Persistence\Migrations\Configuration.cs" />
+    <Compile Include="Persistence\OutlookContextInterface.cs" />
+    <Compile Include="Persistence\OutlookDbMs.cs" />
+    <Compile Include="Persistence\OutlookDbMy.cs" />
+    <Compile Include="Persistence\SqlController.cs" />
+    <Compile Include="Persistence\table\appointments.cs" />
+    <Compile Include="Persistence\table\appointment_sites.cs" />
+    <Compile Include="Persistence\table\appointment_site_versions.cs" />
+    <Compile Include="Persistence\table\appointment_versions.cs" />
+    <Compile Include="Persistence\table\logs.cs" />
+    <Compile Include="Persistence\table\log_exceptions.cs" />
+    <Compile Include="Persistence\table\settings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IOutlookOnlineController.cs" />
+    <Compile Include="Services\OutlookOnlineController.cs" />
+    <Compile Include="Services\OutlookOnlineController_Fake.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OutlookExchangeOnlineAPI\OutlookExchangeOnlineAPI.csproj">
-      <Project>{1552369f-ec3d-486d-8f78-847af459a5b6}</Project>
-      <Name>OutlookExchangeOnlineAPI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OutlookSql\OutlookSql.csproj">
-      <Project>{15d8bc36-5bff-4bbb-9e3b-7f19cdc0f1f1}</Project>
-      <Name>OutlookSql</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\AWSSDK.SQS.3.3.3\analyzers\dotnet\cs\AWSSDK.SQS.CodeAnalysis.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Persistence\Migrations\201712151252232_InitialDb.resx">
+      <DependentUpon>201712151252232_InitialDb.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
 </Project>

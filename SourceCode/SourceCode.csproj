@@ -116,9 +116,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OutlookCore\OutlookCore.csproj">
+    <ProjectReference Include="..\OutlookCore\Microting.OutlookAddon.csproj">
       <Project>{448169A7-AB54-4DCE-B30A-739C82E49F0C}</Project>
-      <Name>OutlookCore</Name>
+      <Name>Microting.OutlookAddon</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
