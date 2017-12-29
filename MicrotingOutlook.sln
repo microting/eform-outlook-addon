@@ -15,6 +15,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookExchangeOnlineAPI", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookOfficeOnline", "OutlookOfficeOnline\OutlookOfficeOnline.csproj", "{DE4FCF29-8DC3-4F96-9122-E2C8E58F37B8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{B4EFFB62-5422-4286-B735-F1ED434E855C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicrotingOutlook.Tests", "MicrotingOutlook.Tests\MicrotingOutlook.Tests.csproj", "{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicrotingOutlook.Integration.Tests", "MicrotingOutlook.Integration.Tests\MicrotingOutlook.Integration.Tests.csproj", "{00FC3C77-FE0C-432A-8C7D-8AE57F383AF1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DevOps", "DevOps", "{D5C812F9-2BA2-4847-9DB6-64838519E14A}"
+	ProjectSection(SolutionItems) = preProject
+		CodeCoverage.runsettings = CodeCoverage.runsettings
+		TestSettings.runsettings = TestSettings.runsettings
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,9 +77,29 @@ Global
 		{DE4FCF29-8DC3-4F96-9122-E2C8E58F37B8}.Release|Any CPU.ActiveCfg = Release|x64
 		{DE4FCF29-8DC3-4F96-9122-E2C8E58F37B8}.Release|x64.ActiveCfg = Release|x64
 		{DE4FCF29-8DC3-4F96-9122-E2C8E58F37B8}.Release|x64.Build.0 = Release|x64
+		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}.Debug|x64.Build.0 = Debug|Any CPU
+		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}.Release|x64.ActiveCfg = Release|Any CPU
+		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}.Release|x64.Build.0 = Release|Any CPU
+		{00FC3C77-FE0C-432A-8C7D-8AE57F383AF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00FC3C77-FE0C-432A-8C7D-8AE57F383AF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00FC3C77-FE0C-432A-8C7D-8AE57F383AF1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{00FC3C77-FE0C-432A-8C7D-8AE57F383AF1}.Debug|x64.Build.0 = Debug|Any CPU
+		{00FC3C77-FE0C-432A-8C7D-8AE57F383AF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00FC3C77-FE0C-432A-8C7D-8AE57F383AF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00FC3C77-FE0C-432A-8C7D-8AE57F383AF1}.Release|x64.ActiveCfg = Release|Any CPU
+		{00FC3C77-FE0C-432A-8C7D-8AE57F383AF1}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD} = {B4EFFB62-5422-4286-B735-F1ED434E855C}
+		{00FC3C77-FE0C-432A-8C7D-8AE57F383AF1} = {B4EFFB62-5422-4286-B735-F1ED434E855C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B4CEF9C1-0D9F-4AE4-9CEE-E81F2077B5CC}
