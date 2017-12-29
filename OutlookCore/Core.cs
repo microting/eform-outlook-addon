@@ -544,8 +544,8 @@ namespace OutlookCore
                             foreach (AppoinntmentSite appo_site in appo.AppointmentSites)
                             {
                                 log.LogEverything("Not Specified", t.GetMethodName() + " checking appointment_site with MicrotingUuId : " + appo_site.MicrotingUuId.ToString());
-                                string result = sdkCore.CaseCheck(appo_site.MicrotingUuId);
-                                log.LogEverything("Not Specified", t.GetMethodName() + " kase IS NULL!");
+                                //string result = sdkCore.CaseCheck(appo_site.MicrotingUuId);
+                                //log.LogEverything("Not Specified", t.GetMethodName() + " kase IS NULL!");
                                 Case_Dto kase = sdkCore.CaseReadByCaseId(int.Parse(appo_site.MicrotingUuId));
                                 if (kase == null)
                                 {
