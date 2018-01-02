@@ -215,6 +215,21 @@ namespace OutlookExchangeOnlineAPI
             return result;
         }
 
+        public Event GetEvent(string globalId, string userEmail)
+        {
+            string requestUrl = String.Format("/users/{0}/events/{1}", userEmail, globalId);
+            HttpResponseMessage result = MakeApiCall("GET", requestUrl, userEmail, null, null);
+            string response = result.Content.ReadAsStringAsync().Result;
+            if (response.Contains("odata"))
+            {
+                return JsonConvert.DeserializeObject<Event>(response);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public Event UpdateEvent(string userEmail, string EventID, string update)
         {
             string requestUrl = String.Format("/users/{0}/events/{1}", userEmail, EventID);

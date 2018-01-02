@@ -454,7 +454,11 @@ namespace OutlookOfficeOnline
         public bool CalendarItemUpdate(string globalId, DateTime start, ProcessingStateOptions workflowState, string body)
         {
             log.LogStandard("Not Specified", "CalendarItemUpdate incoming start is : " + start.ToString());
-            Event item = AppointmentItemFind(globalId, start.AddHours(-36), start.AddHours(36)); // TODO!
+            //Event item = AppointmentItemFind(globalId, start.AddHours(-36), start.AddHours(36)); // TODO!
+            Event item = GetEvent(globalId);
+
+            if (item == null)
+                return false;
 
             item.BodyPreview = body;
             item.Location.DisplayName = workflowState.ToString();
@@ -534,6 +538,22 @@ namespace OutlookOfficeOnline
             log.LogVariable("Not Specified", nameof(dTime), dTime);
             return dTime;
         }
+
+        private Event GetEvent(string globalId)
+        {
+            try
+            {
+                log.LogEverything("Not Specified", "OutlookOnlineController.GetEvent called");
+                userEmailAddess = GetUserEmailAddress();
+                return outlookExchangeOnlineAPIClient.GetEvent(userEmailAddess, globalId);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(t.GetMethodName() + " failed. Due to no match found global id:" + globalId, ex);
+            }
+        }
+
         private Event AppointmentItemFind(string globalId, DateTime tLimitFrom, DateTime tLimitTo)
         {
             try
