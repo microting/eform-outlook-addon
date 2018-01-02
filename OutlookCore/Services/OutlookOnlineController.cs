@@ -455,7 +455,9 @@ namespace OutlookOfficeOnline
         {
             log.LogStandard("Not Specified", "CalendarItemUpdate incoming start is : " + start.ToString());
             //Event item = AppointmentItemFind(globalId, start.AddHours(-36), start.AddHours(36)); // TODO!
-            Event item = GetEvent(globalId);
+            //Event item = GetEvent(globalId);
+            userEmailAddess = GetUserEmailAddress();
+            Event item = outlookExchangeOnlineAPIClient.GetEvent(userEmailAddess, globalId);
 
             if (item == null)
                 return false;

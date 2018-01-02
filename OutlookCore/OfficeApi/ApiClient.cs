@@ -224,6 +224,7 @@ namespace OutlookExchangeOnlineAPI
             string requestUrl = String.Format("/users/{0}/events/{1}", userEmail, globalId);
             HttpResponseMessage result = MakeApiCall("GET", requestUrl, userEmail, null, null);
             string response = result.Content.ReadAsStringAsync().Result;
+            log.LogEverything("Not Specified", "ApiClient.GetEvent response is " + response);
             if (response.Contains("odata"))
             {
                 return JsonConvert.DeserializeObject<Event>(response);
