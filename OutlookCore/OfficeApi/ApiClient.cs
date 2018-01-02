@@ -132,6 +132,10 @@ namespace OutlookExchangeOnlineAPI
                                     {
                                         AccessToken = GetAppToken(GetServiceLocation() + certPath, certPass); //the pfx file is encrypted with this password
                                     }
+                                    if (result.StatusCode.Equals(HttpStatusCode.NotFound))
+                                    {
+                                        return null;
+                                    }
                                     log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK or Created and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
                                     log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
                                     System.Threading.Thread.Sleep(backoffInteval * 1000);
