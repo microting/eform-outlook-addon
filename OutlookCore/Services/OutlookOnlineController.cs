@@ -454,6 +454,7 @@ namespace OutlookOfficeOnline
         public bool CalendarItemUpdate(string globalId, DateTime start, ProcessingStateOptions workflowState, string body)
         {
             log.LogStandard("Not Specified", "CalendarItemUpdate incoming start is : " + start.ToString());
+            log.LogStandard("Not Specified", "CalendarItemUpdate incoming globalId is : " + globalId);
             //Event item = AppointmentItemFind(globalId, start.AddHours(-36), start.AddHours(36)); // TODO!
             //Event item = GetEvent(globalId);
             //userEmailAddess = GetUserEmailAddress();

@@ -221,6 +221,8 @@ namespace OutlookExchangeOnlineAPI
 
         public Event GetEvent(string globalId, string userEmail)
         {
+            log.LogEverything("Not Specified", "ApiClient.GetEvent globalId is " + globalId);
+            log.LogEverything("Not Specified", "ApiClient.GetEvent userEmail is " + userEmail);
             string requestUrl = String.Format("/users/{0}/events/{1}", userEmail, globalId);
             HttpResponseMessage result = MakeApiCall("GET", requestUrl, userEmail, null, null);
             string response = result.Content.ReadAsStringAsync().Result;
