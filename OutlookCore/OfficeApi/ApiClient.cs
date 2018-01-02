@@ -232,7 +232,10 @@ namespace OutlookExchangeOnlineAPI
                 return JsonConvert.DeserializeObject<Event>(response);
             }
             else
-            {
+            { if (response.Contains("error"))
+                {
+                    throw new Exception("Item not found");
+                }
                 return null;
             }
         }

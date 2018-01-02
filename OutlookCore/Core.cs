@@ -473,7 +473,18 @@ namespace OutlookCore
             //log.LogEverything("Not Specified", "outlookController.MarkAppointmentRetrived() L471");
             //log.LogEverything("Not Specified", "outlookController.MarkAppointmentRetrived() L471 caseId is " + caseId);
             Appointment appo = sqlController.AppointmentFindCaseId(caseId);
-            bool result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Retrived, appo.Body);
+            bool result = false;
+            try
+            {
+                result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Retrived, appo.Body);
+            } catch (Exception ex)
+            {
+                if (ex.Message.Equals("Item not found"))
+                {
+                    result = true;
+                }
+            }
+
             if (result)
             {
                 //log.LogEverything("Not Specified", "outlookController.MarkAppointmentRetrived() L476");
@@ -492,7 +503,20 @@ namespace OutlookCore
         {
             //log.LogEverything("Not Specified", "outlookController.MarkAppointmentCompleted() L490");
             Appointment appo = sqlController.AppointmentFindCaseId(caseId);
-            bool result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Completed, appo.Body);
+            bool result = false;
+
+            //bool result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Completed, appo.Body);
+            try
+            {
+                result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Completed, appo.Body);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Equals("Item not found"))
+                {
+                    result = true;
+                }
+            }
             if (result)
             {
                 //log.LogEverything("Not Specified", "outlookController.MarkAppointmentCompleted() L495");
