@@ -134,7 +134,7 @@ namespace OutlookExchangeOnlineAPI
                                     }
                                     if (result.StatusCode.Equals(HttpStatusCode.NotFound))
                                     {
-                                        return null;
+                                        return result;
                                     }
                                     log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK or Created and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
                                     log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
