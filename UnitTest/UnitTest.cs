@@ -629,79 +629,79 @@ namespace UnitTest
             }
         }
 
-        [Fact]
-        public void Test002_SqlController_4c_AppointmentsFindOne_Updated()
-        {
-            lock (_lockTest)
-            {
-                //Arrange
-                TestPrepare(t.GetMethodName(), false, false);
-                string checkValueA = "0CompletedCreated";
-                string checkValueB = "Not the right reply";
+        //[Fact]
+        //public void Test002_SqlController_4c_AppointmentsFindOne_Updated()
+        //{
+        //    lock (_lockTest)
+        //    {
+        //        //Arrange
+        //        TestPrepare(t.GetMethodName(), false, false);
+        //        string checkValueA = "0CompletedCreated";
+        //        string checkValueB = "Not the right reply";
 
-                //Act
-                sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false));
-                sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false));
-                sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false));
+        //        //Act
+        //        sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false));
+        //        sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false));
+        //        sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false));
 
-                sqlController.AppointmentsUpdate("globalId1", ProcessingStateOptions.Created, null, "", "", false);
-                sqlController.AppointmentsUpdate("globalId2", ProcessingStateOptions.Created, null, "", "", false);
-                sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Created, null, "", "", false);
+        //        sqlController.AppointmentsUpdate("globalId1", ProcessingStateOptions.Created, null, "", "", false);
+        //        sqlController.AppointmentsUpdate("globalId2", ProcessingStateOptions.Created, null, "", "", false);
+        //        sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Created, null, "", "", false);
 
-                sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Completed, null, "", "", false);
+        //        sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Completed, null, "", "", false);
 
-                checkValueB = AppointmentsFindAll();
+        //        checkValueB = AppointmentsFindAll();
 
-                //Assert
-                TestTeardown();
-                Assert.Equal(checkValueA, checkValueB);
-            }
-        }
+        //        //Assert
+        //        TestTeardown();
+        //        Assert.Equal(checkValueA, checkValueB);
+        //    }
+        //}
 
-        [Fact]
-        public void Test002_SqlController_4d_AppointmentsFindOne_Reflected()
-        {
-            lock (_lockTest)
-            {
-                //Arrange
-                TestPrepare(t.GetMethodName(), false, false);
-                string checkValueA1 = "01Created";
-                string checkValueA2 = "012CanceledRetrivedSent";
-                string checkValueB1 = "Not the right reply";
-                string checkValueB2 = "Not the right reply";
+        //[Fact]
+        //public void Test002_SqlController_4d_AppointmentsFindOne_Reflected()
+        //{
+        //    lock (_lockTest)
+        //    {
+        //        //Arrange
+        //        TestPrepare(t.GetMethodName(), false, false);
+        //        string checkValueA1 = "01Created";
+        //        string checkValueA2 = "012CanceledRetrivedSent";
+        //        string checkValueB1 = "Not the right reply";
+        //        string checkValueB2 = "Not the right reply";
 
-                //Act
-                sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false));
-                sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false));
-                sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false));
+        //        //Act
+        //        sqlController.AppointmentsCreate(new Appointment("globalId1", DateTime.Now, 30, "Test", "Planned", "body1", false, false));
+        //        sqlController.AppointmentsCreate(new Appointment("globalId2", DateTime.Now, 30, "Test", "Planned", "body2", false, false));
+        //        sqlController.AppointmentsCreate(new Appointment("globalId3", DateTime.Now, 30, "Test", "Planned", "body3", false, false));
 
-                sqlController.AppointmentsUpdate("globalId1", ProcessingStateOptions.Created, null, "", "", false);
-                sqlController.AppointmentsUpdate("globalId2", ProcessingStateOptions.Created, null, "", "", false);
-                sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Created, null, "", "", false);
+        //        sqlController.AppointmentsUpdate("globalId1", ProcessingStateOptions.Created, null, "", "", false);
+        //        sqlController.AppointmentsUpdate("globalId2", ProcessingStateOptions.Created, null, "", "", false);
+        //        sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Created, null, "", "", false);
 
-                sqlController.AppointmentsReflected("globalId1");
-                sqlController.AppointmentsReflected("globalId3");
+        //        sqlController.AppointmentsReflected("globalId1");
+        //        sqlController.AppointmentsReflected("globalId3");
 
-                checkValueB1 = AppointmentsFindAll();
+        //        checkValueB1 = AppointmentsFindAll();
 
-                sqlController.AppointmentsUpdate("globalId1", ProcessingStateOptions.Sent, null, "", "", false);
-                sqlController.AppointmentsUpdate("globalId2", ProcessingStateOptions.Retrived, null, "", "", false);
-                sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Canceled, null, "", "", false);
+        //        sqlController.AppointmentsUpdate("globalId1", ProcessingStateOptions.Sent, null, "", "", false);
+        //        sqlController.AppointmentsUpdate("globalId2", ProcessingStateOptions.Retrived, null, "", "", false);
+        //        sqlController.AppointmentsUpdate("globalId3", ProcessingStateOptions.Canceled, null, "", "", false);
 
-                sqlController.AppointmentsReflected("globalId1");
-                sqlController.AppointmentsReflected("globalId3");
-                sqlController.AppointmentsReflected("globalId3");
-                sqlController.AppointmentsReflected("globalId3");
-                sqlController.AppointmentsReflected("globalId3");
+        //        sqlController.AppointmentsReflected("globalId1");
+        //        sqlController.AppointmentsReflected("globalId3");
+        //        sqlController.AppointmentsReflected("globalId3");
+        //        sqlController.AppointmentsReflected("globalId3");
+        //        sqlController.AppointmentsReflected("globalId3");
 
-                checkValueB2 = AppointmentsFindAll();
+        //        checkValueB2 = AppointmentsFindAll();
 
-                //Assert
-                TestTeardown();
-                Assert.Equal(checkValueA1, checkValueB1);
-                Assert.Equal(checkValueA2, checkValueB2);
-            }
-        }
+        //        //Assert
+        //        TestTeardown();
+        //        Assert.Equal(checkValueA1, checkValueB1);
+        //        Assert.Equal(checkValueA2, checkValueB2);
+        //    }
+        //}
         #endregion        
 
         #region - test 004x - sqlController (SDK)
@@ -1502,178 +1502,178 @@ namespace UnitTest
             Assert.Equal(checkValueA, checkValueB);
         }
 
-        [Fact]
-        public void Test008_Core_3a_AppointmentCancel_NoMatch()
-        {
-            //Arrange
-            TestPrepare(t.GetMethodName(), true, true);
-            string checkValueA = "No match";
-            string checkValueB = "Match - where there should be none";
+        //[Fact]
+        //public void Test008_Core_3a_AppointmentCancel_NoMatch()
+        //{
+        //    //Arrange
+        //    TestPrepare(t.GetMethodName(), true, true);
+        //    string checkValueA = "No match";
+        //    string checkValueB = "Match - where there should be none";
 
-            //Act
-            try
-            {
-                string globalId = AppointmentCreate();
-                WaitForStat(globalId, ProcessingStateOptions.Created);
+        //    //Act
+        //    try
+        //    {
+        //        string globalId = AppointmentCreate();
+        //        WaitForStat(globalId, ProcessingStateOptions.Created);
 
-                if (coreOut.AppointmentCancel(globalId + 42) == null) //wrong id
-                    checkValueB = "No match";
-            }
-            catch (Exception ex)
-            {
-                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
-            }
+        //        if (coreOut.AppointmentCancel(globalId + 42) == null) //wrong id
+        //            checkValueB = "No match";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+        //    }
 
-            //Assert
-            TestTeardown();
-            Assert.Equal(checkValueA, checkValueB);
-        }
+        //    //Assert
+        //    TestTeardown();
+        //    Assert.Equal(checkValueA, checkValueB);
+        //}
 
-        [Fact]
-        public void Test008_Core_3b_AppointmentCancel_Simple()
-        {
-            //Arrange
-            TestPrepare(t.GetMethodName(), true, true);
-            string checkValueA = "True";
-            string checkValueB = "";
+        //[Fact]
+        //public void Test008_Core_3b_AppointmentCancel_Simple()
+        //{
+        //    //Arrange
+        //    TestPrepare(t.GetMethodName(), true, true);
+        //    string checkValueA = "True";
+        //    string checkValueB = "";
 
-            //Act
-            try
-            {
-                string globalId = AppointmentCreate();
-                WaitForStat(globalId, ProcessingStateOptions.Created);
+        //    //Act
+        //    try
+        //    {
+        //        string globalId = AppointmentCreate();
+        //        WaitForStat(globalId, ProcessingStateOptions.Created);
 
-                checkValueB = coreOut.AppointmentCancel(globalId).ToString();
-            }
-            catch (Exception ex)
-            {
-                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
-            }
+        //        checkValueB = coreOut.AppointmentCancel(globalId).ToString();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+        //    }
 
-            //Assert
-            TestTeardown();
-            Assert.Equal(checkValueA, checkValueB);
-        }
+        //    //Assert
+        //    TestTeardown();
+        //    Assert.Equal(checkValueA, checkValueB);
+        //}
 
-        [Fact]
-        public void Test008_Core_3c_AppointmentCancel_Advanced()
-        {
-            //Arrange
-            TestPrepare(t.GetMethodName(), true, true);
-            string checkValueA = "Canceled Correctly";
-            string checkValueB = "Failed";
+        //[Fact]
+        //public void Test008_Core_3c_AppointmentCancel_Advanced()
+        //{
+        //    //Arrange
+        //    TestPrepare(t.GetMethodName(), true, true);
+        //    string checkValueA = "Canceled Correctly";
+        //    string checkValueB = "Failed";
 
-            //Act
-            try
-            {
-                string globaldId1 = AppointmentCreate();
-                string globalId2 = AppointmentCreate();
+        //    //Act
+        //    try
+        //    {
+        //        string globaldId1 = AppointmentCreate();
+        //        string globalId2 = AppointmentCreate();
 
-                WaitForStat(globalId2, ProcessingStateOptions.Created);
-                WaitForStat(globaldId1, ProcessingStateOptions.Created);
+        //        WaitForStat(globalId2, ProcessingStateOptions.Created);
+        //        WaitForStat(globaldId1, ProcessingStateOptions.Created);
 
-                coreOut.AppointmentCancel(globalId2).ToString();
-                coreOut.AppointmentCancel(globaldId1).ToString();
+        //        coreOut.AppointmentCancel(globalId2).ToString();
+        //        coreOut.AppointmentCancel(globaldId1).ToString();
 
-                if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false, null) == null)
-                    checkValueB = "Canceled Correctly";
-            }
-            catch (Exception ex)
-            {
-                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
-            }
+        //        if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false, null) == null)
+        //            checkValueB = "Canceled Correctly";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+        //    }
 
-            //Assert
-            TestTeardown();
-            Assert.Equal(checkValueA, checkValueB);
-        }
+        //    //Assert
+        //    TestTeardown();
+        //    Assert.Equal(checkValueA, checkValueB);
+        //}
 
-        [Fact]
-        public void Test008_Core_4a_AppointmentDelete_NoMatch()
-        {
-            //Arrange
-            TestPrepare(t.GetMethodName(), true, true);
-            string checkValueA = "No match";
-            string checkValueB = "Match - where there should be none";
+        //[Fact]
+        //public void Test008_Core_4a_AppointmentDelete_NoMatch()
+        //{
+        //    //Arrange
+        //    TestPrepare(t.GetMethodName(), true, true);
+        //    string checkValueA = "No match";
+        //    string checkValueB = "Match - where there should be none";
 
-            //Act
-            try
-            {
-                string globalId = AppointmentCreate();
-                WaitForStat(globalId, ProcessingStateOptions.Created);
+        //    //Act
+        //    try
+        //    {
+        //        string globalId = AppointmentCreate();
+        //        WaitForStat(globalId, ProcessingStateOptions.Created);
 
-                if (coreOut.AppointmentDelete(globalId + 42) == null) //wrong id
-                    checkValueB = "No match";
-            }
-            catch (Exception ex)
-            {
-                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
-            }
+        //        if (coreOut.AppointmentDelete(globalId + 42) == null) //wrong id
+        //            checkValueB = "No match";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+        //    }
 
-            //Assert
-            TestTeardown();
-            Assert.Equal(checkValueA, checkValueB);
-        }
+        //    //Assert
+        //    TestTeardown();
+        //    Assert.Equal(checkValueA, checkValueB);
+        //}
 
-        [Fact]
-        public void Test008_Core_4b_AppointmentDelete_Simple()
-        {
-            //Arrange
-            TestPrepare(t.GetMethodName(), true, true);
-            string checkValueA = "True";
-            string checkValueB = "";
+        //[Fact]
+        //public void Test008_Core_4b_AppointmentDelete_Simple()
+        //{
+        //    //Arrange
+        //    TestPrepare(t.GetMethodName(), true, true);
+        //    string checkValueA = "True";
+        //    string checkValueB = "";
 
-            //Act
-            try
-            {
-                string globaldId = AppointmentCreate();
-                WaitForStat(globaldId, ProcessingStateOptions.Created);
+        //    //Act
+        //    try
+        //    {
+        //        string globaldId = AppointmentCreate();
+        //        WaitForStat(globaldId, ProcessingStateOptions.Created);
 
-                checkValueB = coreOut.AppointmentDelete(globaldId).ToString();
-            }
-            catch (Exception ex)
-            {
-                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
-            }
+        //        checkValueB = coreOut.AppointmentDelete(globaldId).ToString();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+        //    }
 
-            //Assert
-            TestTeardown();
-            Assert.Equal(checkValueA, checkValueB);
-        }
+        //    //Assert
+        //    TestTeardown();
+        //    Assert.Equal(checkValueA, checkValueB);
+        //}
 
-        [Fact]
-        public void Test008_Core_4c_AppointmentDelete_Advanced()
-        {
-            //Arrange
-            TestPrepare(t.GetMethodName(), true, true);
-            string checkValueA = "Deleted Correctly";
-            string checkValueB = "Failed";
+        //[Fact]
+        //public void Test008_Core_4c_AppointmentDelete_Advanced()
+        //{
+        //    //Arrange
+        //    TestPrepare(t.GetMethodName(), true, true);
+        //    string checkValueA = "Deleted Correctly";
+        //    string checkValueB = "Failed";
 
-            //Act
-            try
-            {
-                string globalId1 = AppointmentCreate();
-                string globalId2 = AppointmentCreate();
+        //    //Act
+        //    try
+        //    {
+        //        string globalId1 = AppointmentCreate();
+        //        string globalId2 = AppointmentCreate();
 
-                WaitForStat(globalId2, ProcessingStateOptions.Created);
-                WaitForStat(globalId1, ProcessingStateOptions.Created);
+        //        WaitForStat(globalId2, ProcessingStateOptions.Created);
+        //        WaitForStat(globalId1, ProcessingStateOptions.Created);
 
-                coreOut.AppointmentDelete(globalId2).ToString();
-                coreOut.AppointmentDelete(globalId1).ToString();
+        //        coreOut.AppointmentDelete(globalId2).ToString();
+        //        coreOut.AppointmentDelete(globalId1).ToString();
 
-                if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false, null) == null)
-                    checkValueB = "Deleted Correctly";
-            }
-            catch (Exception ex)
-            {
-                checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
-                Console.WriteLine(checkValueB);
-            }
+        //        if (sqlController.AppointmentsFindOne(ProcessingStateOptions.Created, false, null) == null)
+        //            checkValueB = "Deleted Correctly";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        checkValueB = t.PrintException(t.GetMethodName() + " failed", ex);
+        //        Console.WriteLine(checkValueB);
+        //    }
 
-            //Assert
-            TestTeardown();
-            Assert.Equal(checkValueA, checkValueB);
-        }
+        //    //Assert
+        //    TestTeardown();
+        //    Assert.Equal(checkValueA, checkValueB);
+        //}
         #endregion
 
         #region private

@@ -336,7 +336,7 @@ namespace OutlookSql
             }
         }
 
-        public bool AppointmentsUpdate(string globalId, ProcessingStateOptions processingState, string body, string expectionString, string response, bool completed)
+        public bool AppointmentsUpdate(string globalId, ProcessingStateOptions processingState, string body, string expectionString, string response, bool completed, DateTime start_at, DateTime expire_at, int durateion)
         {
             log.LogEverything("Not Specified", "AppointmentsUpdate called and globalId is " + globalId);
 

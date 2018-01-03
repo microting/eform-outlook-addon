@@ -413,60 +413,60 @@ namespace OutlookCore
         /// <summary>
         /// No summary
         /// </summary>
-        public bool? AppointmentCancel(string globalId)
-        {
-            try
-            {
-                log.LogStandard("Not Specified", t.GetMethodName() + " called");
-                log.LogVariable("Not Specified", nameof(globalId), globalId);
+        //public bool? AppointmentCancel(string globalId)
+        //{
+        //    try
+        //    {
+        //        log.LogStandard("Not Specified", t.GetMethodName() + " called");
+        //        log.LogVariable("Not Specified", nameof(globalId), globalId);
 
-                var appo = sqlController.AppointmentsFind(globalId);
-                if (appo == null)
-                {
-                    log.LogStandard("Not Specified", "No match found");
-                    return null;
-                }
+        //        var appo = sqlController.AppointmentsFind(globalId);
+        //        if (appo == null)
+        //        {
+        //            log.LogStandard("Not Specified", "No match found");
+        //            return null;
+        //        }
 
-                return sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Canceled, appo.Body, null, null, appo.Completed);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //        return sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Canceled, appo.Body, null, null, appo.Completed);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
         /// <summary>
         /// No summary
         /// </summary>
-        public bool? AppointmentDelete(string globalId)
-        {
-            try
-            {
-                log.LogStandard("Not Specified", t.GetMethodName() + " called");
-                log.LogVariable("Not Specified", nameof(globalId), globalId);
+        //public bool? AppointmentDelete(string globalId)
+        //{
+        //    try
+        //    {
+        //        log.LogStandard("Not Specified", t.GetMethodName() + " called");
+        //        log.LogVariable("Not Specified", nameof(globalId), globalId);
 
-                var appo = sqlController.AppointmentsFind(globalId);
-                if (appo == null)
-                {
-                    log.LogStandard("Not Specified", "No match found");
-                    return null;
-                }
+        //        var appo = sqlController.AppointmentsFind(globalId);
+        //        if (appo == null)
+        //        {
+        //            log.LogStandard("Not Specified", "No match found");
+        //            return null;
+        //        }
 
-                if (outlookOnlineController.CalendarItemDelete(appo.GlobalId))
-                    return sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Canceled, appo.Body, null, null, appo.Completed);
-                else
-                    return false;
+        //        if (outlookOnlineController.CalendarItemDelete(appo.GlobalId))
+        //            return sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Canceled, appo.Body, null, null, appo.Completed);
+        //        else
+        //            return false;
 
-                //if (outlookController.CalendarItemDelete(appo.global_id, (DateTime)appo.start_at))
-                //    return sqlController.AppointmentsUpdate(appo.global_id, LocationOptions.Canceled, appo.body, null, null);
-                //else
-                //    return false;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //        //if (outlookController.CalendarItemDelete(appo.global_id, (DateTime)appo.start_at))
+        //        //    return sqlController.AppointmentsUpdate(appo.global_id, LocationOptions.Canceled, appo.body, null, null);
+        //        //else
+        //        //    return false;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
         public bool MarkAppointmentRetrived(string caseId)
         {
@@ -489,7 +489,7 @@ namespace OutlookCore
             if (result)
             {
                 //log.LogEverything("Not Specified", "outlookController.MarkAppointmentRetrived() L476");
-                sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Retrived, appo.Body, "", "", false);
+                sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Retrived, appo.Body, "", "", false, appo.Start, appo.End, appo.Duration);
                 sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Retrived);
                 return true;
             }
@@ -522,7 +522,7 @@ namespace OutlookCore
             if (result)
             {
                 //log.LogEverything("Not Specified", "outlookController.MarkAppointmentCompleted() L495");
-                sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Completed, appo.Body, "", "", true);
+                sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Completed, appo.Body, "", "", true, appo.Start, appo.End, appo.Duration);
                 sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Completed);
                 return true;
             }
@@ -809,7 +809,7 @@ namespace OutlookCore
                                 if (updateStatus)
                                 {
                                     //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L667");
-                                    sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Sent, appo.Body, "", "", appo.Completed);
+                                    sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Sent, appo.Body, "", "", appo.Completed, appo.Start, appo.End, appo.Duration);
                                 }
                             }
                             else
