@@ -72,7 +72,7 @@ namespace OutlookCore
         //con
 
         #region public state
-        public bool             Start(string connectionString, string service_location)
+        public bool Start(string connectionString, string service_location)
         {
             try
             {
@@ -155,7 +155,7 @@ namespace OutlookCore
             return true;
         }
 
-        public override void    Restart(int sameExceptionCount, int sameExceptionCountMax)
+        public override void Restart(int sameExceptionCount, int sameExceptionCountMax)
         {
             try
             {
@@ -206,7 +206,7 @@ namespace OutlookCore
             }
         }
 
-        public bool             Close()
+        public bool Close()
         {
             try
             {
@@ -252,12 +252,12 @@ namespace OutlookCore
             return true;
         }
 
-        public bool             Running()
+        public bool Running()
         {
             return coreAvailable;
         }
 
-        public void             FatalExpection(string reason, Exception exception)
+        public void FatalExpection(string reason, Exception exception)
         {
             coreAvailable = false;
             coreThreadRunning = false;
@@ -278,8 +278,8 @@ namespace OutlookCore
         /// <summary>
         /// IMPORTANT: templateId, sites, startTime, duration, outlookTitle and eFormConnected are mandatory. Rest are optional, and should be passed 'null' if not wanted to use
         /// </summary>
-        public string           AppointmentCreate(int templateId, List<int> sites, DateTime startTime, int duration,
-            string outlookTitle, string outlookCommentary, bool? outlookColorRuleOverride, 
+        public string AppointmentCreate(int templateId, List<int> sites, DateTime startTime, int duration,
+            string outlookTitle, string outlookCommentary, bool? outlookColorRuleOverride,
             bool eFormConnected, string eFormTitle, string eFormDescription, string eFormInfo, int? eFormDaysToExpire, List<string> eFormReplacements)
         {
             try
@@ -338,36 +338,36 @@ namespace OutlookCore
                     body = outlookCommentary + Environment.NewLine + Environment.NewLine;
 
                 if (true)
-                    body = body                     + "Template# "      + templateId 
-                    + Environment.NewLine           + "Sites# "         + string.Join(",", sites)
+                    body = body + "Template# " + templateId
+                    + Environment.NewLine + "Sites# " + string.Join(",", sites)
                     + Environment.NewLine;
 
                 if (!string.IsNullOrWhiteSpace(eFormTitle))
-                    body +=     Environment.NewLine + "Title# "         + eFormTitle;
+                    body += Environment.NewLine + "Title# " + eFormTitle;
 
                 if (!string.IsNullOrWhiteSpace(eFormDescription))
-                    body +=     Environment.NewLine + "Description# "   + eFormDescription;
+                    body += Environment.NewLine + "Description# " + eFormDescription;
 
                 if (!string.IsNullOrWhiteSpace(eFormInfo))
-                    body +=     Environment.NewLine + "Info# "          + eFormInfo;
+                    body += Environment.NewLine + "Info# " + eFormInfo;
 
                 if (eFormConnected)
-                    body +=     Environment.NewLine + "Connected# "     + eFormConnected;
+                    body += Environment.NewLine + "Connected# " + eFormConnected;
 
                 if (eFormDaysToExpire != null)
-                    body +=     Environment.NewLine + "Expire# "        + eFormDaysToExpire;
+                    body += Environment.NewLine + "Expire# " + eFormDaysToExpire;
 
                 bool colorRule = t.Bool(sqlController.SettingRead(Settings.colorsRule));
                 if (outlookColorRuleOverride != null)
                 {
                     colorRule = (bool)outlookColorRuleOverride;
-                    body +=     Environment.NewLine + "Color# "         + colorRule.ToString();
+                    body += Environment.NewLine + "Color# " + colorRule.ToString();
                 }
 
                 if (eFormReplacements != null)
                     if (eFormReplacements.Count > 0)
                         foreach (var replacement in eFormReplacements)
-                            body += Environment.NewLine + "Replacements# "  + replacement;
+                            body += Environment.NewLine + "Replacements# " + replacement;
                 #endregion
 
                 //string globalId = outlookController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body);
@@ -385,7 +385,7 @@ namespace OutlookCore
         /// <summary>
         /// No summary
         /// </summary>
-        public Appointment      AppointmentRead(string globalId)
+        public Appointment AppointmentRead(string globalId)
         {
             try
             {
@@ -413,7 +413,7 @@ namespace OutlookCore
         /// <summary>
         /// No summary
         /// </summary>
-        public bool?            AppointmentCancel(string globalId)
+        public bool? AppointmentCancel(string globalId)
         {
             try
             {
@@ -438,7 +438,7 @@ namespace OutlookCore
         /// <summary>
         /// No summary
         /// </summary>
-        public bool?            AppointmentDelete(string globalId)
+        public bool? AppointmentDelete(string globalId)
         {
             try
             {
@@ -477,7 +477,8 @@ namespace OutlookCore
             try
             {
                 result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Retrived, appo.Body);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 if (ex.Message.Equals("Item not found"))
                 {
@@ -491,12 +492,13 @@ namespace OutlookCore
                 sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Retrived, appo.Body, "", "", false);
                 sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Retrived);
                 return true;
-            } else
+            }
+            else
             {
                 //log.LogEverything("Not Specified", "outlookController.MarkAppointmentRetrived() L482");
                 return false;
             }
-            
+
         }
 
         public bool MarkAppointmentCompleted(string caseId)
@@ -576,7 +578,7 @@ namespace OutlookCore
                                     log.LogEverything("Not Specified", t.GetMethodName() + " kase IS NULL!");
                                     //firstRun = false;
                                 }
-                                
+
                                 if (kase.Stat == "Retrived")
                                 {
                                     MarkAppointmentRetrived(kase.CaseId.ToString());
@@ -584,20 +586,22 @@ namespace OutlookCore
                                 else if (kase.Stat == "Completed")
                                 {
                                     MarkAppointmentCompleted(kase.CaseId.ToString());
-                                } else
+                                }
+                                else
                                 {
                                     currentId = appo_site.Id;
                                 }
                                 //sdkCore.CaseCheck(appo_site.MicrotingUuId);
                             }
-                            
-                        } else
+
+                        }
+                        else
                         {
                             firstRun = false;
                         }
                     }
-                    
-                    
+
+
                     log.LogStandard("Not Specified", t.GetMethodName() + " warm up completed");
                 }
                 #endregion
@@ -635,7 +639,7 @@ namespace OutlookCore
             //coreThreadRunning = false;
         }
 
-        private void            SyncOutlookConvert()
+        private void SyncOutlookConvert()
         {
             try
             {
@@ -838,12 +842,12 @@ namespace OutlookCore
         #endregion
 
         #region unit test
-        internal void           UnitTest_SetUnittest()
+        internal void UnitTest_SetUnittest()
         {
             skipRestartDelay = true;
         }
 
-        internal bool           UnitTest_CoreDead()
+        internal bool UnitTest_CoreDead()
         {
             if (!coreAvailable)
                 if (!coreStatChanging)
@@ -853,7 +857,7 @@ namespace OutlookCore
             return false;
         }
 
-        public void             UnitTest_Reset(string connectionString)
+        public void UnitTest_Reset(string connectionString)
         {
             sqlController = new SqlController(connectionString);
             Log log = sqlController.StartLog(this);
@@ -939,7 +943,7 @@ namespace OutlookCore
 
             //try
             //{
-                sdkCore.StartSqlOnly(sdkConnectionString);
+            sdkCore.StartSqlOnly(sdkConnectionString);
             //}
             //catch (Exception ex)
             //{

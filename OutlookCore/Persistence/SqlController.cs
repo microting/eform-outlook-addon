@@ -27,12 +27,12 @@ namespace OutlookSql
         #endregion
 
         #region con
-        public                      SqlController(string connectionStringOutlook)
+        public SqlController(string connectionStringOutlook)
         {
             ConstructorBase(connectionStringOutlook);
         }
 
-        public                      SqlController(string connectionStringOutlook, string connectionStringSdk)
+        public SqlController(string connectionStringOutlook, string connectionStringSdk)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace OutlookSql
             ConstructorBase(connectionStringOutlook);
         }
 
-        private void                ConstructorBase(string connectionString)
+        private void ConstructorBase(string connectionString)
         {
             connectionStr = connectionString;
 
@@ -81,7 +81,7 @@ namespace OutlookSql
             sdkSqlCon = new eFormSqlController.SqlController(SettingRead(Settings.microtingDb));
         }
 
-        private OutlookContextInterface     GetContextO()
+        private OutlookContextInterface GetContextO()
         {
             if (msSql)
                 return new OutlookDbMs(connectionStr);
@@ -97,7 +97,7 @@ namespace OutlookSql
         //        return new MicrotingDbMy(SettingRead(Settings.microtingDb));
         //}
 
-        public bool                 MigrateDb()
+        public bool MigrateDb()
         {
             var configuration = new Configuration();
             configuration.TargetDatabase = new DbConnectionInfo(connectionStr, "System.Data.SqlClient");
@@ -109,7 +109,7 @@ namespace OutlookSql
 
         #region public
         #region public Outlook
-        public int                  AppointmentsCreate(Appointment appointment)
+        public int AppointmentsCreate(Appointment appointment)
         {
             try
             {
@@ -197,7 +197,7 @@ namespace OutlookSql
             }
         }
 
-        public bool                 AppointmentsCancel(string globalId)
+        public bool AppointmentsCancel(string globalId)
         {
             try
             {
@@ -275,7 +275,8 @@ namespace OutlookSql
                         if (idOffset != null)
                         {
                             match = db.appointments.Where(x => x.start_at > dt).Where(x => x.id > idOffset).FirstOrDefault(x => x.processing_state == location.ToString());
-                        } else
+                        }
+                        else
                         {
                             match = db.appointments.Where(x => x.start_at > dt).FirstOrDefault(x => x.processing_state == location.ToString());
                         }
@@ -285,12 +286,13 @@ namespace OutlookSql
                         if (idOffset != null)
                         {
                             match = db.appointments.Where(x => x.id > idOffset).FirstOrDefault(x => x.processing_state == location.ToString());
-                        } else
+                        }
+                        else
                         {
                             match = db.appointments.FirstOrDefault(x => x.processing_state == location.ToString());
                         }
                     }
-                    
+
                     if (match != null)
                     {
                         bool color_rule = match.color_rule == 0 ? true : false;
@@ -303,7 +305,8 @@ namespace OutlookSql
                             appo.AppointmentSites.Add(appoSite);
                         }
                         return appo;
-                    } else
+                    }
+                    else
                     {
                         return null;
                     }
@@ -316,7 +319,7 @@ namespace OutlookSql
             }
         }
 
-        public appointments         AppointmentsFindOne(int timesReflected)
+        public appointments AppointmentsFindOne(int timesReflected)
         {
             try
             {
@@ -333,7 +336,7 @@ namespace OutlookSql
             }
         }
 
-        public bool                 AppointmentsUpdate(string globalId, ProcessingStateOptions processingState, string body, string expectionString, string response, bool completed)
+        public bool AppointmentsUpdate(string globalId, ProcessingStateOptions processingState, string body, string expectionString, string response, bool completed)
         {
             log.LogEverything("Not Specified", "AppointmentsUpdate called and globalId is " + globalId);
 
@@ -378,7 +381,7 @@ namespace OutlookSql
             }
         }
 
-        public bool                 AppointmentsUpdate(string oldGlobalId, string newGlobalId)
+        public bool AppointmentsUpdate(string oldGlobalId, string newGlobalId)
         {
             try
             {
@@ -409,7 +412,7 @@ namespace OutlookSql
             }
         }
 
-        public bool                 AppointmentsReflected(string globalId)
+        public bool AppointmentsReflected(string globalId)
         {
             try
             {
@@ -447,7 +450,7 @@ namespace OutlookSql
             }
         }
 
-        public bool                 AppointmentsDelete(int id)
+        public bool AppointmentsDelete(int id)
         {
             try
             {
@@ -547,7 +550,7 @@ namespace OutlookSql
         }
 
         #endregion
-       
+
 
 
         #region public SDK
@@ -913,7 +916,7 @@ namespace OutlookSql
         //    }
         //}
 
-        public string               SiteLookupName(int? siteUId)
+        public string SiteLookupName(int? siteUId)
         {
             try
             {
@@ -936,7 +939,7 @@ namespace OutlookSql
         #endregion
 
         #region public setting
-        public bool                 SettingCreateDefaults()
+        public bool SettingCreateDefaults()
         {
             //key point
             SettingCreate(Settings.firstRunDone);
@@ -956,7 +959,7 @@ namespace OutlookSql
             return true;
         }
 
-        public bool                 SettingCreate(Settings name)
+        public bool SettingCreate(Settings name)
         {
             using (var db = GetContextO())
             {
@@ -966,9 +969,9 @@ namespace OutlookSql
                 string defaultValue = "default";
                 switch (name)
                 {
-                    case Settings.firstRunDone:             id =  1;    defaultValue = "false";                                 break;
-                    case Settings.logLevel:                 id =  2;    defaultValue = "4";                                     break;
-                    case Settings.logLimit:                 id =  3;    defaultValue = "250";                                   break;
+                    case Settings.firstRunDone: id = 1; defaultValue = "false"; break;
+                    case Settings.logLevel: id = 2; defaultValue = "4"; break;
+                    case Settings.logLimit: id = 3; defaultValue = "250"; break;
                     #region  case Settings.microtingDb:              id =  4;    defaultValue = 'MicrotingDB';                           break;
                     case Settings.microtingDb:
 
@@ -979,17 +982,17 @@ namespace OutlookSql
                             SettingUpdate(Settings.firstRunDone, "true");
                         }
                         catch { }
-                                                            id =  4;    defaultValue = microtingConnectionString;               break;
+                        id = 4; defaultValue = microtingConnectionString; break;
                     #endregion
-                    case Settings.checkLast_At:             id =  5;    defaultValue = DateTime.Now.AddMonths(-3).ToString();   break;
-                    case Settings.checkPreSend_Hours:       id =  6;    defaultValue = "36";                                    break;
-                    case Settings.checkRetrace_Hours:       id =  7;    defaultValue = "36";                                    break;
-                    case Settings.checkEvery_Mins:          id =  8;    defaultValue = "15";                                    break;
-                    case Settings.includeBlankLocations:    id =  9;    defaultValue = "true";                                  break;
-                    case Settings.colorsRule:               id = 10;    defaultValue = "1";                                     break;
-                    case Settings.responseBeforeBody:       id = 11;    defaultValue = "false";                                 break;
-                    case Settings.calendarName:             id = 12;    defaultValue = "Calendar";                              break;
-                    case Settings.userEmailAddress:          id = 13;    defaultValue = "no-reply@invalid.invalid";              break;
+                    case Settings.checkLast_At: id = 5; defaultValue = DateTime.Now.AddMonths(-3).ToString(); break;
+                    case Settings.checkPreSend_Hours: id = 6; defaultValue = "36"; break;
+                    case Settings.checkRetrace_Hours: id = 7; defaultValue = "36"; break;
+                    case Settings.checkEvery_Mins: id = 8; defaultValue = "15"; break;
+                    case Settings.includeBlankLocations: id = 9; defaultValue = "true"; break;
+                    case Settings.colorsRule: id = 10; defaultValue = "1"; break;
+                    case Settings.responseBeforeBody: id = 11; defaultValue = "false"; break;
+                    case Settings.calendarName: id = 12; defaultValue = "Calendar"; break;
+                    case Settings.userEmailAddress: id = 13; defaultValue = "no-reply@invalid.invalid"; break;
 
                     default:
                         throw new IndexOutOfRangeException(name.ToString() + " is not a known/mapped Settings type");
@@ -1032,13 +1035,13 @@ namespace OutlookSql
                 }
                 else
                     if (string.IsNullOrEmpty(matchName.value))
-                        matchName.value = defaultValue;
+                    matchName.value = defaultValue;
             }
 
             return true;
         }
 
-        public string               SettingRead(Settings name)
+        public string SettingRead(Settings name)
         {
             try
             {
@@ -1058,7 +1061,7 @@ namespace OutlookSql
             }
         }
 
-        public void                 SettingUpdate(Settings name, string newValue)
+        public void SettingUpdate(Settings name, string newValue)
         {
             try
             {
@@ -1082,7 +1085,7 @@ namespace OutlookSql
             }
         }
 
-        public List<string>         SettingCheckAll()
+        public List<string> SettingCheckAll()
         {
             List<string> result = new List<string>();
             try
@@ -1122,7 +1125,7 @@ namespace OutlookSql
         #endregion
 
         #region public write log
-        public Log                  StartLog(CoreBase core)
+        public Log StartLog(CoreBase core)
         {
             try
             {
@@ -1138,7 +1141,7 @@ namespace OutlookSql
             }
         }
 
-        public override string      WriteLogEntry(LogEntry logEntry)
+        public override string WriteLogEntry(LogEntry logEntry)
         {
             lock (_writeLock)
             {
@@ -1181,7 +1184,7 @@ namespace OutlookSql
             }
         }
 
-        private string              WriteLogExceptionEntry(LogEntry logEntry)
+        private string WriteLogExceptionEntry(LogEntry logEntry)
         {
             try
             {
@@ -1218,7 +1221,7 @@ namespace OutlookSql
             }
         }
 
-        public override void        WriteIfFailed(string logEntries)
+        public override void WriteIfFailed(string logEntries)
         {
             lock (_writeLock)
             {
@@ -1292,7 +1295,7 @@ namespace OutlookSql
         #endregion
 
         #region unit test
-        public bool                 UnitTest_TruncateTable(string tableName)
+        public bool UnitTest_TruncateTable(string tableName)
         {
             try
             {
@@ -1352,7 +1355,7 @@ namespace OutlookSql
         //    }
         //}
 
-        public bool                 UnitTest_OutlookDatabaseClear()
+        public bool UnitTest_OutlookDatabaseClear()
         {
             try
             {
@@ -1371,7 +1374,7 @@ namespace OutlookSql
             }
         }
 
-        public int                  UnitTest_FindLog(int checkCount, string checkValue)
+        public int UnitTest_FindLog(int checkCount, string checkValue)
         {
             try
             {

@@ -126,7 +126,8 @@ namespace OutlookExchangeOnlineAPI
                                 {
                                     log.LogEverything("Not Specified", "ExecuteQueryWithIncrementalRetry got result NoContent and result.Content is :" + result.Content);
                                     return result;
-                                } else
+                                }
+                                else
                                 {
                                     if (result.StatusCode.Equals(HttpStatusCode.Unauthorized))
                                     {
@@ -142,8 +143,9 @@ namespace OutlookExchangeOnlineAPI
                                     retryAttempts++;
                                     backoffInteval = backoffInteval * 2;
                                 }
-                                
-                            } else
+
+                            }
+                            else
                             {
                                 return result;
                             }
@@ -152,7 +154,8 @@ namespace OutlookExchangeOnlineAPI
                         {
                             return result;
                         }
-                    } catch (Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry throwed an Exception and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
                         log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry the exeption is : " + ex.Message);
@@ -160,7 +163,7 @@ namespace OutlookExchangeOnlineAPI
                         retryAttempts++;
                         backoffInteval = backoffInteval * 2;
                     }
-                    
+
                 }
             }
             return result;
@@ -174,15 +177,16 @@ namespace OutlookExchangeOnlineAPI
             HttpResponseMessage result = MakeApiCall("GET", requestUrl, userEmail, null, null);
             string response = result.Content.ReadAsStringAsync().Result;
 
-            log.LogEverything("Not Specified", "ApiClient.GetCalendarList response is : "+ response);
+            log.LogEverything("Not Specified", "ApiClient.GetCalendarList response is : " + response);
             if (response.Contains("odata"))
             {
                 return JsonConvert.DeserializeObject<CalendarList>(response);
-            } else
+            }
+            else
             {
                 return null;
             }
-                
+
         }
 
         public EventList GetCalendarItems(string userEmail, string calendarID, DateTime startDate, DateTime enddate)
@@ -210,11 +214,12 @@ namespace OutlookExchangeOnlineAPI
                         result.value.Add(curevent);
                     }
                     skip += curpage.value.Count;
-                } else
+                }
+                else
                 {
                     alldone = true;
                 }
-                
+
             }
             return result;
         }
@@ -232,7 +237,8 @@ namespace OutlookExchangeOnlineAPI
                 return JsonConvert.DeserializeObject<Event>(response);
             }
             else
-            { if (response.Contains("error"))
+            {
+                if (response.Contains("error"))
                 {
                     throw new Exception("Item not found");
                 }
@@ -248,11 +254,12 @@ namespace OutlookExchangeOnlineAPI
             if (response.Contains("odata"))
             {
                 return JsonConvert.DeserializeObject<Event>(response);
-            } else
+            }
+            else
             {
                 return null;
             }
-            
+
 
         }
         public Event CreateEvent(string userEmail, string CalendarID, string eventObject)

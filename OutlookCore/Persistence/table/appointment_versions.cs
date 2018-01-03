@@ -17,15 +17,15 @@ namespace OutlookSql
         public string workflow_state { get; set; }
 
         public int? version { get; set; }
-        
+
         public DateTime? created_at { get; set; }
-        
+
         public DateTime? updated_at { get; set; }
 
         public string global_id { get; set; }
-        
+
         public DateTime? start_at { get; set; }
-        
+
         public DateTime? expire_at { get; set; }
 
         public int? duration { get; set; }
@@ -44,7 +44,7 @@ namespace OutlookSql
 
         [StringLength(255)]
         public string title { get; set; }
-        
+
         [StringLength(255)]
         public string description { get; set; }
 

@@ -54,21 +54,24 @@ namespace OutlookOfficeOnline
 
                 #region convert recurrences
                 List<Event> eventList = GetCalendarItems(tLimitFrom, tLimitTo);
-                if (eventList != null) {
+                if (eventList != null)
+                {
                     foreach (Event item in eventList)
                     {
                         if (item.Type.Equals("Occurrence")) //is recurring, otherwise ignore
                         {
                             #region location "planned"?
                             string location = null;
-                            try {
+                            try
+                            {
                                 location = item.Location.DisplayName;
-                            } catch (Exception ex)
+                            }
+                            catch (Exception ex)
                             {
                                 log.LogEverything("Not Specified", t.GetMethodName() + " got exception :" + ex.Message + " when trying to do item.Location.DisplayName for item with id : " + item.Id);
                                 return false;
                             }
-                             
+
 
                             if (string.IsNullOrEmpty(location))
                             {
@@ -88,24 +91,26 @@ namespace OutlookOfficeOnline
                                 {
                                     string appointmendId = CalendarItemCreate(location, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject,
                                     item.BodyPreview, item.OriginalStartTimeZone, item.OriginalEndTimeZone);
-                                } catch (Exception ex)
+                                }
+                                catch (Exception ex)
                                 {
                                     log.LogEverything("Not Specified", t.GetMethodName() + " got exception :" + ex.Message + " when trying to do CalendarItemCreate for item with id : " + item.Id);
                                     return false;
                                 }
-                                
+
                                 if (CalendarItemDelete(item.Id))
                                 {
                                     log.LogStandard("Not Specified", item.Id + " / " + item.Start.DateTime + " converted to non-recurence appointment");
                                     ConvertedAny = true;
                                 }
-                                
+
                             }
                             #endregion
                         }
                     }
-                } else { }
-                
+                }
+                else { }
+
                 #endregion
 
                 if (ConvertedAny)
@@ -160,8 +165,9 @@ namespace OutlookOfficeOnline
                                 try
                                 {
                                     processingState = item.Location.DisplayName;
-                                } catch { }
-                                
+                                }
+                                catch { }
+
 
                                 if (string.IsNullOrEmpty(processingState))
                                 {
@@ -213,13 +219,13 @@ namespace OutlookOfficeOnline
                                         {
                                             log.LogStandard("Not Specified", "Appointment created successfully for item.Id : " + item.Id);
                                             CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Processed, appo.Body);
-                                        }                                          
+                                        }
                                         else
                                         {
                                             if (count == 0)
                                             {
                                                 CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Exception, appo.Body);
-                                            }                                             
+                                            }
                                             if (count == -1)
                                             {
                                                 log.LogStandard("Not Specified", "Appointment not created successfully for item.Id : " + item.Id);
@@ -507,7 +513,8 @@ namespace OutlookOfficeOnline
             {
                 log.LogStandard("Not Specified", AppointmentPrint(item) + " NOT updated to " + workflowState.ToString());
                 return false;
-            } else
+            }
+            else
             {
                 log.LogStandard("Not Specified", AppointmentPrint(item) + " updated to " + workflowState.ToString());
                 return true;
@@ -524,12 +531,13 @@ namespace OutlookOfficeOnline
                 outlookExchangeOnlineAPIClient.DeleteEvent(userEmailAddess, globalId);
                 log.LogStandard("Not Specified", "globalId:'" + globalId + "' deleted");
                 return true;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 log.LogStandard("Not Specified", "CalendarItemDelete failed got exception:" + ex.Message);
                 return false;
             }
-            
+
         }
         //#endregion
 
@@ -618,7 +626,7 @@ namespace OutlookOfficeOnline
                             return outlookCalendarItems.value;
                         }
                     }
-                }                
+                }
                 return null;
 
             }
@@ -668,7 +676,7 @@ namespace OutlookOfficeOnline
                     }
                 }
             }
-            return null;                   
+            return null;
         }
 
         #endregion

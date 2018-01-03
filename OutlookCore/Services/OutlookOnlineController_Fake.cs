@@ -22,7 +22,7 @@ namespace OutlookOfficeOnline
         #endregion
 
         #region con
-        public                      OutlookOnlineController_Fake(SqlController sqlController, Log log)
+        public OutlookOnlineController_Fake(SqlController sqlController, Log log)
         {
             this.sqlController = sqlController;
             this.log = log;
@@ -30,11 +30,11 @@ namespace OutlookOfficeOnline
         #endregion
 
         #region public
-        public bool                 CalendarItemConvertRecurrences()
+        public bool CalendarItemConvertRecurrences()
         {
             log.LogEverything("Unit test", t.GetMethodName() + " called");
 
-            int temp  = rndm.Next(0, 2);
+            int temp = rndm.Next(0, 2);
             if (temp == 2)
                 temp = 1;
             bool flag = t.Bool(temp + "");
@@ -43,7 +43,7 @@ namespace OutlookOfficeOnline
             return flag;
         }
 
-        public bool                 ParseCalendarItems()
+        public bool ParseCalendarItems()
         {
             log.LogEverything("Unit test", t.GetMethodName() + " called");
 
@@ -63,7 +63,7 @@ namespace OutlookOfficeOnline
             return flag;
         }
 
-        public bool                 CalendarItemReflecting(string globalId)
+        public bool CalendarItemReflecting(string globalId)
         {
             log.LogStandard("Unit test", t.GetMethodName() + " called");
             log.LogVariable("Unit test", (nameof(globalId)), globalId);
@@ -86,50 +86,50 @@ namespace OutlookOfficeOnline
             return true;
         }
 
-        public string               CalendarItemCreate(string location, DateTime start, int duration, string subject, string body, string originalStartTimeZone, string originalEndTimeZone)
+        public string CalendarItemCreate(string location, DateTime start, int duration, string subject, string body, string originalStartTimeZone, string originalEndTimeZone)
         {
             string globalId = "Faked GlobalId:" + t.GetRandomInt(8);
             sqlController.AppointmentsCreate(new Appointment(globalId, start, duration, subject, location, body, false, false));
             return globalId;
         }
 
-        public bool                 CalendarItemUpdate(string globalId, DateTime start, ProcessingStateOptions workflowState, string body)
+        public bool CalendarItemUpdate(string globalId, DateTime start, ProcessingStateOptions workflowState, string body)
         {
-             return true;
+            return true;
         }
 
-        public bool                 CalendarItemDelete(string globalId)
+        public bool CalendarItemDelete(string globalId)
         {
             return true;
         }
         #endregion
 
         #region private
-        private Appointment         CreateAppointment(Appointment appointment)
+        private Appointment CreateAppointment(Appointment appointment)
         {
             return new Appointment();
         }
         #endregion
 
         #region unit test
-        public List<Appointment>    UnitTest_CalendarItemGetAllNonRecurring(DateTime startPoint, DateTime endPoint)
+        public List<Appointment> UnitTest_CalendarItemGetAllNonRecurring(DateTime startPoint, DateTime endPoint)
         {
             return new List<Appointment>();
         }
 
-        public bool                 UnitTest_ForceException(string exceptionType)
+        public bool UnitTest_ForceException(string exceptionType)
         {
             forceException = exceptionType;
             return true;
         }
 
-        private string              UnitTest_CalendarBody()
+        private string UnitTest_CalendarBody()
         {
             return
-                                            "TempLate# "+ "’Besked’"
-                    + Environment.NewLine + "Sites# "   + "’All’"
-                    + Environment.NewLine + "title# "   + "Outlook appointment eForm test"
-                    + Environment.NewLine + "info# "    + "Tekst fra Outlook appointment";
+                                            "TempLate# " + "’Besked’"
+                    + Environment.NewLine + "Sites# " + "’All’"
+                    + Environment.NewLine + "title# " + "Outlook appointment eForm test"
+                    + Environment.NewLine + "info# " + "Tekst fra Outlook appointment";
         }
         #endregion
     }

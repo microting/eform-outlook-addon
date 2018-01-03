@@ -20,9 +20,9 @@ namespace SourceCode
             eFormCore.Core sdkCore = new eFormCore.Core();
 
             string outConStr = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "MicrotingOutlook" + ";Integrated Security=True";
-            string sdkConStr = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "V166"  + ";Integrated Security=True";
+            string sdkConStr = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "V166" + ";Integrated Security=True";
             string serviceLocation = "";
-            
+
             while (true)
             {
                 #region text + read input
@@ -80,7 +80,7 @@ namespace SourceCode
                     if (sdkCore.Running())
                     {
                         Console.WriteLine("Creating eForm template from the xmlTemplate.txt");
-      
+
                         string xmlStr = File.ReadAllText("xmlTemplate.txt");
                         var main = sdkCore.TemplateFromXml(xmlStr);
                         main = sdkCore.TemplateUploadData(main);
@@ -127,7 +127,7 @@ namespace SourceCode
         }
 
         static string GetServiceLocation()
-        {            
+        {
             string serviceLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
             serviceLocation = Path.GetDirectoryName(serviceLocation) + "\\";
 

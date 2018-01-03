@@ -18,7 +18,7 @@ namespace UnitTest
     {
         //
 
-        string connectionStringLocal_SDK = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "UnitTest_Outlook_" + "Microting"        + ";Integrated Security=True";
+        string connectionStringLocal_SDK = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "UnitTest_Outlook_" + "Microting" + ";Integrated Security=True";
         string connectionStringLocal_OUT = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "UnitTest_Outlook_" + "MicrotingOutlook" + ";Integrated Security=True";
 
         #region content
@@ -35,14 +35,14 @@ namespace UnitTest
             {
                 if (Environment.MachineName.ToLower().Contains("testing") || Environment.MachineName.ToLower().Contains("travis"))
                 {
-                    serverConnectionString_SDK = "Persist Security Info=True;server=localhost;database=" + "UnitTest_Outlook_" + "Microting"        + ";uid=root;password="; //travis database
+                    serverConnectionString_SDK = "Persist Security Info=True;server=localhost;database=" + "UnitTest_Outlook_" + "Microting" + ";uid=root;password="; //travis database
                     serverConnectionString_OUT = "Persist Security Info=True;server=localhost;database=" + "UnitTest_Outlook_" + "MicrotingOutlook" + ";uid=root;password="; //travis database
                 }
                 else
                 {
                     if (Environment.MachineName.ToLower().Contains("factor"))
                     {
-                        serverConnectionString_SDK = "Data Source=(localdb)\\v11.0;Initial Catalog=" + "UnitTest_Outlook_" + "Microting"        + ";Integrated Security=True"; //vsts database
+                        serverConnectionString_SDK = "Data Source=(localdb)\\v11.0;Initial Catalog=" + "UnitTest_Outlook_" + "Microting" + ";Integrated Security=True"; //vsts database
                         serverConnectionString_OUT = "Data Source=(localdb)\\v11.0;Initial Catalog=" + "UnitTest_Outlook_" + "MicrotingOutlook" + ";Integrated Security=True"; //vsts database
                     }
                     else
@@ -460,7 +460,7 @@ namespace UnitTest
                 Appointment appoBase = new Appointment("globalId", DateTime.Now, 30, "Test", "Planned", "body", false, false);
                 if (sqlController.AppointmentsCreate(appoBase) > 0)
                     checkValueB = true;
-                
+
                 //Assert
                 TestTeardown();
                 Assert.Equal(checkValueA, checkValueB);
@@ -1291,33 +1291,48 @@ namespace UnitTest
             #endregion
 
             //Act
-            try {
+            try
+            {
                 coreOut.AppointmentCreate(0, sites, start, duration, title, null, null, false, null, null, null, null, null);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 checkValueB += t.PrintException(t.GetMethodName() + " failed", ex).Contains("templateId needs to be minimum 1").ToString();
             }
- 
-            try {
+
+            try
+            {
                 coreOut.AppointmentCreate(template, null, DateTime.MinValue, duration, title, null, null, false, null, null, null, null, null);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 checkValueB += t.PrintException(t.GetMethodName() + " failed", ex).Contains("sites needs to be not null").ToString();
             }
 
-            try {
+            try
+            {
                 coreOut.AppointmentCreate(template, sites, DateTime.MinValue, duration, title, null, null, false, null, null, null, null, null);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 checkValueB += t.PrintException(t.GetMethodName() + " failed", ex).Contains("startTime needs to be a future DateTime").ToString();
             }
 
-            try {
+            try
+            {
                 coreOut.AppointmentCreate(template, sites, start, 0, title, null, null, false, null, null, null, null, null);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 checkValueB += t.PrintException(t.GetMethodName() + " failed", ex).Contains("duration needs to be minimum 1").ToString();
             }
 
-            try {
+            try
+            {
                 coreOut.AppointmentCreate(template, sites, start, duration, null, null, null, false, null, null, null, null, null);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 checkValueB += t.PrintException(t.GetMethodName() + " failed", ex).Contains("outlookTitle needs to be not empty").ToString();
             }
 
@@ -1333,12 +1348,12 @@ namespace UnitTest
             TestPrepare(t.GetMethodName(), true, true);
             DateTime plusOne = DateTime.Now.AddHours(1);
 
-            int         template = 2;
-            List<int>   sites = new List<int> { siteId1 };
-            DateTime    start = new DateTime(plusOne.Year, plusOne.Month, plusOne.Day, plusOne.Hour, 0, 0);
-            int         duration = 30;
-            string      title = "Faked title";
-    
+            int template = 2;
+            List<int> sites = new List<int> { siteId1 };
+            DateTime start = new DateTime(plusOne.Year, plusOne.Month, plusOne.Day, plusOne.Hour, 0, 0);
+            int duration = 30;
+            string title = "Faked title";
+
             string checkValueA = "TrueTrue";
             string checkValueB = "";
             #endregion
@@ -1580,7 +1595,7 @@ namespace UnitTest
             TestPrepare(t.GetMethodName(), true, true);
             string checkValueA = "No match";
             string checkValueB = "Match - where there should be none";
-            
+
             //Act
             try
             {
@@ -1607,7 +1622,7 @@ namespace UnitTest
             TestPrepare(t.GetMethodName(), true, true);
             string checkValueA = "True";
             string checkValueB = "";
-            
+
             //Act
             try
             {
@@ -1633,7 +1648,7 @@ namespace UnitTest
             TestPrepare(t.GetMethodName(), true, true);
             string checkValueA = "Deleted Correctly";
             string checkValueB = "Failed";
-   
+
             //Act
             try
             {

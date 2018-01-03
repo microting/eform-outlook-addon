@@ -13,7 +13,7 @@ namespace OutlookOfficeOnline
         bool CalendarItemReflecting(string globalId);
 
         string CalendarItemCreate(string location, DateTime start, int duration, string subject, string body, string originalStartTimeZone, string originalEndTimeZone);
-        
+
         bool CalendarItemUpdate(string globalId, DateTime start, ProcessingStateOptions workflowState, string body);
 
         bool CalendarItemDelete(string globalId);
