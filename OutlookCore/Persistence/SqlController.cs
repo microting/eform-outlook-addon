@@ -353,6 +353,9 @@ namespace OutlookSql
 
                     match.processing_state = processingState.ToString();
                     match.updated_at = DateTime.Now;
+                    match.start_at = start_at;
+                    match.expire_at = expire_at;
+                    match.duration = durateion;
                     //match.completed = 0;
                     #region match.body = body ...
                     if (body != null)
