@@ -230,6 +230,8 @@ namespace OutlookSql
 
         public Appointment AppointmentsFind(string globalId)
         {
+            log.LogStandard("Not specified", "AppointmentsFind looking for one with globalId " + globalId);
+
             try
             {
                 using (var db = GetContextO())
@@ -267,7 +269,7 @@ namespace OutlookSql
             {
                 using (var db = GetContextO())
                 {
-                    db.Database.Log = (query) => log.LogEverything("Not specified", "DB query is : " + query);
+                    //db.Database.Log = (query) => log.LogEverything("Not specified", "DB query is : " + query);
                     appointments match = null;
                     if (onlyNew)
                     {

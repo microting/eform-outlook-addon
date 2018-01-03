@@ -130,7 +130,6 @@ namespace OutlookOfficeOnline
         {
             try
             {
-                log.LogStandard("Not Specified", "ParseCalendarItems called. Before setting all vars");
                 bool AllParsed = false;
                 #region var
                 DateTime checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
@@ -143,8 +142,6 @@ namespace OutlookOfficeOnline
                 DateTime tLimitTo = timeOfRun.AddHours(+checkPreSend_Hours);
                 DateTime tLimitFrom = checkLast_At.AddHours(-checkRetrace_Hours);
                 #endregion
-
-                log.LogStandard("Not Specified", "ParseCalendarItems called. After setting all vars");
 
                 #region process appointments
                 List<Event> eventList = GetCalendarItems(tLimitFrom, tLimitTo);
@@ -276,6 +273,11 @@ namespace OutlookOfficeOnline
                             if (processingState.ToLower() == "processed")
                             {
                                 Appointment appo = sqlController.AppointmentsFind(item.Id);
+
+                                log.LogStandard("Not Specified", "ParseCalendarItems appo start is : " + appo.Start.ToString());
+                                log.LogStandard("Not Specified", "ParseCalendarItems item start is : " + item.Start.DateTime.ToString());
+                                log.LogStandard("Not Specified", "ParseCalendarItems appo end is : " + appo.End.ToString());
+                                log.LogStandard("Not Specified", "ParseCalendarItems item end is : " + item.End.DateTime.ToString());
                                 if (appo.Start != item.Start.DateTime)
                                 {
                                     log.LogStandard("Not Specified", "ParseCalendarItems updating calendar entry with globalId : " + appo.GlobalId);
