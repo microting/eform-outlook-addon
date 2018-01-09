@@ -324,3 +324,7 @@ paket-files/
 >>>>>>> e83bb4f... Initial commit
 
 Compiled/*
+SourceCode/JasperExporter.jar
+OutlookCore/JasperExporter.jar
+MicrotingOutlook.Tests/JasperExporter.jar
+MicrotingOutlook.Integration.Tests/JasperExporter.jar
