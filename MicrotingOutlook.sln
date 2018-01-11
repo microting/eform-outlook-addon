@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceCode", "SourceCode\So
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microting.OutlookAddon", "OutlookCore\Microting.OutlookAddon.csproj", "{448169A7-AB54-4DCE-B30A-739C82E49F0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{B4EFFB62-5422-4286-B735-F1ED434E855C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicrotingOutlook.Tests", "MicrotingOutlook.Tests\MicrotingOutlook.Tests.csproj", "{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}"
@@ -43,13 +41,6 @@ Global
 		{448169A7-AB54-4DCE-B30A-739C82E49F0C}.Release|Any CPU.ActiveCfg = Release|x64
 		{448169A7-AB54-4DCE-B30A-739C82E49F0C}.Release|x64.ActiveCfg = Release|x64
 		{448169A7-AB54-4DCE-B30A-739C82E49F0C}.Release|x64.Build.0 = Release|x64
-		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|x64.ActiveCfg = Debug|x64
-		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|x64.Build.0 = Debug|x64
-		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|x64
-		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|x64.ActiveCfg = Release|x64
-		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|x64.Build.0 = Release|x64
 		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD7F8F2A-7916-4F95-9857-47891AF8EDBD}.Debug|x64.ActiveCfg = Debug|Any CPU

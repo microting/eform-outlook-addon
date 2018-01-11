@@ -53,7 +53,7 @@ namespace SourceCode
                 {
                     sdkCore.Close();
                     outCore.Close();
-                    outCore.UnitTest_Reset(outConStr);
+                    //outCore.UnitTest_Reset(outConStr);
                 }
                 #endregion
 

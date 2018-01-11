@@ -842,69 +842,69 @@ namespace OutlookCore
         #endregion
 
         #region unit test
-        internal void UnitTest_SetUnittest()
-        {
-            skipRestartDelay = true;
-        }
+        //internal void UnitTest_SetUnittest()
+        //{
+        //    skipRestartDelay = true;
+        //}
 
-        internal bool UnitTest_CoreDead()
-        {
-            if (!coreAvailable)
-                if (!coreStatChanging)
-                    if (!coreRestarting)
-                        if (!coreThreadRunning)
-                            return true;
-            return false;
-        }
+        //internal bool UnitTest_CoreDead()
+        //{
+        //    if (!coreAvailable)
+        //        if (!coreStatChanging)
+        //            if (!coreRestarting)
+        //                if (!coreThreadRunning)
+        //                    return true;
+        //    return false;
+        //}
 
-        public void UnitTest_Reset(string connectionString)
-        {
-            sqlController = new SqlController(connectionString);
-            Log log = sqlController.StartLog(this);
-            //outlookController = new OutlookController(sqlController, log);
-            outlookOnlineController = new OutlookOnlineController(sqlController, log, outlookExchangeOnlineAPI);
-            AdminTools at = new AdminTools(sqlController.SettingRead(Settings.microtingDb));
+        //public void UnitTest_Reset(string connectionString)
+        //{
+        //    sqlController = new SqlController(connectionString);
+        //    Log log = sqlController.StartLog(this);
+        //    //outlookController = new OutlookController(sqlController, log);
+        //    outlookOnlineController = new OutlookOnlineController(sqlController, log, outlookExchangeOnlineAPI);
+        //    AdminTools at = new AdminTools(sqlController.SettingRead(Settings.microtingDb));
 
-            try
-            {
-                if (!coreThreadRunning && !coreStatChanging)
-                {
-                    coreStatChanging = true;
-                    log.LogStandard("Not Specified", "Reset!");
+        //    try
+        //    {
+        //        if (!coreThreadRunning && !coreStatChanging)
+        //        {
+        //            coreStatChanging = true;
+        //            log.LogStandard("Not Specified", "Reset!");
 
-                    List<Appointment> lstAppointments;
+        //            List<Appointment> lstAppointments;
 
-                    DateTime now = DateTime.Now;
-                    DateTime rollBackTo__ = now.AddDays(+2);
-                    DateTime rollBackFrom = now.AddDays(-3);
+        //            DateTime now = DateTime.Now;
+        //            DateTime rollBackTo__ = now.AddDays(+2);
+        //            DateTime rollBackFrom = now.AddDays(-3);
 
-                    //lstAppointments = outlookController.UnitTest_CalendarItemGetAllNonRecurring(rollBackFrom, rollBackTo__);
-                    lstAppointments = outlookOnlineController.UnitTest_CalendarItemGetAllNonRecurring(rollBackFrom, rollBackTo__);
+        //            //lstAppointments = outlookController.UnitTest_CalendarItemGetAllNonRecurring(rollBackFrom, rollBackTo__);
+        //            lstAppointments = outlookOnlineController.UnitTest_CalendarItemGetAllNonRecurring(rollBackFrom, rollBackTo__);
 
-                    foreach (var item in lstAppointments)
-                        //outlookController.CalendarItemUpdate(item.GlobalId, item.Start, LocationOptions.Planned, item.Body);
-                        outlookOnlineController.CalendarItemUpdate(item.GlobalId, item.Start, ProcessingStateOptions.Planned, item.Body);
+        //            foreach (var item in lstAppointments)
+        //                //outlookController.CalendarItemUpdate(item.GlobalId, item.Start, LocationOptions.Planned, item.Body);
+        //                outlookOnlineController.CalendarItemUpdate(item.GlobalId, item.Start, ProcessingStateOptions.Planned, item.Body);
 
-                    sqlController.SettingUpdate(Settings.checkLast_At, now.ToString());
+        //            sqlController.SettingUpdate(Settings.checkLast_At, now.ToString());
 
-                    at.RetractEforms();
+        //            at.RetractEforms();
 
-                    sqlController.UnitTest_TruncateTable("appointment_versions");
-                    sqlController.UnitTest_TruncateTable("appointments");
-                    //sqlController.UnitTest_TruncateTable_Microting("a_interaction_case_lists");
-                    //sqlController.UnitTest_TruncateTable_Microting("a_interaction_cases");
-                    //sqlController.UnitTest_TruncateTable_Microting("notifications");
-                    //sqlController.UnitTest_TruncateTable_Microting("cases");
+        //            sqlController.UnitTest_TruncateTable("appointment_versions");
+        //            sqlController.UnitTest_TruncateTable("appointments");
+        //            //sqlController.UnitTest_TruncateTable_Microting("a_interaction_case_lists");
+        //            //sqlController.UnitTest_TruncateTable_Microting("a_interaction_cases");
+        //            //sqlController.UnitTest_TruncateTable_Microting("notifications");
+        //            //sqlController.UnitTest_TruncateTable_Microting("cases");
 
-                    coreStatChanging = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                FatalExpection(t.GetMethodName() + "failed. Core failed to restart", ex);
-            }
-            Close();
-        }
+        //            coreStatChanging = false;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        FatalExpection(t.GetMethodName() + "failed. Core failed to restart", ex);
+        //    }
+        //    Close();
+        //}
         #endregion
 
         public void startSdkCore(string sdkConnectionString)
