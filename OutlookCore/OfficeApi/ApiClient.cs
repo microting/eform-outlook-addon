@@ -132,16 +132,20 @@ namespace OutlookExchangeOnlineAPI
                                     if (result.StatusCode.Equals(HttpStatusCode.Unauthorized))
                                     {
                                         AccessToken = GetAppToken(GetServiceLocation() + certPath, certPass); //the pfx file is encrypted with this password
-                                    }
-                                    if (result.StatusCode.Equals(HttpStatusCode.NotFound))
+                                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is Unauthorized so resetting retryAttempts ");
+                                        retryAttempts = 0; 
+                                    } else
                                     {
-                                        return result;
-                                    }
-                                    log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK or Created and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
-                                    log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
-                                    System.Threading.Thread.Sleep(backoffInteval * 1000);
-                                    retryAttempts++;
-                                    backoffInteval = backoffInteval * 2;
+                                        if (result.StatusCode.Equals(HttpStatusCode.NotFound))
+                                        {
+                                            return result;
+                                        }
+                                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK or Created and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
+                                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
+                                        System.Threading.Thread.Sleep(backoffInteval * 1000);
+                                        retryAttempts++;
+                                        backoffInteval = backoffInteval * 2;
+                                    }                                                                        
                                 }
 
                             }
