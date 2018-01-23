@@ -1,5 +1,9 @@
 ﻿using NUnit.Framework;
 using OutlookSql;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.Entity.Infrastructure;
 
 namespace MicrotingOutlook.Integration.Tests
 {
@@ -13,9 +17,11 @@ namespace MicrotingOutlook.Integration.Tests
         public void Setup()
         {
             DbContext = new OutlookDbMs(ConnectionString);
+            DbContext.Database.CommandTimeout = 300;
+
             DbContext.Database.CreateIfNotExists();
 
-            DbContext.Database.Initialize(false);
+            DbContext.Database.Initialize(true);
 
             DoSetup();
         }
@@ -23,7 +29,29 @@ namespace MicrotingOutlook.Integration.Tests
         [TearDown]
         public void TearDown()
         {
-            DbContext.Database.Delete();
+            var metadata = ((IObjectContextAdapter)DbContext).ObjectContext.MetadataWorkspace.GetItems(DataSpace.SSpace);
+
+            List<string> tables = new List<string>();
+            foreach (var item in metadata)
+            {
+                if (item.ToString().Contains("CodeFirstDatabaseSchema"))
+                {
+                    tables.Add(item.ToString().Replace("CodeFirstDatabaseSchema.", ""));
+                }
+            }
+
+            foreach (string tableName in tables)
+            {
+                try
+                {
+                    DbContext.Database.ExecuteSqlCommand("DELETE FROM [" + tableName + "]");
+                }
+                catch (Exception e)
+                {
+
+                }
+
+            }
             DbContext.Dispose();
         }
 
