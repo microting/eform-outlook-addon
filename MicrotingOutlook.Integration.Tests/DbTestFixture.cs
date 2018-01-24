@@ -46,7 +46,7 @@ namespace MicrotingOutlook.Integration.Tests
                 {
                     DbContext.Database.ExecuteSqlCommand("DELETE FROM [" + tableName + "]");
                 }
-                catch (Exception e)
+                catch
                 {
 
                 }

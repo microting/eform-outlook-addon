@@ -521,8 +521,6 @@ namespace OutlookSql
                 log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
                 return null;
             }
-
-            return new Appointment();
         }
 
         public bool AppointmentSiteUpdate(int id, string microtingUuid, ProcessingStateOptions processingState)

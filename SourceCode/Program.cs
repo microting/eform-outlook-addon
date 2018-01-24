@@ -21,7 +21,7 @@ namespace SourceCode
 
             string outConStr = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "MicrotingOutlook" + ";Integrated Security=True";
             string sdkConStr = "Data Source=.\\SQLEXPRESS;Initial Catalog=" + "V166" + ";Integrated Security=True";
-            string serviceLocation = "";
+            //string serviceLocation = "";
 
             while (true)
             {

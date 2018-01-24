@@ -49,12 +49,7 @@ namespace OutlookCore
         private eFormCore.Core sdkCore;
         OutlookExchangeOnlineAPIClient outlookExchangeOnlineAPI;
         public IOutlookOnlineController outlookOnlineController;
-        //public OutlookController outlookController;
         public Log log;
-
-        bool syncOutlookConvertRunning = false;
-        bool syncOutlookAppsRunning = false;
-        bool syncAppointmentsToSdkRunning = false;
 
         bool coreThreadRunning = false;
         bool coreRestarting = false;
@@ -226,10 +221,6 @@ namespace OutlookCore
                         if (tries > 600)
                             FatalExpection("Failed to close Core correct after 60 secs (coreRunning)", new Exception());
                     }
-
-                    syncOutlookConvertRunning = false;
-                    syncOutlookAppsRunning = false;
-                    syncAppointmentsToSdkRunning = false;
 
                     log.LogStandard("Not Specified", "Core closed");
                     //outlookController = null;
