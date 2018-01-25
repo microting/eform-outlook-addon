@@ -1,4 +1,4 @@
-# eform-outlook-addon [![Build Status](https://travis-ci.org/microting/eform-outlook-addon.svg?branch=master)](https://travis-ci.org/microting/eform-outlook-addon)
+# eform-outlook-addon ![C# Build status](https://microtingas2017.visualstudio.com/_apis/public/build/definitions/5f551ab2-01ab-4204-8efa-06be93328bc1/3/badge)
 
 ## WARNINIG! NOT TO BE USED SEPERATLY
 
