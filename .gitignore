@@ -328,3 +328,7 @@ SourceCode/JasperExporter.jar
 OutlookCore/JasperExporter.jar
 MicrotingOutlook.Tests/JasperExporter.jar
 MicrotingOutlook.Integration.Tests/JasperExporter.jar
+SourceCode/content/JasperExporter.jar
+OutlookCore/content/JasperExporter.jar
+MicrotingOutlook.Tests/content/JasperExporter.jar
+MicrotingOutlook.Integration.Tests/content/JasperExporter.jar
