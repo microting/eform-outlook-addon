@@ -175,8 +175,12 @@ namespace OutlookExchangeOnlineAPI
 
         public CalendarList GetCalendarList(string userEmail, string calendarName)
         {
-
             log.LogEverything("Not Specified", "ApiClient.GetCalendarList called");
+            if (string.IsNullOrEmpty(userEmail))
+                throw new ArgumentNullException("userEmail cannot be null or empty");
+            if (string.IsNullOrEmpty(calendarName))
+                throw new ArgumentNullException("calendarName cannot be null or empty");
+
             string requestUrl = String.Format("/users/{0}/calendars", userEmail);
             HttpResponseMessage result = MakeApiCall("GET", requestUrl, userEmail, null, null);
             string response = result.Content.ReadAsStringAsync().Result;
@@ -197,6 +201,10 @@ namespace OutlookExchangeOnlineAPI
         {
             log.LogEverything("Not Specified", "ApiClient.GetCalendarItems called");
 
+            if (string.IsNullOrEmpty(userEmail))
+                throw new ArgumentNullException("userEmail cannot be null or empty");
+            if (string.IsNullOrEmpty(calendarID))
+                throw new ArgumentNullException("calendarID cannot be null or empty");
             EventList result = new EventList();
             result.value = new List<Event>();
             bool alldone = false;
@@ -230,6 +238,10 @@ namespace OutlookExchangeOnlineAPI
 
         public Event GetEvent(string globalId, string userEmail)
         {
+            if (string.IsNullOrEmpty(globalId))
+                throw new ArgumentNullException("globalId cannot be null or empty");
+            if (string.IsNullOrEmpty(userEmail))
+                throw new ArgumentNullException("userEmail cannot be null or empty");
             log.LogEverything("Not Specified", "ApiClient.GetEvent globalId is " + globalId);
             log.LogEverything("Not Specified", "ApiClient.GetEvent userEmail is " + userEmail);
             string requestUrl = String.Format("/users/{0}/events/{1}", userEmail, globalId);
@@ -252,6 +264,12 @@ namespace OutlookExchangeOnlineAPI
 
         public Event UpdateEvent(string userEmail, string EventID, string update)
         {
+            if (string.IsNullOrEmpty(userEmail))
+                throw new ArgumentNullException("userEmail cannot be null or empty");
+            if (string.IsNullOrEmpty(EventID))
+                throw new ArgumentNullException("EventID cannot be null or empty");
+            if (string.IsNullOrEmpty(update))
+                throw new ArgumentNullException("update cannot be null or empty");
             string requestUrl = String.Format("/users/{0}/events/{1}", userEmail, EventID);
             HttpResponseMessage result = MakeApiCall("PATCH", requestUrl, userEmail, update, null);
             string response = result.Content.ReadAsStringAsync().Result;
@@ -268,6 +286,12 @@ namespace OutlookExchangeOnlineAPI
         }
         public Event CreateEvent(string userEmail, string CalendarID, string eventObject)
         {
+            if (string.IsNullOrEmpty(userEmail))
+                throw new ArgumentNullException("userEmail cannot be null or empty");
+            if (string.IsNullOrEmpty(CalendarID))
+                throw new ArgumentNullException("CalendarID cannot be null or empty");
+            if (string.IsNullOrEmpty(eventObject))
+                throw new ArgumentNullException("eventObject cannot be null or empty");
             string requestUrl = String.Format("/users/{0}/calendars/{1}/events", userEmail, CalendarID);
             HttpResponseMessage httpresult = MakeApiCall("POST", requestUrl, userEmail, eventObject, null);
             string response = httpresult.Content.ReadAsStringAsync().Result;
@@ -283,6 +307,10 @@ namespace OutlookExchangeOnlineAPI
         }
         public void DeleteEvent(string userEmail, string EventID)
         {
+            if (string.IsNullOrEmpty(userEmail))
+                throw new ArgumentNullException("userEmail cannot be null or empty");
+            if (string.IsNullOrEmpty(EventID))
+                throw new ArgumentNullException("EventID cannot be null or empty");
             string requestUrl = String.Format("/users/{0}/events/{1}", userEmail, EventID);
             HttpResponseMessage result = MakeApiCall("DELETE", requestUrl, userEmail, null, null);
         }

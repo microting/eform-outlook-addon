@@ -334,6 +334,8 @@ namespace OutlookOfficeOnline
 
         public bool CalendarItemReflecting(string globalId)
         {
+            if (string.IsNullOrEmpty(globalId))
+                throw new ArgumentNullException("globalId cannot be null or empty");
             try
             {
                 #region appointment = 'find one';
@@ -457,6 +459,16 @@ namespace OutlookOfficeOnline
 
         public string CalendarItemCreate(string location, DateTime start, int duration, string subject, string body, string originalStartTimeZone, string originalEndTimeZone)
         {
+            if (string.IsNullOrEmpty(location))
+                throw new ArgumentNullException("location cannot be null or empty");
+            if (string.IsNullOrEmpty(subject))
+                throw new ArgumentNullException("subject cannot be null or empty");
+            if (string.IsNullOrEmpty(body))
+                throw new ArgumentNullException("body cannot be null or empty");
+            if (string.IsNullOrEmpty(originalStartTimeZone))
+                throw new ArgumentNullException("originalStartTimeZone cannot be null or empty");
+            if (string.IsNullOrEmpty(originalEndTimeZone))
+                throw new ArgumentNullException("originalEndTimeZone cannot be null or empty");
             try
             {
                 Event newAppo = outlookExchangeOnlineAPIClient.CreateEvent(userEmailAddess, GetCalendarID(), CalendarItemCreateBody(subject, body, location, start, start.AddMinutes(duration), originalStartTimeZone, originalEndTimeZone));
@@ -471,6 +483,10 @@ namespace OutlookOfficeOnline
 
         public bool CalendarItemUpdate(string globalId, DateTime start, ProcessingStateOptions workflowState, string body)
         {
+            if (string.IsNullOrEmpty(globalId))
+                throw new ArgumentNullException("globalId cannot be null or empty");
+            if (string.IsNullOrEmpty(body))
+                throw new ArgumentNullException("body cannot be null or empty");
             log.LogStandard("Not Specified", "CalendarItemUpdate incoming start is : " + start.ToString());
             log.LogStandard("Not Specified", "CalendarItemUpdate incoming globalId is : " + globalId);
             //Event item = AppointmentItemFind(globalId, start.AddHours(-36), start.AddHours(36)); // TODO!
@@ -536,6 +552,8 @@ namespace OutlookOfficeOnline
 
         public bool CalendarItemDelete(string globalId)
         {
+            if (string.IsNullOrEmpty(globalId))
+                throw new ArgumentNullException("globalId cannot be null or empty");
             log.LogEverything("Not Specified", "OutlookOnlineController.CalendarItemDelete called");
             try
             {
@@ -564,6 +582,8 @@ namespace OutlookOfficeOnline
 
         private Event GetEvent(string globalId)
         {
+            if (string.IsNullOrEmpty(globalId))
+                throw new ArgumentNullException("globalId cannot be null or empty");
             try
             {
                 log.LogEverything("Not Specified", "OutlookOnlineController.GetEvent called");
@@ -579,6 +599,8 @@ namespace OutlookOfficeOnline
 
         private Event AppointmentItemFind(string globalId, DateTime tLimitFrom, DateTime tLimitTo)
         {
+            if (string.IsNullOrEmpty(globalId))
+                throw new ArgumentNullException("globalId cannot be null or empty");
             try
             {
                 log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind called");
