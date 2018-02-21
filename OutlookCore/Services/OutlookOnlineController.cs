@@ -334,8 +334,6 @@ namespace OutlookOfficeOnline
 
         public bool CalendarItemReflecting(string globalId)
         {
-            if (string.IsNullOrEmpty(globalId))
-                throw new ArgumentNullException("globalId cannot be null or empty");
             try
             {
                 #region appointment = 'find one';
