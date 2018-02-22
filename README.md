@@ -1,5 +1,7 @@
 # eform-outlook-addon ![C# Build status](https://microtingas2017.visualstudio.com/_apis/public/build/definitions/5f551ab2-01ab-4204-8efa-06be93328bc1/3/badge)
 
+[![NuGet Badge](https://buildstats.info/nuget/Microting.OutlookAddon)](https://www.nuget.org/packages/Microting.OutlookAddon/)
+
 ## WARNINIG! NOT TO BE USED SEPERATLY
 
 ## License
