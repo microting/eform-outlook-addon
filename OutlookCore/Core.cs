@@ -269,109 +269,109 @@ namespace OutlookCore
         /// <summary>
         /// IMPORTANT: templateId, sites, startTime, duration, outlookTitle and eFormConnected are mandatory. Rest are optional, and should be passed 'null' if not wanted to use
         /// </summary>
-        public string AppointmentCreate(int templateId, List<int> sites, DateTime startTime, int duration,
-            string outlookTitle, string outlookCommentary, bool? outlookColorRuleOverride,
-            bool eFormConnected, string eFormTitle, string eFormDescription, string eFormInfo, int? eFormDaysToExpire, List<string> eFormReplacements)
-        {
-            try
-            {
-                #region log everything...
-                log.LogStandard("Not Specified", t.GetMethodName() + " called");
-                log.LogVariable("Not Specified", nameof(templateId), templateId.ToString());
-                log.LogVariable("Not Specified", nameof(startTime), startTime);
-                log.LogVariable("Not Specified", nameof(duration), duration);
-                log.LogVariable("Not Specified", nameof(outlookTitle), outlookTitle);
-                log.LogVariable("Not Specified", nameof(outlookCommentary), outlookCommentary);
-                log.LogVariable("Not Specified", nameof(outlookColorRuleOverride), outlookColorRuleOverride);
-                log.LogVariable("Not Specified", nameof(eFormConnected), eFormConnected);
-                log.LogVariable("Not Specified", nameof(eFormTitle), eFormTitle);
-                log.LogVariable("Not Specified", nameof(eFormDescription), eFormDescription);
-                log.LogVariable("Not Specified", nameof(eFormInfo), eFormInfo);
-                log.LogVariable("Not Specified", nameof(eFormDaysToExpire), eFormDaysToExpire);
-                #endregion
+        //public string AppointmentCreate(int templateId, List<int> sites, DateTime startTime, int duration,
+        //    string outlookTitle, string outlookCommentary, bool? outlookColorRuleOverride,
+        //    bool eFormConnected, string eFormTitle, string eFormDescription, string eFormInfo, int? eFormDaysToExpire, List<string> eFormReplacements)
+        //{
+        //    try
+        //    {
+        //        #region log everything...
+        //        log.LogStandard("Not Specified", t.GetMethodName() + " called");
+        //        log.LogVariable("Not Specified", nameof(templateId), templateId.ToString());
+        //        log.LogVariable("Not Specified", nameof(startTime), startTime);
+        //        log.LogVariable("Not Specified", nameof(duration), duration);
+        //        log.LogVariable("Not Specified", nameof(outlookTitle), outlookTitle);
+        //        log.LogVariable("Not Specified", nameof(outlookCommentary), outlookCommentary);
+        //        log.LogVariable("Not Specified", nameof(outlookColorRuleOverride), outlookColorRuleOverride);
+        //        log.LogVariable("Not Specified", nameof(eFormConnected), eFormConnected);
+        //        log.LogVariable("Not Specified", nameof(eFormTitle), eFormTitle);
+        //        log.LogVariable("Not Specified", nameof(eFormDescription), eFormDescription);
+        //        log.LogVariable("Not Specified", nameof(eFormInfo), eFormInfo);
+        //        log.LogVariable("Not Specified", nameof(eFormDaysToExpire), eFormDaysToExpire);
+        //        #endregion
 
-                #region needed
-                if (templateId < 1)
-                    throw new ArgumentException("templateId needs to be minimum 1");
+        //        #region needed
+        //        if (templateId < 1)
+        //            throw new ArgumentException("templateId needs to be minimum 1");
 
-                if (sites == null)
-                    throw new ArgumentException("sites needs to be not null");
-                if (sites.Count < 1)
-                    throw new ArgumentException("sites.Count needs to be minimum 1");
+        //        if (sites == null)
+        //            throw new ArgumentException("sites needs to be not null");
+        //        if (sites.Count < 1)
+        //            throw new ArgumentException("sites.Count needs to be minimum 1");
 
-                //---
+        //        //---
 
-                if (startTime == null)
-                    throw new ArgumentException("startTime needs to be not null");
-                if (startTime < DateTime.Now)
-                    throw new ArgumentException("startTime needs to be a future DateTime");
+        //        if (startTime == null)
+        //            throw new ArgumentException("startTime needs to be not null");
+        //        if (startTime < DateTime.Now)
+        //            throw new ArgumentException("startTime needs to be a future DateTime");
 
-                if (duration < 1)
-                    throw new ArgumentException("duration needs to be minimum 1");
+        //        if (duration < 1)
+        //            throw new ArgumentException("duration needs to be minimum 1");
 
-                if (string.IsNullOrWhiteSpace(outlookTitle))
-                    throw new ArgumentException("outlookTitle needs to be not empty");
+        //        if (string.IsNullOrWhiteSpace(outlookTitle))
+        //            throw new ArgumentException("outlookTitle needs to be not empty");
 
-                if (eFormDaysToExpire != null)
-                    if (eFormDaysToExpire < 1)
-                        throw new ArgumentException("eFormDaysToExpire needs to be minimum 1");
+        //        if (eFormDaysToExpire != null)
+        //            if (eFormDaysToExpire < 1)
+        //                throw new ArgumentException("eFormDaysToExpire needs to be minimum 1");
 
-                if (eFormReplacements != null)
-                    foreach (var item in eFormReplacements)
-                        if (!item.Contains("=="))
-                            throw new ArgumentException("All eFormReplacements needs to contain '=='");
-                #endregion
+        //        if (eFormReplacements != null)
+        //            foreach (var item in eFormReplacements)
+        //                if (!item.Contains("=="))
+        //                    throw new ArgumentException("All eFormReplacements needs to contain '=='");
+        //        #endregion
 
-                #region body = ...
-                string body = "";
+        //        #region body = ...
+        //        string body = "";
 
-                if (!string.IsNullOrWhiteSpace(outlookCommentary))
-                    body = outlookCommentary + Environment.NewLine + Environment.NewLine;
+        //        if (!string.IsNullOrWhiteSpace(outlookCommentary))
+        //            body = outlookCommentary + Environment.NewLine + Environment.NewLine;
 
-                if (true)
-                    body = body + "Template# " + templateId
-                    + Environment.NewLine + "Sites# " + string.Join(",", sites)
-                    + Environment.NewLine;
+        //        if (true)
+        //            body = body + "Template# " + templateId
+        //            + Environment.NewLine + "Sites# " + string.Join(",", sites)
+        //            + Environment.NewLine;
 
-                if (!string.IsNullOrWhiteSpace(eFormTitle))
-                    body += Environment.NewLine + "Title# " + eFormTitle;
+        //        if (!string.IsNullOrWhiteSpace(eFormTitle))
+        //            body += Environment.NewLine + "Title# " + eFormTitle;
 
-                if (!string.IsNullOrWhiteSpace(eFormDescription))
-                    body += Environment.NewLine + "Description# " + eFormDescription;
+        //        if (!string.IsNullOrWhiteSpace(eFormDescription))
+        //            body += Environment.NewLine + "Description# " + eFormDescription;
 
-                if (!string.IsNullOrWhiteSpace(eFormInfo))
-                    body += Environment.NewLine + "Info# " + eFormInfo;
+        //        if (!string.IsNullOrWhiteSpace(eFormInfo))
+        //            body += Environment.NewLine + "Info# " + eFormInfo;
 
-                if (eFormConnected)
-                    body += Environment.NewLine + "Connected# " + eFormConnected;
+        //        if (eFormConnected)
+        //            body += Environment.NewLine + "Connected# " + eFormConnected;
 
-                if (eFormDaysToExpire != null)
-                    body += Environment.NewLine + "Expire# " + eFormDaysToExpire;
+        //        if (eFormDaysToExpire != null)
+        //            body += Environment.NewLine + "Expire# " + eFormDaysToExpire;
 
-                bool colorRule = t.Bool(sqlController.SettingRead(Settings.colorsRule));
-                if (outlookColorRuleOverride != null)
-                {
-                    colorRule = (bool)outlookColorRuleOverride;
-                    body += Environment.NewLine + "Color# " + colorRule.ToString();
-                }
+        //        bool colorRule = t.Bool(sqlController.SettingRead(Settings.colorsRule));
+        //        if (outlookColorRuleOverride != null)
+        //        {
+        //            colorRule = (bool)outlookColorRuleOverride;
+        //            body += Environment.NewLine + "Color# " + colorRule.ToString();
+        //        }
 
-                if (eFormReplacements != null)
-                    if (eFormReplacements.Count > 0)
-                        foreach (var replacement in eFormReplacements)
-                            body += Environment.NewLine + "Replacements# " + replacement;
-                #endregion
+        //        if (eFormReplacements != null)
+        //            if (eFormReplacements.Count > 0)
+        //                foreach (var replacement in eFormReplacements)
+        //                    body += Environment.NewLine + "Replacements# " + replacement;
+        //        #endregion
 
-                //string globalId = outlookController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body);
-                TimeZone localZone = TimeZone.CurrentTimeZone;
+        //        //string globalId = outlookController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body);
+        //        TimeZone localZone = TimeZone.CurrentTimeZone;
 
-                string globalId = outlookOnlineController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body, localZone.StandardName, localZone.StandardName);
-                return globalId;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //        string globalId = outlookOnlineController.CalendarItemCreate("Planned", startTime, duration, outlookTitle, body, localZone.StandardName, localZone.StandardName);
+        //        return globalId;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
         /// <summary>
         /// No summary
