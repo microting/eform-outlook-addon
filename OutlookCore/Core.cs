@@ -35,6 +35,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using OutlookOfficeOnline;
 using OutlookExchangeOnlineAPI;
+using Rebus.Bus;
+using Castle.MicroKernel.Registration;
+using Castle.Windsor;
+using Microting.OutlookAddon.Installers;
 
 namespace OutlookCore
 {
@@ -50,6 +54,8 @@ namespace OutlookCore
         OutlookExchangeOnlineAPIClient outlookExchangeOnlineAPI;
         public IOutlookOnlineController outlookOnlineController;
         public Log log;
+        IWindsorContainer container;
+        public IBus bus;
 
         bool coreThreadRunning = false;
         bool coreRestarting = false;
@@ -84,6 +90,7 @@ namespace OutlookCore
 
                     //sqlController
                     sqlController = new SqlController(connectionString);
+
 
                     //check settings
                     if (sqlController.SettingCheckAll().Count > 0)
@@ -133,6 +140,17 @@ namespace OutlookCore
                     //coreThread
                     string sdkCoreConnectionString = sqlController.SettingRead(Settings.microtingDb);
                     startSdkCore(sdkCoreConnectionString);
+
+                    container = new WindsorContainer();
+                    container.Register(Component.For<SqlController>().Instance(sqlController));
+                    container.Register(Component.For<eFormCore.Core>().Instance(sdkCore));
+                    container.Install(
+                        new RebusHandlerInstaller()
+                        , new RebusInstaller(connectionString)
+                    );
+
+
+                    this.bus = container.Resolve<IBus>();
 
                     Thread coreThread = new Thread(() => CoreThread(sdkCoreConnectionString));
                     coreThread.Start();

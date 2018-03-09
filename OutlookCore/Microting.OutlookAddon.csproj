@@ -116,6 +116,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core.cs" />
+    <Compile Include="Handlers\AppointmentCreatedInOutlookHandler.cs" />
+    <Compile Include="Handlers\AppointmentDeletedInOutlookHandler.cs" />
+    <Compile Include="Handlers\AppointmentMovedInOutlookHandler.cs" />
+    <Compile Include="Handlers\ConvertRecurringEventToSingleEventHandler.cs" />
+    <Compile Include="Handlers\EformCompletedHandler.cs" />
+    <Compile Include="Handlers\EformParsedByServerHandler.cs" />
+    <Compile Include="Handlers\EformParsingErrorHandler.cs" />
+    <Compile Include="Handlers\EformRetrievedHandler.cs" />
+    <Compile Include="Installers\RebusHandlerInstaller.cs" />
+    <Compile Include="Installers\RebusInstaller.cs" />
+    <Compile Include="Messages\AppointmentCreatedInOutlook.cs" />
+    <Compile Include="Messages\AppointmentDeletedInOutlook.cs" />
+    <Compile Include="Messages\AppointmentMovedInOutlook.cs" />
+    <Compile Include="Messages\ConvertRecurringEventToSingleEvent.cs" />
+    <Compile Include="Messages\EformCompleted.cs" />
+    <Compile Include="Messages\EformParsedByServer.cs" />
+    <Compile Include="Messages\EformParsingError.cs" />
+    <Compile Include="Messages\EformRetrieved.cs" />
     <Compile Include="OfficeApi\OutlookExchangeOnlineAPIClient.cs" />
     <Compile Include="OfficeApi\Calendar.cs" />
     <Compile Include="OfficeApi\EmailAddress.cs" />
@@ -157,6 +175,7 @@
       <DependentUpon>201712151252232_InitialDb.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
