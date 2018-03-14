@@ -39,6 +39,7 @@ using Rebus.Bus;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Microting.OutlookAddon.Installers;
+using Microting.OutlookAddon.Messages;
 
 namespace OutlookCore
 {
@@ -144,6 +145,8 @@ namespace OutlookCore
                     container = new WindsorContainer();
                     container.Register(Component.For<SqlController>().Instance(sqlController));
                     container.Register(Component.For<eFormCore.Core>().Instance(sdkCore));
+                    container.Register(Component.For<Log>().Instance(log));
+                    container.Register(Component.For<IOutlookOnlineController>().Instance(outlookOnlineController));
                     container.Install(
                         new RebusHandlerInstaller()
                         , new RebusInstaller(connectionString)
@@ -761,72 +764,73 @@ namespace OutlookCore
                     //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L620");
                     if (appo != null)
                     {
-                        //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L623");
-                        eFormData.MainElement mainElement = sdkCore.TemplateRead((int)appo.TemplateId);
-                        if (mainElement == null)
-                        {
-                            log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L625 mainElement is NULL!!!");
-                        }
+                        bus.SendLocal(new AppointmentCreatedInOutlook(appo)).Wait();
+                        ////log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L623");
+                        //eFormData.MainElement mainElement = sdkCore.TemplateRead((int)appo.TemplateId);
+                        //if (mainElement == null)
+                        //{
+                        //    log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L625 mainElement is NULL!!!");
+                        //}
 
-                        mainElement.Repeated = 1;
-                        DateTime startDt = new DateTime(appo.Start.Year, appo.Start.Month, appo.Start.Day, 0, 0, 0);
-                        DateTime endDt = new DateTime(appo.End.AddDays(1).Year, appo.End.AddDays(1).Month, appo.End.AddDays(1).Day, 23, 59, 59);
-                        //mainElement.StartDate = ((DateTime)appo.Start).ToUniversalTime();
-                        mainElement.StartDate = startDt;
-                        //mainElement.EndDate = ((DateTime)appo.End.AddDays(1)).ToUniversalTime();
-                        mainElement.EndDate = endDt;
-                        //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L629");
-                        log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() StartDate is " + mainElement.StartDate);
-                        log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() EndDate is " + mainElement.EndDate);
+                        //mainElement.Repeated = 1;
+                        //DateTime startDt = new DateTime(appo.Start.Year, appo.Start.Month, appo.Start.Day, 0, 0, 0);
+                        //DateTime endDt = new DateTime(appo.End.AddDays(1).Year, appo.End.AddDays(1).Month, appo.End.AddDays(1).Day, 23, 59, 59);
+                        ////mainElement.StartDate = ((DateTime)appo.Start).ToUniversalTime();
+                        //mainElement.StartDate = startDt;
+                        ////mainElement.EndDate = ((DateTime)appo.End.AddDays(1)).ToUniversalTime();
+                        //mainElement.EndDate = endDt;
+                        ////log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L629");
+                        //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() StartDate is " + mainElement.StartDate);
+                        //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() EndDate is " + mainElement.EndDate);
 
-                        bool allGood = false;
-                        List<AppoinntmentSite> appoSites = appo.AppointmentSites;
-                        if (appoSites == null)
-                        {
-                            log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L635 appoSites is NULL!!! for appo.GlobalId" + appo.GlobalId);
-                        }
-                        else
-                        {
-                            foreach (AppoinntmentSite appo_site in appoSites)
-                            {
-                                log.LogEverything("Not Specified", "outlookController.foreach AppoinntmentSite appo_site is : " + appo_site.MicrotingSiteUid);
-                                //List<int> siteIds = new List<int>();
-                                //siteIds.Add(appo_site.MicrotingSiteUid);
-                                string resultId = sdkCore.CaseCreate(mainElement, "", appo_site.MicrotingSiteUid);
-                                log.LogEverything("Not Specified", "outlookController.foreach resultId is : " + resultId);
-                                int localCaseId = (int)sdkCore.CaseLookupMUId(resultId).CaseId;
+                        //bool allGood = false;
+                        //List<AppoinntmentSite> appoSites = appo.AppointmentSites;
+                        //if (appoSites == null)
+                        //{
+                        //    log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L635 appoSites is NULL!!! for appo.GlobalId" + appo.GlobalId);
+                        //}
+                        //else
+                        //{
+                        //    foreach (AppoinntmentSite appo_site in appoSites)
+                        //    {
+                        //        log.LogEverything("Not Specified", "outlookController.foreach AppoinntmentSite appo_site is : " + appo_site.MicrotingSiteUid);
+                        //        //List<int> siteIds = new List<int>();
+                        //        //siteIds.Add(appo_site.MicrotingSiteUid);
+                        //        string resultId = sdkCore.CaseCreate(mainElement, "", appo_site.MicrotingSiteUid);
+                        //        log.LogEverything("Not Specified", "outlookController.foreach resultId is : " + resultId);
+                        //        int localCaseId = (int)sdkCore.CaseLookupMUId(resultId).CaseId;
 
-                                //string localCaseId = .First().CaseId.ToString();
-                                if (!string.IsNullOrEmpty(resultId))
-                                {
-                                    //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L649");
-                                    appo_site.MicrotingUuId = resultId;
-                                    sqlController.AppointmentSiteUpdate((int)appo_site.Id, localCaseId.ToString(), ProcessingStateOptions.Sent);
-                                    allGood = true;
-                                }
-                                else
-                                {
-                                    log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L656");
-                                    allGood = false;
-                                }
-                            }
+                        //        //string localCaseId = .First().CaseId.ToString();
+                        //        if (!string.IsNullOrEmpty(resultId))
+                        //        {
+                        //            //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L649");
+                        //            appo_site.MicrotingUuId = resultId;
+                        //            sqlController.AppointmentSiteUpdate((int)appo_site.Id, localCaseId.ToString(), ProcessingStateOptions.Sent);
+                        //            allGood = true;
+                        //        }
+                        //        else
+                        //        {
+                        //            log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L656");
+                        //            allGood = false;
+                        //        }
+                        //    }
 
-                            if (allGood)
-                            {
-                                //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L663");
-                                bool updateStatus = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, (DateTime)appo.Start, ProcessingStateOptions.Sent, appo.Body);
-                                if (updateStatus)
-                                {
-                                    //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L667");
-                                    sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Sent, appo.Body, "", "", appo.Completed, appo.Start, appo.End, appo.Duration);
-                                }
-                            }
-                            else
-                            {
-                                //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L673");
-                                //syncAppointmentsToSdkRunning = false;
-                            }
-                        }
+                        //    if (allGood)
+                        //    {
+                        //        //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L663");
+                        //        bool updateStatus = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, (DateTime)appo.Start, ProcessingStateOptions.Sent, appo.Body);
+                        //        if (updateStatus)
+                        //        {
+                        //            //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L667");
+                        //            sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Sent, appo.Body, "", "", appo.Completed, appo.Start, appo.End, appo.Duration);
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L673");
+                        //        //syncAppointmentsToSdkRunning = false;
+                        //    }
+                        //}
                     }
                     else
                     {
