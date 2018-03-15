@@ -201,7 +201,7 @@ namespace OutlookOfficeOnline
 
                                 log.LogStandard("Not Specified", "Trying create new appointment for item.Id : " + item.Id + " and the UpdateEvent returned Updateditem: " + updatedItem.ToString());
 
-                                Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, updatedItem.Location.DisplayName, updatedItem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
+                                Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, updatedItem.Location.DisplayName, updatedItem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null);
 
                                 if (appo.ProcessingState == null)
                                     appo.ProcessingState = "planned";
@@ -260,7 +260,7 @@ namespace OutlookOfficeOnline
                             {
                                 log.LogVariable("Not Specified", nameof(processingState), processingState);
 
-                                Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, ReplaceLinesInBody(item.BodyPreview), t.Bool(sqlController.SettingRead(Settings.colorsRule)), true);
+                                Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, ReplaceLinesInBody(item.BodyPreview), t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null);
 
                                 if (sqlController.AppointmentsCancel(appo.GlobalId))
                                     CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Canceled, appo.Body);
@@ -730,7 +730,7 @@ namespace OutlookOfficeOnline
                         else
                         {
                             if (startPoint <= item.Start.DateTime && item.Start.DateTime <= endPoint)
-                                lstAppoint.Add(new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, item.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true));
+                                lstAppoint.Add(new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, item.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null));
                         }
 
                 return lstAppoint;

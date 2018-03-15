@@ -757,10 +757,16 @@ namespace OutlookCore
                 string serverAddress = sdkCore.GetHttpServerAddress();
                 //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L614");
 
+                Appointment appo = null;
                 while (coreThreadRunning)
                 {
                     //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L618");
-                    Appointment appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true, null);
+                    if (appo != null) {
+                        appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true, appo.Id);
+                    } else {
+                        appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true, null);
+                    }
+
                     //log.LogEverything("Not Specified", "outlookController.SyncAppointmentsToSdk() L620");
                     if (appo != null)
                     {

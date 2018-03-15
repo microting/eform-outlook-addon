@@ -14,6 +14,7 @@ namespace OutlookSql
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public int Duration { get; set; }
+        public int? Id { get; set; }
         public string Subject { get; set; }
         public string ProcessingState { get; set; }
         public string Body { get; set; }
@@ -39,8 +40,9 @@ namespace OutlookSql
 
         }
 
-        public Appointment(string globalId, DateTime start, int duration, string subject, string processingState, string body, bool colorRule, bool parseBodyContent)
+        public Appointment(string globalId, DateTime start, int duration, string subject, string processingState, string body, bool colorRule, bool parseBodyContent, int? id)
         {
+            Id = id;
             GlobalId = globalId;
             Start = start;
             Duration = duration;
