@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microting.OutlookAddon.Messages
 {
-    class AppointmentMovedInOutlook
+    public class AppointmentMovedInOutlook
     {
     }
 }

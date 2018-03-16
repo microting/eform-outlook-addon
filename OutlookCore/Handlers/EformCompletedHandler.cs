@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Microting.OutlookAddon.Handlers
 {
-    class EformCompletedHandler : IHandleMessages<EformCompleted>
+    public class EformCompletedHandler : IHandleMessages<EformCompleted>
     {
         private readonly SqlController sqlController;
 

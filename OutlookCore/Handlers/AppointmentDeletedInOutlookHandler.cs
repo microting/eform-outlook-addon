@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Microting.OutlookAddon.Handlers
 {
-    class AppointmentDeletedInOutlookHandler : IHandleMessages<AppointmentDeletedInOutlook>
+    public class AppointmentDeletedInOutlookHandler : IHandleMessages<AppointmentDeletedInOutlook>
     {
         private readonly SqlController sqlController;
 

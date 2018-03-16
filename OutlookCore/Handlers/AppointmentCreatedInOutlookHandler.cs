@@ -1,18 +1,17 @@
-﻿using eFormCore;
-using eFormShared;
+﻿
 using Microting.OutlookAddon.Messages;
-using OutlookOfficeOnline;
-using OutlookSql;
+using System.Threading.Tasks;
 using Rebus.Handlers;
 using System;
+using eFormCore;
+using OutlookOfficeOnline;
+using OutlookSql;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using eFormShared;
 
 namespace Microting.OutlookAddon.Handlers
 {
-    class AppointmentCreatedInOutlookHandler : IHandleMessages<AppointmentCreatedInOutlook>
+    public class AppointmentCreatedInOutlookHandler : IHandleMessages<AppointmentCreatedInOutlook>
     {
         private readonly SqlController sqlController;
         private readonly Log log;

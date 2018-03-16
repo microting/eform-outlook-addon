@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Microting.OutlookAddon.Handlers
 {
-    class ConvertRecurringEventToSingleEventHandler : IHandleMessages<ConvertRecurringEventToSingleEvent>
+    public class ConvertRecurringEventToSingleEventHandler : IHandleMessages<ConvertRecurringEventToSingleEvent>
     {
         private readonly SqlController sqlController;
 

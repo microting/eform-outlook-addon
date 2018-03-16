@@ -1,8 +1,9 @@
-﻿using System;
-using Castle.MicroKernel.Registration;
+﻿using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using Rebus.Config;
+using System;
+
 
 namespace Microting.OutlookAddon.Installers
 {

@@ -25,14 +25,10 @@ SOFTWARE.
 //using OutlookOffice;
 using OutlookSql;
 using eFormShared;
-using eFormCore;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using OutlookOfficeOnline;
 using OutlookExchangeOnlineAPI;
 using Rebus.Bus;
@@ -40,6 +36,7 @@ using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Microting.OutlookAddon.Installers;
 using Microting.OutlookAddon.Messages;
+using Rebus.Handlers;
 
 namespace OutlookCore
 {

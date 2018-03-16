@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Microting.OutlookAddon.Messages
 {
 
-    class AppointmentCreatedInOutlook
+    public class AppointmentCreatedInOutlook
     {
         public Appointment Appo { get; protected set; }
 
