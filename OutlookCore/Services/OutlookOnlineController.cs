@@ -155,8 +155,6 @@ namespace OutlookOfficeOnline
                     {
                         if (item.Type == "SingleInstance") //is NOT recurring, otherwise ignore
                         {
-                            //if (tLimitFrom <= item.Start.DateTime && item.Start.DateTime <= tLimitTo)
-                            //{
                             #region processingState "planned"?
                             string processingState = null;
                             try
@@ -178,7 +176,7 @@ namespace OutlookOfficeOnline
                             #endregion
 
                             if (processingState.ToLower() == "planned")
-                            #region ...
+                            #region planned
                             {
                                 log.LogVariable("Not Specified", nameof(processingState), processingState);
 
@@ -201,13 +199,8 @@ namespace OutlookOfficeOnline
 
                                 log.LogStandard("Not Specified", "Trying create new appointment for item.Id : " + item.Id + " and the UpdateEvent returned Updateditem: " + updatedItem.ToString());
 
-                                Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, updatedItem.Location.DisplayName, updatedItem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null);
+                                Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, "planned", updatedItem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null);
 
-                                if (appo.ProcessingState == null)
-                                    appo.ProcessingState = "planned";
-
-                                if (appo.ProcessingState.ToLower() == "planned")
-                                {
                                     log.LogStandard("Not Specified", "Before calling CalendarItemIntrepret.AppointmentsCreate");
                                     int count = sqlController.AppointmentsCreate(appo);
                                     log.LogStandard("Not Specified", "After calling CalendarItemIntrepret.AppointmentsCreate");
@@ -228,7 +221,7 @@ namespace OutlookOfficeOnline
                                             log.LogStandard("Not Specified", "Appointment not created successfully for item.Id : " + item.Id);
 
                                             #region appo.Body = 'text'
-                                            appo.Body = "<<< Intrepid error: Start >>>" +
+                                            appo.Body = "<<< Parsing error: Start >>>" +
                                                 Environment.NewLine + "Global ID already exists in the database." +
                                                 Environment.NewLine + "Indicating that this appointment has already been created." +
                                                 Environment.NewLine + "Likely course, is that you set the Appointment’s location to 'planned'/[blank] again." +
@@ -237,26 +230,21 @@ namespace OutlookOfficeOnline
                                                 Environment.NewLine + "- Create a new appointment in the calendar" +
                                                 Environment.NewLine + "- Create or copy the wanted details to the new appointment" +
                                                 Environment.NewLine + "" +
-                                                Environment.NewLine + "If you want to restore this appointment’s correct status:" +
-                                                Environment.NewLine + "- Set the appointment’s location to 'check'" +
                                                 Environment.NewLine + "Item.Id :" + item.Id +
-                                                Environment.NewLine + "<<< Intrepid error: End >>>" +
+                                                Environment.NewLine + "<<< Parsing error: End >>>" +
                                                 Environment.NewLine + "" +
                                                 Environment.NewLine + appo.Body;
                                             #endregion
                                             CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.ParsingFailed, appo.Body);
                                         }
                                     }
-                                }
-                                else
-                                    CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.ParsingFailed, appo.Body);
 
                                 AllParsed = true;
                             }
                             #endregion
 
                             if (processingState.ToLower() == "cancel")
-                            #region ...
+                            #region cancel
                             {
                                 log.LogVariable("Not Specified", nameof(processingState), processingState);
 
@@ -269,8 +257,10 @@ namespace OutlookOfficeOnline
 
                                 AllParsed = true;
                             }
+                            #endregion
 
                             if (processingState.ToLower() == "processed")
+                            #region processed
                             {
                                 Appointment appo = sqlController.AppointmentsFind(item.Id);
 
@@ -284,27 +274,7 @@ namespace OutlookOfficeOnline
                                     sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Processed, appo.Body, "", "", appo.Completed, item.Start.DateTime, item.End.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes);
                                 }
                             }
-                            #endregion
-
-                            //if (processingState.ToLower() == "check")
-                            //#region ...
-                            //{
-                            //    log.LogVariable("Not Specified", nameof(processingState), processingState);
-
-                            //    eFormSqlController.SqlController sqlMicroting = new eFormSqlController.SqlController(sqlController.SettingRead(Settings.microtingDb));
-                            //    eFormCommunicator.Communicator com = new eFormCommunicator.Communicator(sqlMicroting, log);
-
-                            //    var temp = sqlController.AppointmentsFind(item.Id);
-
-                            //    var list = sqlMicroting.InteractionCaseListRead(int.Parse(temp.MicrotingUId));
-                            //    foreach (var aCase in list)
-                            //        com.CheckStatusUpdateIfNeeded(aCase.microting_uid);
-
-                            //    CalendarItemReflecting(item.Id);
-                            //    AllParsed = true;
-                            //}
-                            #endregion
-                            //}
+                            #endregion                            
                         }
                     }
                 }
