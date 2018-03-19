@@ -17,9 +17,5 @@ namespace OutlookOfficeOnline
         bool CalendarItemUpdate(string globalId, DateTime start, ProcessingStateOptions workflowState, string body);
 
         bool CalendarItemDelete(string globalId);
-
-        List<Appointment> UnitTest_CalendarItemGetAllNonRecurring(DateTime startPoint, DateTime endPoint);
-
-        bool UnitTest_ForceException(string exceptionType);
     }
 }

@@ -683,48 +683,7 @@ namespace OutlookOfficeOnline
 
         #endregion
 
-        #region unit test
-        public List<Appointment> UnitTest_CalendarItemGetAllNonRecurring(DateTime startPoint, DateTime endPoint)
-        {
-            try
-            {
-                #region var
-                List<Appointment> lstAppoint = new List<Appointment>();
-                #endregion
-                foreach (Event item in GetCalendarItems(new DateTime(1975, 1, 1).Date, DateTime.Today.AddYears(25))) // getting all events from 1975 to today  + 25 years i.e all possible events
-                    if (item.Location != null)
-                        if (item.Type.Equals("Occurrence"))
-                        {
-                            //ignore
-                        }
-                        else
-                        {
-                            if (startPoint <= item.Start.DateTime && item.Start.DateTime <= endPoint)
-                                lstAppoint.Add(new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, item.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null));
-                        }
 
-                return lstAppoint;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(t.GetMethodName() + " failed", ex);
-            }
-        }
-
-
-        public bool UnitTest_ForceException(string exceptionType)
-        {
-            throw new NotImplementedException();
-        }
-
-        private string UnitTest_CalendarBody()
-        {
-            return
-                                            "TempLate# " + "’Besked’"
-                    + Environment.NewLine + "Sites# " + "’All’"
-                    + Environment.NewLine + "title# " + "Outlook appointment eForm test"
-                    + Environment.NewLine + "info# " + "Tekst fra Outlook appointment";
-        }
         private string CalendarItemUpdateBody(string BodyContent, string Location, string Category)
         {
             TimeZone localZone = TimeZone.CurrentTimeZone;
