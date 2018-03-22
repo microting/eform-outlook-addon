@@ -116,6 +116,8 @@ namespace OutlookExchangeOnlineAPI
                 {
                     try
                     {
+
+                        log.LogEverything("Not Specified", "ExecuteQueryWithIncrementalRetry trying to call :" + request.RequestUri);
                         result = httpClient.SendAsync(request).Result;
                         if (!result.StatusCode.Equals(HttpStatusCode.OK))
                         {
@@ -142,7 +144,6 @@ namespace OutlookExchangeOnlineAPI
                                         }
                                         log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK or Created and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
                                         log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
-                                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and content is : " + result.Content.ToString());
                                         System.Threading.Thread.Sleep(backoffInteval * 1000);
                                         retryAttempts++;
                                         backoffInteval = backoffInteval * 2;
