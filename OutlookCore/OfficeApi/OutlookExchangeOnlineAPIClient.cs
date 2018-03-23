@@ -214,7 +214,8 @@ namespace OutlookExchangeOnlineAPI
             string requestUrl;
             while (!alldone)
             {
-                requestUrl = String.Format("/users/{0}/calendars/{1}/calendarview?startDateTime={2}&endDateTime={3}&$skip={4}", userEmail, calendarID, startDate, enddate, skip);
+                requestUrl = String.Format("/users/{0}/calendars/{1}/calendarview?startDateTime={2}&endDateTime={3}&$skip={4}", userEmail, calendarID, startDate.ToString("s"), enddate.ToString("s"), skip);
+                // Formating startDate and enddate according to https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings#Sortable
                 HttpResponseMessage httpresult = MakeApiCall("GET", requestUrl, userEmail, null, null);
                 string response = httpresult.Content.ReadAsStringAsync().Result;
                 log.LogEverything("Not Specified", "ApiClient.GetCalendarItems response is " + response);
