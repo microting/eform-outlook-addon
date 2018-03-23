@@ -297,6 +297,7 @@ namespace OutlookCore
 
         public bool MarkAppointmentRetrived(string caseId)
         {
+            log.LogStandard("Not Specified", t.GetMethodName() + " called");
             Appointment appo = sqlController.AppointmentFindCaseId(caseId);
             bool result = false;
             try
@@ -326,6 +327,7 @@ namespace OutlookCore
 
         public bool MarkAppointmentCompleted(string caseId)
         {
+            log.LogStandard("Not Specified", t.GetMethodName() + " called");
             Appointment appo = sqlController.AppointmentFindCaseId(caseId);
             bool result = false;
 
