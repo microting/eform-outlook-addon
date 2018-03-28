@@ -28,7 +28,7 @@
         public string exceptionString { get; set; }
 
         [StringLength(255)]
-        public string microting_uuid { get; set; }
+        public string sdk_case_id { get; set; }
 
         [StringLength(255)]
         public string processing_state { get; set; }

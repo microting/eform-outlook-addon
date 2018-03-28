@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OutlookExchangeOnlineAPI;
+using Rebus.Bus;
+using Microting.OutlookAddon.Messages;
 
 namespace OutlookOfficeOnline
 {
@@ -19,17 +21,19 @@ namespace OutlookOfficeOnline
         Log log;
         Tools t = new Tools();
         object _lockOutlook = new object();
+        public IBus bus;
 
         OutlookExchangeOnlineAPIClient outlookExchangeOnlineAPIClient;
         string userEmailAddess;
         #endregion
 
         #region con
-        public OutlookOnlineController(SqlController sqlController, Log log, OutlookExchangeOnlineAPIClient outlookExchangeOnlineAPIClient)
+        public OutlookOnlineController(SqlController sqlController, Log log, OutlookExchangeOnlineAPIClient outlookExchangeOnlineAPIClient, IBus bus)
         {
             this.sqlController = sqlController;
             this.log = log;
             this.outlookExchangeOnlineAPIClient = outlookExchangeOnlineAPIClient;
+            this.bus = bus;
         }
         #endregion
 
@@ -155,133 +159,139 @@ namespace OutlookOfficeOnline
                     {
                         if (item.Type == "SingleInstance") //is NOT recurring, otherwise ignore
                         {
-                            #region processingState "planned"?
-                            string processingState = null;
-                            try
+                            if (string.IsNullOrEmpty(item.Location.DisplayName))
                             {
-                                processingState = item.Location.DisplayName;
+                                bus.SendLocal(new ParseOutlookItem(item)).Wait();
                             }
-                            catch { }
+                            
+                            //bus.se
+                            //#region processingState "planned"?
+                            //string processingState = null;
+                            //try
+                            //{
+                            //    processingState = item.Location.DisplayName;
+                            //}
+                            //catch { }
 
 
-                            if (string.IsNullOrEmpty(processingState))
-                            {
-                                if (includeBlankLocations)
-                                    processingState = "planned";
-                                else
-                                    processingState = "";
-                            }
+                            //if (string.IsNullOrEmpty(processingState))
+                            //{
+                            //    if (includeBlankLocations)
+                            //        processingState = "planned";
+                            //    else
+                            //        processingState = "";
+                            //}
 
-                            processingState = processingState.ToLower();
-                            #endregion
+                            //processingState = processingState.ToLower();
+                            //#endregion
 
-                            if (processingState.ToLower() == "planned")
-                            #region planned
-                            {
-                                log.LogVariable("Not Specified", nameof(processingState), processingState);
+                            //if (processingState.ToLower() == "planned")
+                            //#region planned
+                            //{
+                            //    log.LogVariable("Not Specified", nameof(processingState), processingState);
 
-                                if (item.BodyPreview != null)
-                                    if (item.BodyPreview.Contains("<<< "))
-                                        if (item.BodyPreview.Contains("End >>>"))
-                                        {
-                                            item.BodyPreview = t.ReplaceAtLocationAll(item.BodyPreview, "<<< ", "End >>>", "", true);
-                                            item.BodyPreview = item.BodyPreview.Replace("<<< End >>>", "");
-                                            item.BodyPreview = item.BodyPreview.Trim();
-                                        }
+                            //    if (item.BodyPreview != null)
+                            //        if (item.BodyPreview.Contains("<<< "))
+                            //            if (item.BodyPreview.Contains("End >>>"))
+                            //            {
+                            //                item.BodyPreview = t.ReplaceAtLocationAll(item.BodyPreview, "<<< ", "End >>>", "", true);
+                            //                item.BodyPreview = item.BodyPreview.Replace("<<< End >>>", "");
+                            //                item.BodyPreview = item.BodyPreview.Trim();
+                            //            }
 
-                                log.LogStandard("Not Specified", "Trying to do UpdateEvent on item.Id:" + item.Id + " to have new location location : " + processingState);
-                                Event updatedItem = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, "{\"Location\": {\"DisplayName\": \"" + processingState + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(item.BodyPreview) + "\"}}");
+                            //    log.LogStandard("Not Specified", "Trying to do UpdateEvent on item.Id:" + item.Id + " to have new location location : " + processingState);
+                            //Event updatedItem = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, "{\"Location\": {\"DisplayName\": \"" + processingState + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(item.BodyPreview) + "\"}}");
 
-                                if (updatedItem == null)
-                                {
-                                    return false;
-                                }
+                            //    if (updatedItem == null)
+                            //    {
+                            //        return false;
+                            //    }
 
-                                log.LogStandard("Not Specified", "Trying create new appointment for item.Id : " + item.Id + " and the UpdateEvent returned Updateditem: " + updatedItem.ToString());
+                            //    log.LogStandard("Not Specified", "Trying create new appointment for item.Id : " + item.Id + " and the UpdateEvent returned Updateditem: " + updatedItem.ToString());
 
-                                Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, "planned", updatedItem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null);
+                            //    Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, "planned", updatedItem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null);
 
-                                    log.LogStandard("Not Specified", "Before calling CalendarItemIntrepret.AppointmentsCreate");
-                                    int count = sqlController.AppointmentsCreate(appo);
-                                    log.LogStandard("Not Specified", "After calling CalendarItemIntrepret.AppointmentsCreate");
+                            //        log.LogStandard("Not Specified", "Before calling CalendarItemIntrepret.AppointmentsCreate");
+                            //        int count = sqlController.AppointmentsCreate(appo);
+                            //        log.LogStandard("Not Specified", "After calling CalendarItemIntrepret.AppointmentsCreate");
 
-                                    if (count > 0)
-                                    {
-                                        log.LogStandard("Not Specified", "Appointment created successfully for item.Id : " + item.Id);
-                                        CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Processed, appo.Body);
-                                    }
-                                    else
-                                    {
-                                        if (count == 0)
-                                        {
-                                            CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Exception, appo.Body);
-                                        }
-                                        if (count == -1)
-                                        {
-                                            log.LogStandard("Not Specified", "Appointment not created successfully for item.Id : " + item.Id);
+                            //        if (count > 0)
+                            //        {
+                            //            log.LogStandard("Not Specified", "Appointment created successfully for item.Id : " + item.Id);
+                            //            CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Processed, appo.Body);
+                            //        }
+                            //        else
+                            //        {
+                            //            if (count == 0)
+                            //            {
+                            //                CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Exception, appo.Body);
+                            //            }
+                            //            if (count == -1)
+                            //            {
+                            //                log.LogStandard("Not Specified", "Appointment not created successfully for item.Id : " + item.Id);
 
-                                            #region appo.Body = 'text'
-                                            appo.Body = "<<< Parsing error: Start >>>" +
-                                                Environment.NewLine + "Global ID already exists in the database." +
-                                                Environment.NewLine + "Indicating that this appointment has already been created." +
-                                                Environment.NewLine + "Likely course, is that you set the Appointment’s location to 'planned'/[blank] again." +
-                                                Environment.NewLine + "" +
-                                                Environment.NewLine + "If you wanted to a create a new appointment in the calendar:" +
-                                                Environment.NewLine + "- Create a new appointment in the calendar" +
-                                                Environment.NewLine + "- Create or copy the wanted details to the new appointment" +
-                                                Environment.NewLine + "" +
-                                                Environment.NewLine + "Item.Id :" + item.Id +
-                                                Environment.NewLine + "<<< Parsing error: End >>>" +
-                                                Environment.NewLine + "" +
-                                                Environment.NewLine + appo.Body;
-                                            #endregion
-                                            CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.ParsingFailed, appo.Body);
-                                        }
-                                    }
+                            //                #region appo.Body = 'text'
+                            //                appo.Body = "<<< Parsing error: Start >>>" +
+                            //                    Environment.NewLine + "Global ID already exists in the database." +
+                            //                    Environment.NewLine + "Indicating that this appointment has already been created." +
+                            //                    Environment.NewLine + "Likely course, is that you set the Appointment’s location to 'planned'/[blank] again." +
+                            //                    Environment.NewLine + "" +
+                            //                    Environment.NewLine + "If you wanted to a create a new appointment in the calendar:" +
+                            //                    Environment.NewLine + "- Create a new appointment in the calendar" +
+                            //                    Environment.NewLine + "- Create or copy the wanted details to the new appointment" +
+                            //                    Environment.NewLine + "" +
+                            //                    Environment.NewLine + "Item.Id :" + item.Id +
+                            //                    Environment.NewLine + "<<< Parsing error: End >>>" +
+                            //                    Environment.NewLine + "" +
+                            //                    Environment.NewLine + appo.Body;
+                            //                #endregion
+                            //                CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.ParsingFailed, appo.Body);
+                            //            }
+                            //        }
 
-                                AllParsed = true;
-                            }
-                            #endregion
+                            //    AllParsed = true;
+                            //}
+                            //#endregion
 
-                            if (processingState.ToLower() == "cancel")
-                            #region cancel
-                            {
-                                log.LogVariable("Not Specified", nameof(processingState), processingState);
+                            //if (processingState.ToLower() == "cancel")
+                            //#region cancel
+                            //{
+                            //    log.LogVariable("Not Specified", nameof(processingState), processingState);
 
-                                Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, ReplaceLinesInBody(item.BodyPreview), t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null);
+                            //    Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, ReplaceLinesInBody(item.BodyPreview), t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null);
 
-                                if (sqlController.AppointmentsCancel(appo.GlobalId))
-                                    CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Canceled, appo.Body);
-                                else
-                                    CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.ParsingFailed, appo.Body);
+                            //    if (sqlController.AppointmentsCancel(appo.GlobalId))
+                            //        CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Canceled, appo.Body);
+                            //    else
+                            //        CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.ParsingFailed, appo.Body);
 
-                                AllParsed = true;
-                            }
-                            #endregion
+                            //    AllParsed = true;
+                            //}
+                            //#endregion
 
-                            if (processingState.ToLower() == "processed")
-                            #region processed
-                            {
-                                Appointment appo = sqlController.AppointmentsFind(item.Id);
+                            //if (processingState.ToLower() == "processed")
+                            //#region processed
+                            //{
+                            //    Appointment appo = sqlController.AppointmentsFind(item.Id);
 
-                                log.LogStandard("Not Specified", "ParseCalendarItems appo start is : " + appo.Start.ToString());
-                                log.LogStandard("Not Specified", "ParseCalendarItems item start is : " + item.Start.DateTime.ToString());
-                                log.LogStandard("Not Specified", "ParseCalendarItems appo end is : " + appo.End.ToString());
-                                log.LogStandard("Not Specified", "ParseCalendarItems item end is : " + item.End.DateTime.ToString());
-                                if (appo.Start != item.Start.DateTime)
-                                {
-                                    log.LogStandard("Not Specified", "ParseCalendarItems updating calendar entry with globalId : " + appo.GlobalId);
-                                    sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Processed, appo.Body, "", "", appo.Completed, item.Start.DateTime, item.End.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes);
-                                }
-                            }
-                            #endregion                            
+                            //    log.LogStandard("Not Specified", "ParseCalendarItems appo start is : " + appo.Start.ToString());
+                            //    log.LogStandard("Not Specified", "ParseCalendarItems item start is : " + item.Start.DateTime.ToString());
+                            //    log.LogStandard("Not Specified", "ParseCalendarItems appo end is : " + appo.End.ToString());
+                            //    log.LogStandard("Not Specified", "ParseCalendarItems item end is : " + item.End.DateTime.ToString());
+                            //    if (appo.Start != item.Start.DateTime)
+                            //    {
+                            //        log.LogStandard("Not Specified", "ParseCalendarItems updating calendar entry with globalId : " + appo.GlobalId);
+                            //        sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Processed, appo.Body, "", "", appo.Completed, item.Start.DateTime, item.End.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes);
+                            //    }
+                            //}
+                            //#endregion                            
                         }
                     }
                 }
                 #endregion
 
-                sqlController.SettingUpdate(Settings.checkLast_At, timeOfRun.ToString());
-                log.LogVariable("Not Specified", nameof(Settings.checkLast_At), timeOfRun.ToString());
+                //sqlController.SettingUpdate(Settings.checkLast_At, timeOfRun.ToString());
+                //log.LogVariable("Not Specified", nameof(Settings.checkLast_At), timeOfRun.ToString());
 
                 return AllParsed;
             }
@@ -649,7 +659,7 @@ namespace OutlookOfficeOnline
             }
 
         }
-        private string GetUserEmailAddress()
+        public string GetUserEmailAddress()
         {
             log.LogEverything("Not Specified", "GetUserEmailAddress called");
             if (!string.IsNullOrEmpty(userEmailAddess))

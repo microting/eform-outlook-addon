@@ -173,7 +173,7 @@ namespace OutlookSql
                         newAppoSite.appointment_id = newAppo.id;
                         newAppoSite.microting_site_uid = appSite.MicrotingSiteUid;
                         newAppoSite.processing_state = appSite.ProcessingState;
-                        newAppoSite.microting_uuid = null;
+                        newAppoSite.sdk_case_id = null;
                         newAppoSite.version = 1;
                         newAppoSite.workflow_state = "Created";
                         newAppoSite.created_at = DateTime.Now;
@@ -242,10 +242,14 @@ namespace OutlookSql
                         bool color_rule = match.color_rule == 0 ? true : false;
                         Appointment appo = new Appointment(match.global_id, (DateTime)match.start_at, (int)match.duration, match.subject, match.processing_state, match.body, color_rule, false, match.id);
                         appo.Completed = match.completed == 0 ? false : true;
+                        try {
+                            appo.TemplateId = (int)match.template_id;
+                        }
+                        catch { }
 
                         foreach (appointment_sites appo_site in match.appointment_sites)
                         {
-                            AppoinntmentSite appoSite = new AppoinntmentSite(appo_site.id, appo_site.microting_site_uid, appo_site.processing_state, appo_site.microting_uuid);
+                            AppoinntmentSite appoSite = new AppoinntmentSite(appo_site.id, appo_site.microting_site_uid, appo_site.processing_state, appo_site.sdk_case_id);
                             appo.AppointmentSites.Add(appoSite);
                         }
                         return appo;
@@ -303,7 +307,7 @@ namespace OutlookSql
 
                         foreach (appointment_sites appo_site in match.appointment_sites)
                         {
-                            AppoinntmentSite appoSite = new AppoinntmentSite(appo_site.id, appo_site.microting_site_uid, appo_site.processing_state, appo_site.microting_uuid);
+                            AppoinntmentSite appoSite = new AppoinntmentSite(appo_site.id, appo_site.microting_site_uid, appo_site.processing_state, appo_site.sdk_case_id);
                             appo.AppointmentSites.Add(appoSite);
                         }
                         return appo;
@@ -488,20 +492,20 @@ namespace OutlookSql
             }
         }
 
-        public Appointment AppointmentFindCaseId(string microting_uuid)
+        public Appointment AppointmentFindByCaseId(string sdkCaseId)
         {
             try
             {
                 using (var db = GetContextO())
                 {
-                    appointment_sites _appo_site = db.appointment_sites.SingleOrDefault(x => x.microting_uuid == microting_uuid);
+                    appointment_sites _appo_site = db.appointment_sites.SingleOrDefault(x => x.sdk_case_id == sdkCaseId);
 
                     if (_appo_site == null)
                         return null;
 
                     appointments _appo = _appo_site.appointment;
                     Appointment appo = new Appointment(_appo.global_id, (DateTime)_appo.start_at, (int)_appo.duration, _appo.subject, _appo.processing_state, _appo.body, (_appo.color_rule == 0 ? false : true), false, _appo.id);
-                    AppoinntmentSite appo_site = new AppoinntmentSite((int)_appo_site.id, _appo_site.microting_site_uid, _appo_site.processing_state, _appo_site.microting_uuid);
+                    AppoinntmentSite appo_site = new AppoinntmentSite((int)_appo_site.id, _appo_site.microting_site_uid, _appo_site.processing_state, _appo_site.sdk_case_id);
                     appo.AppointmentSites.Add(appo_site);
 
                     return appo;
@@ -523,7 +527,7 @@ namespace OutlookSql
             }
         }
 
-        public bool AppointmentSiteUpdate(int id, string microtingUuid, ProcessingStateOptions processingState)
+        public bool AppointmentSiteUpdate(int id, string sdkCaseId, ProcessingStateOptions processingState)
         {
             try
             {
@@ -535,7 +539,7 @@ namespace OutlookSql
                         return false;
 
                     match.updated_at = DateTime.Now;
-                    match.microting_uuid = microtingUuid;
+                    match.sdk_case_id = sdkCaseId;
                     match.processing_state = processingState.ToString();
                     match.version = match.version + 1;
 
@@ -1284,7 +1288,7 @@ namespace OutlookSql
             version.appointment_id = appointment_site.id;
             version.microting_site_uid = appointment_site.microting_site_uid;
             version.processing_state = appointment_site.processing_state;
-            version.microting_uuid = appointment_site.microting_uuid;
+            version.sdk_case_id = appointment_site.sdk_case_id;
             version.version = appointment_site.version;
             version.workflow_state = appointment_site.workflow_state;
             version.created_at = appointment_site.created_at;

@@ -124,6 +124,7 @@
     <Compile Include="Handlers\EformParsedByServerHandler.cs" />
     <Compile Include="Handlers\EformParsingErrorHandler.cs" />
     <Compile Include="Handlers\EformRetrievedHandler.cs" />
+    <Compile Include="Handlers\ParseOutlookItemsHandler.cs" />
     <Compile Include="Installers\RebusHandlerInstaller.cs" />
     <Compile Include="Installers\RebusInstaller.cs" />
     <Compile Include="Messages\AppointmentCreatedInOutlook.cs" />
@@ -134,6 +135,11 @@
     <Compile Include="Messages\EformParsedByServer.cs" />
     <Compile Include="Messages\EformParsingError.cs" />
     <Compile Include="Messages\EformRetrieved.cs" />
+    <Compile Include="Messages\ParseOutlookItem.cs" />
+    <Compile Include="Migrations\201803270844522_ChangingMicrotingUidToSdkCaseIdOnAppointmentSites.cs" />
+    <Compile Include="Migrations\201803270844522_ChangingMicrotingUidToSdkCaseIdOnAppointmentSites.Designer.cs">
+      <DependentUpon>201803270844522_ChangingMicrotingUidToSdkCaseIdOnAppointmentSites.cs</DependentUpon>
+    </Compile>
     <Compile Include="OfficeApi\OutlookExchangeOnlineAPIClient.cs" />
     <Compile Include="OfficeApi\Calendar.cs" />
     <Compile Include="OfficeApi\EmailAddress.cs" />
@@ -171,6 +177,9 @@
     <Analyzer Include="..\packages\AWSSDK.SQS.3.3.3\analyzers\dotnet\cs\AWSSDK.SQS.CodeAnalysis.dll" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Migrations\201803270844522_ChangingMicrotingUidToSdkCaseIdOnAppointmentSites.resx">
+      <DependentUpon>201803270844522_ChangingMicrotingUidToSdkCaseIdOnAppointmentSites.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Persistence\Migrations\201712151252232_InitialDb.resx">
       <DependentUpon>201712151252232_InitialDb.cs</DependentUpon>
     </EmbeddedResource>

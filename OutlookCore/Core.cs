@@ -112,17 +112,16 @@ namespace OutlookCore
                     log.LogStandard("Not Specified", "this.serviceLocation is " + serviceLocation);
 
                     //Initialise Outlook API client's object
-                    if (sqlController.SettingRead(Settings.calendarName) == "unittest")
-                    {
-                        outlookOnlineController = new OutlookOnlineController_Fake(sqlController, log);
-                        log.LogStandard("Not Specified", "OutlookController_Fake started");
-                    }
-                    else
-                    {
+                    //if (sqlController.SettingRead(Settings.calendarName) == "unittest")
+                    //{
+                    //    outlookOnlineController = new OutlookOnlineController_Fake(sqlController, log);
+                    //    log.LogStandard("Not Specified", "OutlookController_Fake started");
+                    //}
+                    //else
+                    //{
                         outlookExchangeOnlineAPI = new OutlookExchangeOnlineAPIClient(serviceLocation, log);
-                        outlookOnlineController = new OutlookOnlineController(sqlController, log, outlookExchangeOnlineAPI);
                         log.LogStandard("Not Specified", "OutlookController started");
-                    }
+                    //}
                     log.LogStandard("Not Specified", "OutlookController started");
 
                     log.LogCritical("Not Specified", t.GetMethodName() + " started");
@@ -131,13 +130,13 @@ namespace OutlookCore
 
                     //coreThread
                     string sdkCoreConnectionString = sqlController.SettingRead(Settings.microtingDb);
-                    startSdkCore(sdkCoreConnectionString);
+                    startSdkCoreSqlOnly(sdkCoreConnectionString);
 
                     container = new WindsorContainer();
                     container.Register(Component.For<SqlController>().Instance(sqlController));
                     container.Register(Component.For<eFormCore.Core>().Instance(sdkCore));
                     container.Register(Component.For<Log>().Instance(log));
-                    container.Register(Component.For<IOutlookOnlineController>().Instance(outlookOnlineController));
+                    container.Register(Component.For<OutlookExchangeOnlineAPIClient>().Instance(outlookExchangeOnlineAPI));
                     container.Install(
                         new RebusHandlerInstaller()
                         , new RebusInstaller(connectionString)
@@ -145,6 +144,9 @@ namespace OutlookCore
 
 
                     this.bus = container.Resolve<IBus>();
+                    outlookOnlineController = new OutlookOnlineController(sqlController, log, outlookExchangeOnlineAPI, this.bus);
+                    //container.Register(Component.For<IBus>().Instance(bus));
+                    container.Register(Component.For<IOutlookOnlineController>().Instance(outlookOnlineController));
 
                     Thread coreThread = new Thread(() => CoreThread(sdkCoreConnectionString));
                     coreThread.Start();
@@ -154,66 +156,69 @@ namespace OutlookCore
             #region catch
             catch (Exception ex)
             {
-                FatalExpection(t.GetMethodName() + " failed", ex);
-                return false;
+                throw ex;
+                //FatalExpection(t.GetMethodName() + " failed", ex);
+                //return false;
             }
             #endregion
 
             return true;
         }
 
-        public override void Restart(int sameExceptionCount, int sameExceptionCountMax)
-        {
-            try
-            {
-                if (coreRestarting == false)
-                {
-                    coreRestarting = true;
-                    log.LogCritical("Not Specified", t.GetMethodName() + " called");
-                    log.LogVariable("Not Specified", nameof(sameExceptionCount), sameExceptionCount);
-                    log.LogVariable("Not Specified", nameof(sameExceptionCountMax), sameExceptionCountMax);
+        //public override void Restart(int sameExceptionCount, int sameExceptionCountMax)
+        //{
+        //    try
+        //    {
+        //        if (coreRestarting == false)
+        //        {
+        //            coreRestarting = true;
+        //            log.LogCritical("Not Specified", t.GetMethodName() + " called");
+        //            log.LogVariable("Not Specified", nameof(sameExceptionCount), sameExceptionCount);
+        //            log.LogVariable("Not Specified", nameof(sameExceptionCountMax), sameExceptionCountMax);
 
-                    sameExceptionCountTried++;
+        //            sameExceptionCountTried++;
 
-                    if (sameExceptionCountTried > sameExceptionCountMax)
-                        sameExceptionCountTried = sameExceptionCountMax;
+        //            if (sameExceptionCountTried > sameExceptionCountMax)
+        //                sameExceptionCountTried = sameExceptionCountMax;
 
-                    if (sameExceptionCountTried > 4)
-                        throw new Exception("The same Exception repeated to many times (5+) within one hour");
+        //            if (sameExceptionCountTried > 4)
+        //                throw new Exception("The same Exception repeated to many times (5+) within one hour");
 
-                    int secondsDelay = 0;
-                    switch (sameExceptionCountTried)
-                    {
-                        case 1: secondsDelay = 001; break;
-                        case 2: secondsDelay = 008; break;
-                        case 3: secondsDelay = 064; break;
-                        case 4: secondsDelay = 512; break;
-                        default: throw new ArgumentOutOfRangeException("sameExceptionCount should be above 0");
-                    }
-                    log.LogVariable("Not Specified", nameof(sameExceptionCountTried), sameExceptionCountTried);
-                    log.LogVariable("Not Specified", nameof(secondsDelay), secondsDelay);
+        //            int secondsDelay = 0;
+        //            switch (sameExceptionCountTried)
+        //            {
+        //                case 1: secondsDelay = 001; break;
+        //                case 2: secondsDelay = 008; break;
+        //                case 3: secondsDelay = 064; break;
+        //                case 4: secondsDelay = 512; break;
+        //                default: throw new ArgumentOutOfRangeException("sameExceptionCount should be above 0");
+        //            }
+        //            log.LogVariable("Not Specified", nameof(sameExceptionCountTried), sameExceptionCountTried);
+        //            log.LogVariable("Not Specified", nameof(secondsDelay), secondsDelay);
 
-                    Close();
+        //            Close();
 
-                    log.LogStandard("Not Specified", "Trying to restart the Core in " + secondsDelay + " seconds");
+        //            log.LogStandard("Not Specified", "Trying to restart the Core in " + secondsDelay + " seconds");
 
-                    if (!skipRestartDelay)
-                        Thread.Sleep(secondsDelay * 1000);
-                    else
-                        log.LogStandard("Not Specified", "Delay skipped");
-                    sdkCore.Close();
+        //            if (!skipRestartDelay)
+        //                Thread.Sleep(secondsDelay * 1000);
+        //            else
+        //                log.LogStandard("Not Specified", "Delay skipped");
+        //            sdkCore.Close();
 
-                    Start(connectionString, serviceLocation);
-                    coreRestarting = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                FatalExpection(t.GetMethodName() + "failed. Core failed to restart", ex);
-            }
-        }
+        //            Start(connectionString, serviceLocation);
+        //            coreRestarting = false;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //        //FatalExpection(t.GetMethodName() + "failed. Core failed to restart", ex);
+        //    }
+        //}
 
         public bool Close()
+
         {
             try
             {
@@ -228,6 +233,7 @@ namespace OutlookCore
                     while (coreThreadRunning)
                     {
                         Thread.Sleep(100);
+                        bus.Dispose();
                         tries++;
 
                         if (tries > 600)
@@ -249,7 +255,8 @@ namespace OutlookCore
             }
             catch (Exception ex)
             {
-                FatalExpection(t.GetMethodName() + "failed. Core failed to close", ex);
+                throw ex;
+                //FatalExpection(t.GetMethodName() + "failed. Core failed to close", ex);
             }
             return true;
         }
@@ -298,60 +305,65 @@ namespace OutlookCore
         public bool MarkAppointmentRetrived(string caseId)
         {
             log.LogStandard("Not Specified", t.GetMethodName() + " called");
-            Appointment appo = sqlController.AppointmentFindCaseId(caseId);
-            bool result = false;
-            try
-            {
-                result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Retrived, appo.Body);
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Equals("Item not found"))
-                {
-                    result = true;
-                }
-            }
 
-            if (result)
-            {
-                sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Retrived, appo.Body, "", "", false, appo.Start, appo.End, appo.Duration);
-                sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Retrived);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            bus.SendLocal(new EformRetrieved(caseId));
+            return true;
+            //Appointment appo = sqlController.AppointmentFindByCaseId(caseId);
+            //bool result = false;
+            //try
+            //{
+            //    result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Retrived, appo.Body);
+            //}
+            //catch (Exception ex)
+            //{
+            //    if (ex.Message.Equals("Item not found"))
+            //    {
+            //        result = true;
+            //    }
+            //}
+
+            //if (result)
+            //{
+            //    sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Retrived, appo.Body, "", "", false, appo.Start, appo.End, appo.Duration);
+            //    sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Retrived);
+            //    return true;
+            //}
+            //else
+            //{
+            //    return false;
+            //}
 
         }
 
         public bool MarkAppointmentCompleted(string caseId)
         {
             log.LogStandard("Not Specified", t.GetMethodName() + " called");
-            Appointment appo = sqlController.AppointmentFindCaseId(caseId);
-            bool result = false;
+            bus.SendLocal(new EformCompleted(caseId));
+            //Appointment appo = sqlController.AppointmentFindCaseId(caseId);
+            //bool result = false;
 
-            try
-            {
-                result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Completed, appo.Body);
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Equals("Item not found"))
-                {
-                    result = true;
-                }
-            }
-            if (result)
-            {
-                sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Completed, appo.Body, "", "", true, appo.Start, appo.End, appo.Duration);
-                sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Completed);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            //try
+            //{
+            //    result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Completed, appo.Body);
+            //}
+            //catch (Exception ex)
+            //{
+            //    if (ex.Message.Equals("Item not found"))
+            //    {
+            //        result = true;
+            //    }
+            //}
+            //if (result)
+            //{
+            //    sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Completed, appo.Body, "", "", true, appo.Start, appo.End, appo.Duration);
+            //    sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Completed);
+            //    return true;
+            //}
+            //else
+            //{
+            //    return false;
+            //}
+            return true;
         }
 
         #region parsing threads
@@ -368,16 +380,18 @@ namespace OutlookCore
                 {
                     outlookOnlineController.CalendarItemConvertRecurrences();
                     int? currentId = null;
+                    int appoId = 0;
                     while (firstRun)
                     {
                         if (sdkCore == null)
                         {
-                            startSdkCore(sdkCoreConnectionString);
+                            startSdkCoreSqlOnly(sdkCoreConnectionString);
                         }
                         log.LogEverything("Not Specified", t.GetMethodName() + " checking Appointments which are sent and currentId is now " + currentId.ToString());
-                        Appointment appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Sent, false, currentId);
+                        Appointment appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Sent, false, currentId);                         
                         if (appo != null)
                         {
+                            currentId = appo.Id;
                             foreach (AppoinntmentSite appo_site in appo.AppointmentSites)
                             {
                                 log.LogEverything("Not Specified", t.GetMethodName() + " checking appointment_site with MicrotingUuId : " + appo_site.MicrotingUuId.ToString());
@@ -396,10 +410,10 @@ namespace OutlookCore
                                 {
                                     MarkAppointmentCompleted(kase.CaseId.ToString());
                                 }
-                                else
-                                {
-                                    currentId = appo_site.Id;
-                                }
+                                //else
+                                //{
+                                //    currentId = appo_site.Id;
+                                //}
                             }
 
                         }
@@ -422,9 +436,9 @@ namespace OutlookCore
                 syncOutlookAppsThread.Start(); // This thread takes single events and create the corresponding Appointment
 
                 #region TODO
-                Thread syncAppointmentsToSdk
-                    = new Thread(() => SyncAppointmentsToSdk(sdkCoreConnectionString));
-                syncAppointmentsToSdk.Start();
+                //Thread syncAppointmentsToSdk
+                //    = new Thread(() => SyncAppointmentsToSdk(sdkCoreConnectionString));
+                //syncAppointmentsToSdk.Start();
                 #endregion
 
                 Thread.Sleep(2500);
@@ -435,7 +449,8 @@ namespace OutlookCore
             }
             catch (Exception ex)
             {
-                FatalExpection(t.GetMethodName() + "failed", ex);
+                throw ex;
+                //FatalExpection(t.GetMethodName() + "failed", ex);
             }
         }
 
@@ -444,7 +459,7 @@ namespace OutlookCore
             try
             {
 
-                while (coreThreadRunning)
+                while (coreThreadRunning && coreAvailable)
                 {
                     outlookOnlineController.CalendarItemConvertRecurrences();
                     log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() done and sleeping for 2 seconds");
@@ -465,7 +480,7 @@ namespace OutlookCore
         {
             try
             {
-                while (coreThreadRunning)
+                while (coreThreadRunning && coreAvailable)
                 {
                     outlookOnlineController.ParseCalendarItems();
                     log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
@@ -485,54 +500,59 @@ namespace OutlookCore
             }
         }
 
-        private void SyncAppointmentsToSdk(string sdkConnectionString)
-        {
-            try
-            {
+        //private void SyncAppointmentsToSdk(string sdkConnectionString)
+        //{
+        //    try
+        //    {
 
-                if (sdkCore == null)
-                {
-                    startSdkCore(sdkConnectionString);
-                }
+        //        if (sdkCore == null)
+        //        {
+        //            startSdkCoreSqlOnly(sdkConnectionString);
+        //        }
 
-                string serverAddress = sdkCore.GetHttpServerAddress();
+        //        string serverAddress = sdkCore.GetHttpServerAddress();
 
-                Appointment appo = null;
-                while (coreThreadRunning)
-                {
-                    if (appo != null)
-                    {
-                        appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true, appo.Id);
-                    }
-                    else
-                    {
-                        appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true, null);
-                    }
+        //        Appointment appo = null;
+        //        int lastId = 0;
+        //        while (coreThreadRunning)
+        //        {
+        //            if (lastId != 0)
+        //            {
+        //                appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true, lastId);
+        //                lastId = (int)appo.Id;
+        //            }
+        //            else
+        //            {
+        //                appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true, null);
+        //                if (appo != null) {
+        //                    lastId = (int)appo.Id;
+        //                }                            
+        //            }
 
-                    if (appo != null)
-                    {
-                        bus.SendLocal(new AppointmentCreatedInOutlook(appo)).Wait();
-                    }
-                    else
-                    {
-                        Thread.Sleep(5000); // This is done, so if we don't find an appointment, we don't hammer the db
-                                            // TODO find better way of solving this.
-                    }
-                    log.LogEverything("Not Specified", t.GetMethodName() + " completed");
-                }
-            }
-            catch (ThreadAbortException)
-            {
-                log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
-            }
-            catch (Exception ex)
-            {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
-            }
-        }
+        //            if (appo != null)
+        //            {
+        //                bus.SendLocal(new AppointmentCreatedInOutlook(appo)).Wait();
+        //            }
+        //            else
+        //            {
+        //                Thread.Sleep(5000); // This is done, so if we don't find an appointment, we don't hammer the db
+        //                                    // TODO find better way of solving this.
+        //            }
+        //            log.LogEverything("Not Specified", t.GetMethodName() + " completed");
+        //        }
+        //    }
+        //    catch (ThreadAbortException)
+        //    {
+        //        log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
+        //    }
+        //}
         #endregion
 
-        public void startSdkCore(string sdkConnectionString)
+        public void startSdkCoreSqlOnly(string sdkConnectionString)
         {
             this.sdkCore = new eFormCore.Core();
 

@@ -24,8 +24,8 @@ namespace Microting.OutlookAddon.Installers
                 .Transport(t => t.UseSqlServer(connectionStringOrConnectionStringName: connectionString, tableName: "Rebus", inputQueueName: "eformoutlook-input"))
                 .Options(o =>
                 {
-                    o.SetMaxParallelism(1);
-                    o.SetNumberOfWorkers(1);
+                    o.SetMaxParallelism(10);
+                    o.SetNumberOfWorkers(10);
                 })
                 .Start();
         }
