@@ -45,7 +45,7 @@ namespace OutlookOfficeOnline
             {
                 bool ConvertedAny = false;
                 #region var
-                DateTime checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
+                //DateTime checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
                 double checkPreSend_Hours = double.Parse(sqlController.SettingRead(Settings.checkPreSend_Hours));
                 double checkRetrace_Hours = double.Parse(sqlController.SettingRead(Settings.checkRetrace_Hours));
                 int checkEvery_Mins = int.Parse(sqlController.SettingRead(Settings.checkEvery_Mins));
@@ -53,7 +53,7 @@ namespace OutlookOfficeOnline
 
                 DateTime timeOfRun = DateTime.Now;
                 DateTime tLimitTo = timeOfRun.AddHours(+checkPreSend_Hours);
-                DateTime tLimitFrom = checkLast_At.AddHours(-checkRetrace_Hours);
+                DateTime tLimitFrom = timeOfRun.AddHours(-checkRetrace_Hours);
                 #endregion
 
                 #region convert recurrences
@@ -136,7 +136,7 @@ namespace OutlookOfficeOnline
             {
                 bool AllParsed = false;
                 #region var
-                DateTime checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
+                //DateTime checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
                 double checkPreSend_Hours = double.Parse(sqlController.SettingRead(Settings.checkPreSend_Hours));
                 double checkRetrace_Hours = double.Parse(sqlController.SettingRead(Settings.checkRetrace_Hours));
                 int checkEvery_Mins = int.Parse(sqlController.SettingRead(Settings.checkEvery_Mins));
@@ -144,7 +144,7 @@ namespace OutlookOfficeOnline
 
                 DateTime timeOfRun = DateTime.Now;
                 DateTime tLimitTo = timeOfRun.AddHours(+checkPreSend_Hours);
-                DateTime tLimitFrom = checkLast_At.AddHours(-checkRetrace_Hours);
+                DateTime tLimitFrom = timeOfRun.AddHours(-checkRetrace_Hours);
                 #endregion
 
                 #region process appointments

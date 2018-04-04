@@ -44,7 +44,7 @@ namespace Microting.OutlookAddon.Handlers
             this.outlookOnlineController = outlookOnlineController;
             this.outlookExchangeOnlineAPIClient = outlookExchangeOnlineAPIClient;
             this.bus = bus;
-            checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
+            //checkLast_At = DateTime.Parse(sqlController.SettingRead(Settings.checkLast_At));
             checkPreSend_Hours = double.Parse(sqlController.SettingRead(Settings.checkPreSend_Hours));
             checkRetrace_Hours = double.Parse(sqlController.SettingRead(Settings.checkRetrace_Hours));
             checkEvery_Mins = int.Parse(sqlController.SettingRead(Settings.checkEvery_Mins));
@@ -54,7 +54,7 @@ namespace Microting.OutlookAddon.Handlers
 
             timeOfRun = DateTime.Now;
             tLimitTo = timeOfRun.AddHours(+checkPreSend_Hours);
-            tLimitFrom = checkLast_At.AddHours(-checkRetrace_Hours);
+            tLimitFrom = timeOfRun.AddHours(-checkRetrace_Hours);
         }
 
 #pragma warning disable 1998
