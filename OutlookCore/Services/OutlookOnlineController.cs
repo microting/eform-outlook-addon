@@ -72,7 +72,7 @@ namespace OutlookOfficeOnline
                             }
                             catch (Exception ex)
                             {
-                                log.LogEverything("Not Specified", t.GetMethodName() + " got exception :" + ex.Message + " when trying to do item.Location.DisplayName for item with id : " + item.Id);
+                                log.LogEverything(t.GetMethodName("OutlookOnlineController"), "got exception :" + ex.Message + " when trying to do item.Location.DisplayName for item with id : " + item.Id);
                                 return false;
                             }
 
@@ -98,13 +98,13 @@ namespace OutlookOfficeOnline
                                 }
                                 catch (Exception ex)
                                 {
-                                    log.LogEverything("Not Specified", t.GetMethodName() + " got exception :" + ex.Message + " when trying to do CalendarItemCreate for item with id : " + item.Id);
+                                    log.LogEverything(t.GetMethodName("OutlookOnlineController"), "got exception :" + ex.Message + " when trying to do CalendarItemCreate for item with id : " + item.Id);
                                     return false;
                                 }
 
                                 if (CalendarItemDelete(item.Id))
                                 {
-                                    log.LogStandard("Not Specified", item.Id + " / " + item.Start.DateTime + " converted to non-recurence appointment");
+                                    log.LogStandard(t.GetMethodName("OutlookOnlineController"), item.Id + " / " + item.Start.DateTime + " converted to non-recurence appointment");
                                     ConvertedAny = true;
                                 }
 
@@ -118,15 +118,15 @@ namespace OutlookOfficeOnline
                 #endregion
 
                 if (ConvertedAny)
-                    log.LogStandard("Not Specified", t.GetMethodName() + " completed + converted appointment(s)");
+                    log.LogStandard(t.GetMethodName("OutlookOnlineController"), "completed + converted appointment(s)");
                 else
-                    log.LogEverything("Not Specified", t.GetMethodName() + " completed");
+                    log.LogEverything(t.GetMethodName("OutlookOnlineController"), "completed");
 
                 return ConvertedAny;
             }
             catch (Exception ex)
             {
-                throw new Exception(t.GetMethodName() + " failed", ex);
+                throw new Exception(t.GetMethodName("OutlookOnlineController") + " failed", ex);
             }
         }
 
@@ -188,7 +188,7 @@ namespace OutlookOfficeOnline
                             //if (processingState.ToLower() == "planned")
                             //#region planned
                             //{
-                            //    log.LogVariable("Not Specified", nameof(processingState), processingState);
+                            //    log.LogVariable(t.GetMethodName("OutlookOnlineController"), nameof(processingState), processingState);
 
                             //    if (item.BodyPreview != null)
                             //        if (item.BodyPreview.Contains("<<< "))
@@ -199,7 +199,7 @@ namespace OutlookOfficeOnline
                             //                item.BodyPreview = item.BodyPreview.Trim();
                             //            }
 
-                            //    log.LogStandard("Not Specified", "Trying to do UpdateEvent on item.Id:" + item.Id + " to have new location location : " + processingState);
+                            //    log.LogStandard(t.GetMethodName("OutlookOnlineController"), "Trying to do UpdateEvent on item.Id:" + item.Id + " to have new location location : " + processingState);
                             //Event updatedItem = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, "{\"Location\": {\"DisplayName\": \"" + processingState + "\"},\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(item.BodyPreview) + "\"}}");
 
                             //    if (updatedItem == null)
@@ -207,17 +207,17 @@ namespace OutlookOfficeOnline
                             //        return false;
                             //    }
 
-                            //    log.LogStandard("Not Specified", "Trying create new appointment for item.Id : " + item.Id + " and the UpdateEvent returned Updateditem: " + updatedItem.ToString());
+                            //    log.LogStandard(t.GetMethodName("OutlookOnlineController"), "Trying create new appointment for item.Id : " + item.Id + " and the UpdateEvent returned Updateditem: " + updatedItem.ToString());
 
                             //    Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, "planned", updatedItem.BodyPreview, t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null);
 
-                            //        log.LogStandard("Not Specified", "Before calling CalendarItemIntrepret.AppointmentsCreate");
+                            //        log.LogStandard(t.GetMethodName("OutlookOnlineController"), "Before calling CalendarItemIntrepret.AppointmentsCreate");
                             //        int count = sqlController.AppointmentsCreate(appo);
-                            //        log.LogStandard("Not Specified", "After calling CalendarItemIntrepret.AppointmentsCreate");
+                            //        log.LogStandard(t.GetMethodName("OutlookOnlineController"), "After calling CalendarItemIntrepret.AppointmentsCreate");
 
                             //        if (count > 0)
                             //        {
-                            //            log.LogStandard("Not Specified", "Appointment created successfully for item.Id : " + item.Id);
+                            //            log.LogStandard(t.GetMethodName("OutlookOnlineController"), "Appointment created successfully for item.Id : " + item.Id);
                             //            CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Processed, appo.Body);
                             //        }
                             //        else
@@ -228,7 +228,7 @@ namespace OutlookOfficeOnline
                             //            }
                             //            if (count == -1)
                             //            {
-                            //                log.LogStandard("Not Specified", "Appointment not created successfully for item.Id : " + item.Id);
+                            //                log.LogStandard(t.GetMethodName("OutlookOnlineController"), "Appointment not created successfully for item.Id : " + item.Id);
 
                             //                #region appo.Body = 'text'
                             //                appo.Body = "<<< Parsing error: Start >>>" +
@@ -256,7 +256,7 @@ namespace OutlookOfficeOnline
                             //if (processingState.ToLower() == "cancel")
                             //#region cancel
                             //{
-                            //    log.LogVariable("Not Specified", nameof(processingState), processingState);
+                            //    log.LogVariable(t.GetMethodName("OutlookOnlineController"), nameof(processingState), processingState);
 
                             //    Appointment appo = new Appointment(item.Id, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject, item.Location.DisplayName, ReplaceLinesInBody(item.BodyPreview), t.Bool(sqlController.SettingRead(Settings.colorsRule)), true, null);
 
@@ -274,13 +274,13 @@ namespace OutlookOfficeOnline
                             //{
                             //    Appointment appo = sqlController.AppointmentsFind(item.Id);
 
-                            //    log.LogStandard("Not Specified", "ParseCalendarItems appo start is : " + appo.Start.ToString());
-                            //    log.LogStandard("Not Specified", "ParseCalendarItems item start is : " + item.Start.DateTime.ToString());
-                            //    log.LogStandard("Not Specified", "ParseCalendarItems appo end is : " + appo.End.ToString());
-                            //    log.LogStandard("Not Specified", "ParseCalendarItems item end is : " + item.End.DateTime.ToString());
+                            //    log.LogStandard(t.GetMethodName("OutlookOnlineController"), "ParseCalendarItems appo start is : " + appo.Start.ToString());
+                            //    log.LogStandard(t.GetMethodName("OutlookOnlineController"), "ParseCalendarItems item start is : " + item.Start.DateTime.ToString());
+                            //    log.LogStandard(t.GetMethodName("OutlookOnlineController"), "ParseCalendarItems appo end is : " + appo.End.ToString());
+                            //    log.LogStandard(t.GetMethodName("OutlookOnlineController"), "ParseCalendarItems item end is : " + item.End.DateTime.ToString());
                             //    if (appo.Start != item.Start.DateTime)
                             //    {
-                            //        log.LogStandard("Not Specified", "ParseCalendarItems updating calendar entry with globalId : " + appo.GlobalId);
+                            //        log.LogStandard(t.GetMethodName("OutlookOnlineController"), "ParseCalendarItems updating calendar entry with globalId : " + appo.GlobalId);
                             //        sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Processed, appo.Body, "", "", appo.Completed, item.Start.DateTime, item.End.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes);
                             //    }
                             //}
@@ -291,7 +291,7 @@ namespace OutlookOfficeOnline
                 #endregion
 
                 //sqlController.SettingUpdate(Settings.checkLast_At, timeOfRun.ToString());
-                //log.LogVariable("Not Specified", nameof(Settings.checkLast_At), timeOfRun.ToString());
+                //log.LogVariable(t.GetMethodName("OutlookOnlineController"), nameof(Settings.checkLast_At), timeOfRun.ToString());
 
                 return AllParsed;
             }
@@ -308,7 +308,7 @@ namespace OutlookOfficeOnline
                     }
                 }
                 log.LogException("Exception", ex.Message + " Exception at line" + lineNumber.ToString(), ex, false);
-                throw new Exception(t.GetMethodName() + " failed", ex);
+                throw new Exception(t.GetMethodName("OutlookOnlineController") + " failed", ex);
             }
         }
 
@@ -330,7 +330,7 @@ namespace OutlookOfficeOnline
 
                 if (appointment == null)
                     return false;
-                log.LogVariable("Not Specified", nameof(appointments), appointment.ToString());
+                log.LogVariable(t.GetMethodName("OutlookOnlineController"), nameof(appointments), appointment.ToString());
 
                 Event item = AppointmentItemFind(appointment.global_id, appointment.start_at.Value.AddHours(-36), appointment.start_at.Value.AddHours(36)); // TODO!
                 if (item != null)
@@ -417,21 +417,21 @@ namespace OutlookOfficeOnline
                     }
                     else
                     {
-                        log.LogStandard("Not Specified", "globalId:'" + appointment.global_id + "' reflected in calendar");
+                        log.LogStandard(t.GetMethodName("OutlookOnlineController"), "globalId:'" + appointment.global_id + "' reflected in calendar");
                     }
 
 
                 }
                 else
-                    log.LogWarning("Not Specified", "globalId:'" + appointment.global_id + "' no longer in calendar, so hence is considered to be reflected in calendar");
+                    log.LogWarning(t.GetMethodName("OutlookOnlineController"), "globalId:'" + appointment.global_id + "' no longer in calendar, so hence is considered to be reflected in calendar");
 
                 sqlController.AppointmentsReflected(appointment.global_id);
-                log.LogStandard("Not Specified", "globalId:'" + appointment.global_id + "' reflected in database");
+                log.LogStandard(t.GetMethodName("OutlookOnlineController"), "globalId:'" + appointment.global_id + "' reflected in database");
                 return true;
             }
             catch (Exception ex)
             {
-                throw new Exception(t.GetMethodName() + " failed", ex);
+                throw new Exception(t.GetMethodName("OutlookOnlineController") + " failed", ex);
             }
         }
 
@@ -450,12 +450,12 @@ namespace OutlookOfficeOnline
             try
             {
                 Event newAppo = outlookExchangeOnlineAPIClient.CreateEvent(userEmailAddess, GetCalendarID(), CalendarItemCreateBody(subject, body, location, start, start.AddMinutes(duration), originalStartTimeZone, originalEndTimeZone));
-                log.LogStandard("Not Specified", "Calendar item created in " + calendarName);
+                log.LogStandard(t.GetMethodName("OutlookOnlineController"), "Calendar item created in " + calendarName);
                 return newAppo.Id;
             }
             catch (Exception ex)
             {
-                throw new Exception(t.GetMethodName() + " failed", ex);
+                throw new Exception(t.GetMethodName("OutlookOnlineController") + " failed", ex);
             }
         }
 
@@ -465,8 +465,8 @@ namespace OutlookOfficeOnline
                 throw new ArgumentNullException("globalId cannot be null or empty");
             if (string.IsNullOrEmpty(body))
                 throw new ArgumentNullException("body cannot be null or empty");
-            log.LogStandard("Not Specified", "CalendarItemUpdate incoming start is : " + start.ToString());
-            log.LogStandard("Not Specified", "CalendarItemUpdate incoming globalId is : " + globalId);
+            log.LogStandard(t.GetMethodName("OutlookOnlineController"), "CalendarItemUpdate incoming start is : " + start.ToString());
+            log.LogStandard(t.GetMethodName("OutlookOnlineController"), "CalendarItemUpdate incoming globalId is : " + globalId);
             //Event item = AppointmentItemFind(globalId, start.AddHours(-36), start.AddHours(36)); // TODO!
             //Event item = GetEvent(globalId);
             //userEmailAddess = GetUserEmailAddress();
@@ -517,12 +517,12 @@ namespace OutlookOfficeOnline
             Event eresult = outlookExchangeOnlineAPIClient.UpdateEvent(userEmailAddess, item.Id, CalendarItemUpdateBody(item.BodyPreview, item.Location.DisplayName, Categories));
             if (eresult == null)
             {
-                log.LogStandard("Not Specified", AppointmentPrint(item) + " NOT updated to " + workflowState.ToString());
+                log.LogStandard(t.GetMethodName("OutlookOnlineController"), AppointmentPrint(item) + " NOT updated to " + workflowState.ToString());
                 return false;
             }
             else
             {
-                log.LogStandard("Not Specified", AppointmentPrint(item) + " updated to " + workflowState.ToString());
+                log.LogStandard(t.GetMethodName("OutlookOnlineController"), AppointmentPrint(item) + " updated to " + workflowState.ToString());
                 return true;
             }
 
@@ -532,17 +532,17 @@ namespace OutlookOfficeOnline
         {
             if (string.IsNullOrEmpty(globalId))
                 throw new ArgumentNullException("globalId cannot be null or empty");
-            log.LogEverything("Not Specified", "OutlookOnlineController.CalendarItemDelete called");
+            log.LogEverything(t.GetMethodName("OutlookOnlineController"), "OutlookOnlineController.CalendarItemDelete called");
             try
             {
                 userEmailAddess = GetUserEmailAddress();
                 outlookExchangeOnlineAPIClient.DeleteEvent(userEmailAddess, globalId);
-                log.LogStandard("Not Specified", "globalId:'" + globalId + "' deleted");
+                log.LogStandard(t.GetMethodName("OutlookOnlineController"), "globalId:'" + globalId + "' deleted");
                 return true;
             }
             catch (Exception ex)
             {
-                log.LogStandard("Not Specified", "CalendarItemDelete failed got exception:" + ex.Message);
+                log.LogStandard(t.GetMethodName("OutlookOnlineController"), "CalendarItemDelete failed got exception:" + ex.Message);
                 return false;
             }
 
@@ -554,7 +554,7 @@ namespace OutlookOfficeOnline
         {
             dTime = dTime.AddMinutes(1);
             dTime = new DateTime(dTime.Year, dTime.Month, dTime.Day, dTime.Hour, 0, 0);
-            log.LogVariable("Not Specified", nameof(dTime), dTime);
+            log.LogVariable(t.GetMethodName("OutlookOnlineController"), nameof(dTime), dTime);
             return dTime;
         }
 
@@ -564,14 +564,14 @@ namespace OutlookOfficeOnline
                 throw new ArgumentNullException("globalId cannot be null or empty");
             try
             {
-                log.LogEverything("Not Specified", "OutlookOnlineController.GetEvent called");
+                log.LogEverything(t.GetMethodName("OutlookOnlineController"), "OutlookOnlineController.GetEvent called");
                 userEmailAddess = GetUserEmailAddress();
                 return outlookExchangeOnlineAPIClient.GetEvent(userEmailAddess, globalId);
 
             }
             catch (Exception ex)
             {
-                throw new Exception(t.GetMethodName() + " failed. Due to no match found global id:" + globalId, ex);
+                throw new Exception(t.GetMethodName("OutlookOnlineController") + " failed. Due to no match found global id:" + globalId, ex);
             }
         }
 
@@ -581,14 +581,14 @@ namespace OutlookOfficeOnline
                 throw new ArgumentNullException("globalId cannot be null or empty");
             try
             {
-                log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind called");
+                log.LogEverything(t.GetMethodName("OutlookOnlineController"), "OutlookOnlineController.AppointmentItemFind called");
                 string filter = "AppointmentItemFind [After] '" + tLimitFrom.ToString("g") + "' AND [before] <= '" + tLimitTo.ToString("g") + "'";
-                log.LogVariable("Not Specified", nameof(filter), filter.ToString());
+                log.LogVariable(t.GetMethodName("OutlookOnlineController"), nameof(filter), filter.ToString());
 
                 List<Event> calendarItemsAllToday = GetCalendarItems(tLimitFrom, tLimitTo);
                 foreach (Event item in calendarItemsAllToday)
                 {
-                    //log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind calendarItemsAllToday current item.Id is " + item.Id);
+                    //log.LogEverything(t.GetMethodName("OutlookOnlineController"), "OutlookOnlineController.AppointmentItemFind calendarItemsAllToday current item.Id is " + item.Id);
                     if (item.Id.Equals(globalId))
                         return item;
                 }
@@ -597,17 +597,17 @@ namespace OutlookOfficeOnline
                 List<Event> calendarItemsRes = GetCalendarItems(new DateTime(1975, 1, 1).Date, new DateTime(2025, 12, 31).Date);
                 foreach (Event item in calendarItemsRes)
                 {
-                    //log.LogEverything("Not Specified", "OutlookOnlineController.AppointmentItemFind calendarItemsRes current item.Id is " + item.Id);
+                    //log.LogEverything(t.GetMethodName("OutlookOnlineController"), "OutlookOnlineController.AppointmentItemFind calendarItemsRes current item.Id is " + item.Id);
                     if (item.Id.Equals(globalId))
                         return item;
                 }
 
-                log.LogEverything("Not Specified", "No match found for " + nameof(globalId) + ":" + globalId);
+                log.LogEverything(t.GetMethodName("OutlookOnlineController"), "No match found for " + nameof(globalId) + ":" + globalId);
                 return null;
             }
             catch (Exception ex)
             {
-                throw new Exception(t.GetMethodName() + " failed. Due to no match found global id:" + globalId, ex);
+                throw new Exception(t.GetMethodName("OutlookOnlineController") + " failed. Due to no match found global id:" + globalId, ex);
             }
         }
 
@@ -620,9 +620,9 @@ namespace OutlookOfficeOnline
         {
             lock (_lockOutlook)
             {
-                log.LogEverything("Not Specified", "OutlookOnlineController.GetCalendarItems called");
+                log.LogEverything(t.GetMethodName("OutlookOnlineController"), "OutlookOnlineController.GetCalendarItems called");
                 string filter = "GetCalendarItems [After] '" + tLimitTo.ToString("g") + "' AND [before] <= '" + tLimitFrom.ToString("g") + "'";
-                log.LogVariable("Not Specified", nameof(filter), filter.ToString());
+                log.LogVariable(t.GetMethodName("OutlookOnlineController"), nameof(filter), filter.ToString());
                 calendarName = GetCalendarName();
                 userEmailAddess = GetUserEmailAddress();
                 CalendarList calendarList = outlookExchangeOnlineAPIClient.GetCalendarList(userEmailAddess, calendarName);
@@ -630,11 +630,11 @@ namespace OutlookOfficeOnline
                 {
                     foreach (Calendar cal in calendarList.value)
                     {
-                        log.LogEverything("Not Specified", "GetCalendarItems comparing cal.Name " + cal.Name + " with calendarName " + calendarName);
+                        log.LogEverything(t.GetMethodName("OutlookOnlineController"), "GetCalendarItems comparing cal.Name " + cal.Name + " with calendarName " + calendarName);
                         if (cal.Name.Equals(calendarName, StringComparison.OrdinalIgnoreCase))
                         {
                             EventList outlookCalendarItems = outlookExchangeOnlineAPIClient.GetCalendarItems(userEmailAddess, cal.Id, tLimitFrom, tLimitTo);
-                            //log.LogVariable("Not Specified", "outlookCalendarItems.Count", outlookCalendarItems.value.Count);
+                            //log.LogVariable(t.GetMethodName("OutlookOnlineController"), "outlookCalendarItems.Count", outlookCalendarItems.value.Count);
                             return outlookCalendarItems.value;
                         }
                     }
@@ -646,7 +646,7 @@ namespace OutlookOfficeOnline
 
         private string GetCalendarName()
         {
-            log.LogEverything("Not Specified", "GetCalendarName called");
+            log.LogEverything(t.GetMethodName("OutlookOnlineController"), "GetCalendarName called");
             if (!string.IsNullOrEmpty(calendarName))
                 return calendarName;
             else
@@ -655,13 +655,13 @@ namespace OutlookOfficeOnline
                 if (!string.IsNullOrEmpty(calendarName))
                     return calendarName;
                 else
-                    throw new Exception(t.GetMethodName() + " failed, to get calendarName'");
+                    throw new Exception(t.GetMethodName("OutlookOnlineController") + " failed, to get calendarName'");
             }
 
         }
         public string GetUserEmailAddress()
         {
-            log.LogEverything("Not Specified", "GetUserEmailAddress called");
+            log.LogEverything(t.GetMethodName("OutlookOnlineController"), "GetUserEmailAddress called");
             if (!string.IsNullOrEmpty(userEmailAddess))
                 return userEmailAddess;
             else
@@ -670,7 +670,7 @@ namespace OutlookOfficeOnline
                 if (!string.IsNullOrEmpty(userEmailAddess))
                     return userEmailAddess;
                 else
-                    throw new Exception(t.GetMethodName() + " failed, to get userEmailAddess");
+                    throw new Exception(t.GetMethodName("OutlookOnlineController") + " failed, to get userEmailAddess");
             }
         }
         private string GetCalendarID()
@@ -702,8 +702,8 @@ namespace OutlookOfficeOnline
         }
         private string CalendarItemCreateBody(string Subject, string BodyContent, string Location, DateTime Start, DateTime End, string originalStartTimeZone, string originalEndTimeZone)
         {
-            log.LogEverything("Not Specified", "CalendarItemCreateBody called and creating with start : " + Start + " and end : " + End);
-            log.LogEverything("Not Specified", "CalendarItemCreateBody called and creating with originalStartTimeZone : " + originalStartTimeZone + " and originalEndTimeZone : " + originalEndTimeZone);
+            log.LogEverything(t.GetMethodName("OutlookOnlineController"), "CalendarItemCreateBody called and creating with start : " + Start + " and end : " + End);
+            log.LogEverything(t.GetMethodName("OutlookOnlineController"), "CalendarItemCreateBody called and creating with originalStartTimeZone : " + originalStartTimeZone + " and originalEndTimeZone : " + originalEndTimeZone);
 
             TimeZone localZone = TimeZone.CurrentTimeZone;
             string CreateBody = "{\"Subject\": \"" + Subject + "\",\"Body\": {\"ContentType\": \"HTML\",\"Content\": \"" + ReplaceLinesInBody(BodyContent) + "\"},\"Location\": {\"DisplayName\": \"" + Location + "\"},\"Start\": {\"DateTime\": \"" + Start.ToLocalTime() + "\",\"TimeZone\": \"" + localZone.StandardName + "\"},\"End\":{\"DateTime\":\"" + End.ToLocalTime() + "\",\"TimeZone\": \"" + localZone.StandardName + "\"}}";

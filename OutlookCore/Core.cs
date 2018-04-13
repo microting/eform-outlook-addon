@@ -102,29 +102,29 @@ namespace OutlookCore
                     if (log == null)
                         log = sqlController.StartLog(this);
 
-                    log.LogCritical("Not Specified", "###########################################################################");
-                    log.LogCritical("Not Specified", t.GetMethodName() + " called");
-                    log.LogStandard("Not Specified", "SqlController and Logger started");
+                    log.LogCritical(t.GetMethodName("Core"), "###########################################################################");
+                    log.LogCritical(t.GetMethodName("Core"), "called");
+                    log.LogStandard(t.GetMethodName("Core"), "SqlController and Logger started");
 
                     //settings read
                     this.connectionString = connectionString;
-                    log.LogStandard("Not Specified", "Settings read");
-                    log.LogStandard("Not Specified", "this.serviceLocation is " + serviceLocation);
+                    log.LogStandard(t.GetMethodName("Core"), "Settings read");
+                    log.LogStandard(t.GetMethodName("Core"), "this.serviceLocation is " + serviceLocation);
 
                     //Initialise Outlook API client's object
                     //if (sqlController.SettingRead(Settings.calendarName) == "unittest")
                     //{
                     //    outlookOnlineController = new OutlookOnlineController_Fake(sqlController, log);
-                    //    log.LogStandard("Not Specified", "OutlookController_Fake started");
+                    //    log.LogStandard(t.GetMethodName("Core"), "OutlookController_Fake started");
                     //}
                     //else
                     //{
                         outlookExchangeOnlineAPI = new OutlookExchangeOnlineAPIClient(serviceLocation, log);
-                        log.LogStandard("Not Specified", "OutlookController started");
+                        log.LogStandard(t.GetMethodName("Core"), "OutlookController started");
                     //}
-                    log.LogStandard("Not Specified", "OutlookController started");
+                    log.LogStandard(t.GetMethodName("Core"), "OutlookController started");
 
-                    log.LogCritical("Not Specified", t.GetMethodName() + " started");
+                    log.LogCritical(t.GetMethodName("Core"), "started");
                     coreAvailable = true;
                     coreStatChanging = false;
 
@@ -150,7 +150,7 @@ namespace OutlookCore
 
                     Thread coreThread = new Thread(() => CoreThread(sdkCoreConnectionString));
                     coreThread.Start();
-                    log.LogStandard("Not Specified", "CoreThread started");
+                    log.LogStandard(t.GetMethodName("Core"), "CoreThread started");
                 }
             }
             #region catch
@@ -172,9 +172,9 @@ namespace OutlookCore
         //        if (coreRestarting == false)
         //        {
         //            coreRestarting = true;
-        //            log.LogCritical("Not Specified", t.GetMethodName() + " called");
-        //            log.LogVariable("Not Specified", nameof(sameExceptionCount), sameExceptionCount);
-        //            log.LogVariable("Not Specified", nameof(sameExceptionCountMax), sameExceptionCountMax);
+        //            log.LogCritical(t.GetMethodName("Core"), "called");
+        //            log.LogVariable(t.GetMethodName("Core"), nameof(sameExceptionCount), sameExceptionCount);
+        //            log.LogVariable(t.GetMethodName("Core"), nameof(sameExceptionCountMax), sameExceptionCountMax);
 
         //            sameExceptionCountTried++;
 
@@ -193,17 +193,17 @@ namespace OutlookCore
         //                case 4: secondsDelay = 512; break;
         //                default: throw new ArgumentOutOfRangeException("sameExceptionCount should be above 0");
         //            }
-        //            log.LogVariable("Not Specified", nameof(sameExceptionCountTried), sameExceptionCountTried);
-        //            log.LogVariable("Not Specified", nameof(secondsDelay), secondsDelay);
+        //            log.LogVariable(t.GetMethodName("Core"), nameof(sameExceptionCountTried), sameExceptionCountTried);
+        //            log.LogVariable(t.GetMethodName("Core"), nameof(secondsDelay), secondsDelay);
 
         //            Close();
 
-        //            log.LogStandard("Not Specified", "Trying to restart the Core in " + secondsDelay + " seconds");
+        //            log.LogStandard(t.GetMethodName("Core"), "Trying to restart the Core in " + secondsDelay + " seconds");
 
         //            if (!skipRestartDelay)
         //                Thread.Sleep(secondsDelay * 1000);
         //            else
-        //                log.LogStandard("Not Specified", "Delay skipped");
+        //                log.LogStandard(t.GetMethodName("Core"), "Delay skipped");
         //            sdkCore.Close();
 
         //            Start(connectionString, serviceLocation);
@@ -227,7 +227,7 @@ namespace OutlookCore
                     coreStatChanging = true;
 
                     coreAvailable = false;
-                    log.LogCritical("Not Specified", t.GetMethodName() + " called");
+                    log.LogCritical(t.GetMethodName("Core"), "called");
 
                     int tries = 0;
                     while (coreThreadRunning)
@@ -240,7 +240,7 @@ namespace OutlookCore
                             FatalExpection("Failed to close Core correct after 60 secs (coreRunning)", new Exception());
                     }
 
-                    log.LogStandard("Not Specified", "Core closed");
+                    log.LogStandard(t.GetMethodName("Core"), "Core closed");
                     outlookOnlineController = null;
                     sqlController = null;
                     sdkCore.Close();
@@ -275,7 +275,7 @@ namespace OutlookCore
 
             try
             {
-                log.LogFatalException(t.GetMethodName() + " called for reason:'" + reason + "'", exception);
+                log.LogFatalException(t.GetMethodName("Core") + " called for reason:'" + reason + "'", exception);
             }
             catch { }
 
@@ -291,8 +291,8 @@ namespace OutlookCore
         {
             try
             {
-                log.LogStandard("Not Specified", t.GetMethodName() + " called");
-                log.LogVariable("Not Specified", nameof(globalId), globalId);
+                log.LogStandard(t.GetMethodName("Core"), "called");
+                log.LogVariable(t.GetMethodName("Core"), nameof(globalId), globalId);
 
                 return sqlController.AppointmentsFind(globalId);
             }
@@ -304,7 +304,7 @@ namespace OutlookCore
 
         public bool MarkAppointmentRetrived(string caseId)
         {
-            log.LogStandard("Not Specified", t.GetMethodName() + " called");
+            log.LogStandard(t.GetMethodName("Core"), "called");
 
             bus.SendLocal(new EformRetrieved(caseId));
             return true;
@@ -337,7 +337,7 @@ namespace OutlookCore
 
         public bool MarkAppointmentCompleted(string caseId)
         {
-            log.LogStandard("Not Specified", t.GetMethodName() + " called");
+            log.LogStandard(t.GetMethodName("Core"), "called");
             bus.SendLocal(new EformCompleted(caseId));
             //Appointment appo = sqlController.AppointmentFindCaseId(caseId);
             //bool result = false;
@@ -372,7 +372,7 @@ namespace OutlookCore
             bool firstRun = true;
             coreThreadRunning = true;
 
-            log.LogEverything("Not Specified", t.GetMethodName() + " initiated");
+            log.LogEverything(t.GetMethodName("Core"), "initiated");
             try
             {
                 #region warm up
@@ -387,18 +387,18 @@ namespace OutlookCore
                         {
                             startSdkCoreSqlOnly(sdkCoreConnectionString);
                         }
-                        log.LogEverything("Not Specified", t.GetMethodName() + " checking Appointments which are sent and currentId is now " + currentId.ToString());
+                        log.LogEverything(t.GetMethodName("Core"), "checking Appointments which are sent and currentId is now " + currentId.ToString());
                         Appointment appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Sent, false, currentId);                         
                         if (appo != null)
                         {
                             currentId = appo.Id;
                             foreach (AppoinntmentSite appo_site in appo.AppointmentSites)
                             {
-                                log.LogEverything("Not Specified", t.GetMethodName() + " checking appointment_site with MicrotingUuId : " + appo_site.MicrotingUuId.ToString());
+                                log.LogEverything(t.GetMethodName("Core"), "checking appointment_site with MicrotingUuId : " + appo_site.MicrotingUuId.ToString());
                                 Case_Dto kase = sdkCore.CaseReadByCaseId(int.Parse(appo_site.MicrotingUuId));
                                 if (kase == null)
                                 {
-                                    log.LogEverything("Not Specified", t.GetMethodName() + " kase IS NULL!");
+                                    log.LogEverything(t.GetMethodName("Core"), "kase IS NULL!");
                                     //firstRun = false;
                                 }
 
@@ -423,7 +423,7 @@ namespace OutlookCore
                         }
                     }
 
-                    log.LogStandard("Not Specified", t.GetMethodName() + " warm up completed");
+                    log.LogStandard(t.GetMethodName("Core"), "warm up completed");
                 }
                 #endregion
 
@@ -445,7 +445,7 @@ namespace OutlookCore
             }
             catch (ThreadAbortException)
             {
-                log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
+                log.LogWarning(t.GetMethodName("Core"), "catch of ThreadAbortException");
             }
             catch (Exception ex)
             {
@@ -462,17 +462,17 @@ namespace OutlookCore
                 while (coreThreadRunning && coreAvailable)
                 {
                     outlookOnlineController.CalendarItemConvertRecurrences();
-                    log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() done and sleeping for 2 seconds");
+                    log.LogEverything(t.GetMethodName("Core"), "outlookController.CalendarItemIntrepid() done and sleeping for 2 seconds");
                     Thread.Sleep(2000);
                 }
             }
             catch (ThreadAbortException)
             {
-                log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
+                log.LogWarning(t.GetMethodName("Core"), "catch of ThreadAbortException");
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
+                log.LogException(t.GetMethodName("Core"), "failed", ex, true);
             }
         }
 
@@ -483,20 +483,20 @@ namespace OutlookCore
                 while (coreThreadRunning && coreAvailable)
                 {
                     outlookOnlineController.ParseCalendarItems();
-                    log.LogEverything("Not Specified", "outlookController.CalendarItemIntrepid() completed");
+                    log.LogEverything(t.GetMethodName("Core"), "outlookController.CalendarItemIntrepid() completed");
                     outlookOnlineController.CalendarItemReflecting(null);
-                    log.LogEverything("Not Specified", "outlookController.CalendarItemReflecting() completed");
-                    log.LogEverything("Not Specified", "outlookController.SyncOutlookApps() done and sleeping for 2 seconds");
+                    log.LogEverything(t.GetMethodName("Core"), "outlookController.CalendarItemReflecting() completed");
+                    log.LogEverything(t.GetMethodName("Core"), "outlookController.SyncOutlookApps() done and sleeping for 2 seconds");
                     Thread.Sleep(2000);
                 }
             }
             catch (ThreadAbortException)
             {
-                log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
+                log.LogWarning(t.GetMethodName("Core"), "catch of ThreadAbortException");
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
+                log.LogException(t.GetMethodName("Core"), "failed", ex, true);
             }
         }
 
@@ -538,16 +538,16 @@ namespace OutlookCore
         //                Thread.Sleep(5000); // This is done, so if we don't find an appointment, we don't hammer the db
         //                                    // TODO find better way of solving this.
         //            }
-        //            log.LogEverything("Not Specified", t.GetMethodName() + " completed");
+        //            log.LogEverything(t.GetMethodName("Core"), "completed");
         //        }
         //    }
         //    catch (ThreadAbortException)
         //    {
-        //        log.LogWarning("Not Specified", t.GetMethodName() + " catch of ThreadAbortException");
+        //        log.LogWarning(t.GetMethodName("Core"), "catch of ThreadAbortException");
         //    }
         //    catch (Exception ex)
         //    {
-        //        log.LogException("Not Specified", t.GetMethodName() + " failed", ex, true);
+        //        log.LogException(t.GetMethodName("Core"), "failed", ex, true);
         //    }
         //}
         #endregion

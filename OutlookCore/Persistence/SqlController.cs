@@ -126,13 +126,13 @@ namespace OutlookSql
                             match = db.appointments.SingleOrDefault(x => x.global_id == appointment.GlobalId);
                             if (match != null)
                             {
-                                log.LogStandard("Not specified", "AppointmentsCreate 1 SQL query returned the following match.global_id: " + match.global_id);
+                                log.LogStandard(t.GetMethodName("SQLController"), "AppointmentsCreate 1 SQL query returned the following match.global_id: " + match.global_id);
                                 return -1;
                             }
                         }
                         catch
                         {
-                            log.LogStandard("Not specified", "AppointmentsCreate 2 SQL query returned the following match.global_id: " + match.global_id);
+                            log.LogStandard(t.GetMethodName("SQLController"), "AppointmentsCreate 2 SQL query returned the following match.global_id: " + match.global_id);
                             return -1;
                         }
                     }
@@ -192,7 +192,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
                 return 0;
             }
         }
@@ -223,14 +223,14 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
                 return false;
             }
         }
 
         public Appointment AppointmentsFind(string globalId)
         {
-            log.LogStandard("Not specified", "AppointmentsFind looking for one with globalId " + globalId);
+            log.LogStandard(t.GetMethodName("SQLController"), "AppointmentsFind looking for one with globalId " + globalId);
 
             try
             {
@@ -262,7 +262,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
                 return null;
             }
         }
@@ -273,7 +273,7 @@ namespace OutlookSql
             {
                 using (var db = GetContextO())
                 {
-                    //db.Database.Log = (query) => log.LogEverything("Not specified", "DB query is : " + query);
+                    //db.Database.Log = (query) => log.LogEverything(t.GetMethodName("SQLController"), "DB query is : " + query);
                     appointments match = null;
                     if (onlyNew)
                     {
@@ -320,7 +320,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
                 return null;
             }
         }
@@ -337,14 +337,14 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
                 return null;
             }
         }
 
         public bool AppointmentsUpdate(string globalId, ProcessingStateOptions processingState, string body, string expectionString, string response, bool completed, DateTime start_at, DateTime expire_at, int durateion)
         {
-            log.LogEverything("Not Specified", "AppointmentsUpdate called and globalId is " + globalId);
+            log.LogEverything(t.GetMethodName("SQLController"), "AppointmentsUpdate called and globalId is " + globalId);
 
             try
             {
@@ -385,7 +385,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
                 return false;
             }
         }
@@ -416,7 +416,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
                 return false;
             }
         }
@@ -454,7 +454,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
                 return false;
             }
         }
@@ -487,7 +487,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
                 return false;
             }
         }
@@ -522,7 +522,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
                 return null;
             }
         }
@@ -551,7 +551,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+                log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
                 return false;
             }
         }
@@ -566,10 +566,10 @@ namespace OutlookSql
         //    return false; // TODO
         //    if (string.IsNullOrEmpty(serverAddress))
         //    {
-        //        log.LogVariable("Not Specified", nameof(serverAddress), serverAddress);
+        //        log.LogVariable(t.GetMethodName("SQLController"), nameof(serverAddress), serverAddress);
         //        return false;
         //    }
-        //    log.LogEverything("Not Specified", "SyncInteractionCase called and serverAddress is " + serverAddress);
+        //    log.LogEverything(t.GetMethodName("SQLController"), "SyncInteractionCase called and serverAddress is " + serverAddress);
 
         //    // read input
         //    #region create
@@ -577,17 +577,17 @@ namespace OutlookSql
 
         //    if (appoint != null)
         //    {
-        //        log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Processed");
+        //        log.LogEverything(t.GetMethodName("SQLController"), "SyncInteractionCase called and appoint is != null Processed");
         //        if (InteractionCaseCreate(appoint))
         //        {
-        //            log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-        //            log.LogStandard("Not Specified", "Appointment created in SDK input");
+        //            log.LogVariable(t.GetMethodName("SQLController"), nameof(appoint), appoint.ToString());
+        //            log.LogStandard(t.GetMethodName("SQLController"), "Appointment created in SDK input");
         //            return true;
         //        }
         //        else
         //        {
-        //            log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-        //            log.LogException("Not Specified", "Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
+        //            log.LogVariable(t.GetMethodName("SQLController"), nameof(appoint), appoint.ToString());
+        //            log.LogException(t.GetMethodName("SQLController"), "Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
         //            return false;
         //        }
         //    }
@@ -598,7 +598,7 @@ namespace OutlookSql
 
         //    if (appoint != null)
         //    {
-        //        log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Canceled");
+        //        log.LogEverything(t.GetMethodName("SQLController"), "SyncInteractionCase called and appoint is != null Canceled");
         //        if (InteractionCaseDelete(appoint))
         //        {
         //            bool isUpdated = AppointmentsUpdate(appoint.global_id, ProcessingStateOptions.Revoked, appoint.body, appoint.exceptionString, null);
@@ -607,16 +607,16 @@ namespace OutlookSql
         //                return true;
         //            else
         //            {
-        //                log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-        //                log.LogException("Not Specified", "Failed to update Outlook appointment, but Appointment deleted in SDK input", new Exception("FATAL issue"), true);
+        //                log.LogVariable(t.GetMethodName("SQLController"), nameof(appoint), appoint.ToString());
+        //                log.LogException(t.GetMethodName("SQLController"), "Failed to update Outlook appointment, but Appointment deleted in SDK input", new Exception("FATAL issue"), true);
         //            }
         //        }
         //        else
         //        {
-        //            log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-        //            log.LogException("Not Specified", "Failed to deleted Appointment in SDK input", new Exception("FATAL issue"), true);
+        //            log.LogVariable(t.GetMethodName("SQLController"), nameof(appoint), appoint.ToString());
+        //            log.LogException(t.GetMethodName("SQLController"), "Failed to deleted Appointment in SDK input", new Exception("FATAL issue"), true);
         //        }
-        //        log.LogEverything("Not Specified", "SyncInteractionCase called and we are returning false! ");
+        //        log.LogEverything(t.GetMethodName("SQLController"), "SyncInteractionCase called and we are returning false! ");
 
         //        return false;
         //    }
@@ -624,17 +624,17 @@ namespace OutlookSql
 
         //    //if (appoint != null)
         //    //{
-        //    //    log.LogEverything("Not Specified", "SyncInteractionCase called and appoint is != null Created");
+        //    //    log.LogEverything(t.GetMethodName("SQLController"), "SyncInteractionCase called and appoint is != null Created");
         //    //    if (InteractionCaseCreate(appoint))
         //    //    {
-        //    //        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-        //    //        log.LogStandard("Not Specified", "Appointment created in SDK input");
+        //    //        log.LogVariable(t.GetMethodName("SQLController"), nameof(appoint), appoint.ToString());
+        //    //        log.LogStandard(t.GetMethodName("SQLController"), "Appointment created in SDK input");
         //    //        return true;
         //    //    }
         //    //    else
         //    //    {
-        //    //        log.LogVariable("Not Specified", nameof(appoint), appoint.ToString());
-        //    //        log.LogException("Not Specified", "Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
+        //    //        log.LogVariable(t.GetMethodName("SQLController"), nameof(appoint), appoint.ToString());
+        //    //        log.LogException(t.GetMethodName("SQLController"), "Failed to created Appointment in SDK input", new Exception("FATAL issue"), true);
         //    //        return false;
         //    //    }
         //    //}
@@ -642,7 +642,7 @@ namespace OutlookSql
         //    #endregion
 
         //    // read output
-        //    //log.LogEverything("Not Specified", "SyncInteractionCase called and we are returning false! ");
+        //    //log.LogEverything(t.GetMethodName("SQLController"), "SyncInteractionCase called and we are returning false! ");
         //    //return InteractionCaseProcessed(serverAddress); TODO
         //}
 
@@ -650,7 +650,7 @@ namespace OutlookSql
         //{
 
         //    return false;
-        //    //log.LogEverything("Not Specified", "InteractionCaseCreate called ");
+        //    //log.LogEverything(t.GetMethodName("SQLController"), "InteractionCaseCreate called ");
 
         //    //try
         //    //{
@@ -714,7 +714,7 @@ namespace OutlookSql
         //    //}
         //    //catch (Exception ex)
         //    //{
-        //    //    log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
+        //    //    log.LogWarning(t.GetMethodName("SQLController"), t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
         //    //    AppointmentsUpdate(appointment.global_id, LocationOptions.Exception, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
         //    //    return false;
         //    //}
@@ -735,7 +735,7 @@ namespace OutlookSql
         //    //}
         //    //catch (Exception ex)
         //    //{
-        //    //    log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
+        //    //    log.LogWarning(t.GetMethodName("SQLController"), t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
         //    //    AppointmentsUpdate(appointment.global_id, LocationOptions.Exception, appointment.body, t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex), null);
         //    //    return false;
         //    //}
@@ -743,7 +743,7 @@ namespace OutlookSql
 
         //public bool InteractionCaseProcessed(string serverAddress)
         //{
-        //    log.LogEverything("Not Specified", "InteractionCaseProcessed called and serverAddress is " + serverAddress);
+        //    log.LogEverything(t.GetMethodName("SQLController"), "InteractionCaseProcessed called and serverAddress is " + serverAddress);
         //    try
         //    {
         //        using (var db = GetContextM())
@@ -751,11 +751,11 @@ namespace OutlookSql
         //            var match = db.a_interaction_cases.FirstOrDefault(x => x.synced == 0);
         //            if (match == null)
         //            {
-        //                log.LogEverything("Not Specified", "InteractionCaseProcessed called and (match == null)");
+        //                log.LogEverything(t.GetMethodName("SQLController"), "InteractionCaseProcessed called and (match == null)");
         //                return false;
         //            } else
         //            {
-        //                log.LogEverything("Not Specified", "InteractionCaseProcessed called and match.id is :" +match.id);
+        //                log.LogEverything(t.GetMethodName("SQLController"), "InteractionCaseProcessed called and match.id is :" +match.id);
         //            }
 
 
@@ -776,7 +776,7 @@ namespace OutlookSql
         //            foreach (var item in match.a_interaction_case_lists)
         //            {
 
-        //                log.LogEverything("Not Specified", "InteractionCaseProcessed called and foreach item is " + item.case_id.ToString());
+        //                log.LogEverything(t.GetMethodName("SQLController"), "InteractionCaseProcessed called and foreach item is " + item.case_id.ToString());
         //                #region if stat ...
         //                statCur = 0;
 
@@ -834,7 +834,7 @@ namespace OutlookSql
         //            }
         //            catch (Exception ex)
         //            {
-        //                log.LogException("Not Specified", t.GetMethodName() + " failed in t.Bool(AppointmentsFind(match.custom).color_rule", ex, false);
+        //                log.LogException(t.GetMethodName("SQLController"), "failed in t.Bool(AppointmentsFind(match.custom).color_rule", ex, false);
         //                return false;
         //            }
 
@@ -918,7 +918,7 @@ namespace OutlookSql
         //    }
         //    catch (Exception ex)
         //    {
-        //        log.LogException("Not Specified", t.GetMethodName() + " failed", ex, false);
+        //        log.LogException(t.GetMethodName("SQLController"), "failed", ex, false);
         //        return true;
         //    }
         //}
@@ -939,7 +939,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                log.LogWarning("Not Specified", t.PrintException(t.GetMethodName() + " failed to create, for the following reason:", ex));
+                log.LogWarning(t.GetMethodName("SQLController"), t.PrintException("failed to create, for the following reason:", ex));
                 return "No matching name found";
             }
         }
@@ -1064,7 +1064,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                throw new Exception(t.GetMethodName() + " failed", ex);
+                throw new Exception(t.GetMethodName("SQLController") + " failed", ex);
             }
         }
 
@@ -1088,7 +1088,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                throw new Exception(t.GetMethodName() + " failed", ex);
+                throw new Exception(t.GetMethodName("SQLController") + " failed", ex);
             }
         }
 
@@ -1126,7 +1126,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                throw new Exception(t.GetMethodName() + " failed", ex);
+                throw new Exception(t.GetMethodName("SQLController") + " failed", ex);
             }
         }
         #endregion
@@ -1144,7 +1144,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                throw new Exception(t.GetMethodName() + " failed", ex);
+                throw new Exception(t.GetMethodName("SQLController") + " failed", ex);
             }
         }
 
@@ -1186,7 +1186,7 @@ namespace OutlookSql
                 }
                 catch (Exception ex)
                 {
-                    return t.PrintException(t.GetMethodName() + " failed", ex);
+                    return t.PrintException(t.GetMethodName("SQLController") + " failed", ex);
                 }
             }
         }
@@ -1224,7 +1224,7 @@ namespace OutlookSql
             }
             catch (Exception ex)
             {
-                return t.PrintException(t.GetMethodName() + " failed", ex);
+                return t.PrintException(t.GetMethodName("SQLController") + " failed", ex);
             }
         }
 
