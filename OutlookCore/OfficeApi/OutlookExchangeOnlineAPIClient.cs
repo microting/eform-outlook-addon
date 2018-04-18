@@ -21,6 +21,7 @@ namespace OutlookExchangeOnlineAPI
         public string AccessToken { get; set; }
         string serviceLocation;
         public Log log;
+        Tools t = new Tools();
         string certPath = @"cert\cert.pfx";
         string certPass = "123qweASDZXC";
 
@@ -117,7 +118,7 @@ namespace OutlookExchangeOnlineAPI
                     try
                     {
 
-                        log.LogEverything("Not Specified", "ExecuteQueryWithIncrementalRetry trying to call :" + request.RequestUri);
+                        log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ExecuteQueryWithIncrementalRetry trying to call :" + request.RequestUri);
                         result = httpClient.SendAsync(request).Result;
                         if (!result.StatusCode.Equals(HttpStatusCode.OK))
                         {
@@ -126,7 +127,7 @@ namespace OutlookExchangeOnlineAPI
 
                                 if (result.StatusCode.Equals(HttpStatusCode.NoContent))
                                 {
-                                    log.LogEverything("Not Specified", "ExecuteQueryWithIncrementalRetry got result NoContent and result.Content is :" + result.Content);
+                                    log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ExecuteQueryWithIncrementalRetry got result NoContent and result.Content is :" + result.Content);
                                     return result;
                                 }
                                 else
@@ -134,7 +135,7 @@ namespace OutlookExchangeOnlineAPI
                                     if (result.StatusCode.Equals(HttpStatusCode.Unauthorized))
                                     {
                                         AccessToken = GetAppToken(GetServiceLocation() + certPath, certPass); //the pfx file is encrypted with this password
-                                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is Unauthorized so resetting retryAttempts ");
+                                        log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is Unauthorized so resetting retryAttempts ");
                                         retryAttempts = 0; 
                                     } else
                                     {
@@ -142,8 +143,8 @@ namespace OutlookExchangeOnlineAPI
                                         {
                                             return result;
                                         }
-                                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK or Created and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
-                                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
+                                        log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is not OK or Created and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
+                                        log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.ExecuteQueryWithIncrementalRetry called and status code is : " + result.StatusCode.ToString());
                                         System.Threading.Thread.Sleep(backoffInteval * 1000);
                                         retryAttempts++;
                                         backoffInteval = backoffInteval * 2;
@@ -163,8 +164,8 @@ namespace OutlookExchangeOnlineAPI
                     }
                     catch (Exception ex)
                     {
-                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry throwed an Exception and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
-                        log.LogEverything("Not Specified", "ApiClient.ExecuteQueryWithIncrementalRetry the exeption is : " + ex.Message);
+                        log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.ExecuteQueryWithIncrementalRetry throwed an Exception and backoffInteval is now " + backoffInteval.ToString() + " and retryAttempts is " + retryAttempts.ToString());
+                        log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.ExecuteQueryWithIncrementalRetry the exeption is : " + ex.Message);
                         System.Threading.Thread.Sleep(backoffInteval * 1000);
                         retryAttempts++;
                         backoffInteval = backoffInteval * 2;
@@ -177,7 +178,7 @@ namespace OutlookExchangeOnlineAPI
 
         public CalendarList GetCalendarList(string userEmail, string calendarName)
         {
-            log.LogEverything("Not Specified", "ApiClient.GetCalendarList called");
+            log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.GetCalendarList called");
             if (string.IsNullOrEmpty(userEmail))
                 throw new ArgumentNullException("userEmail cannot be null or empty");
             if (string.IsNullOrEmpty(calendarName))
@@ -187,7 +188,7 @@ namespace OutlookExchangeOnlineAPI
             HttpResponseMessage result = MakeApiCall("GET", requestUrl, userEmail, null, null);
             string response = result.Content.ReadAsStringAsync().Result;
 
-            log.LogEverything("Not Specified", "ApiClient.GetCalendarList response is : " + response);
+            log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.GetCalendarList response is : " + response);
             if (response.Contains("odata"))
             {
                 return JsonConvert.DeserializeObject<CalendarList>(response);
@@ -201,7 +202,7 @@ namespace OutlookExchangeOnlineAPI
 
         public EventList GetCalendarItems(string userEmail, string calendarID, DateTime startDate, DateTime enddate)
         {
-            log.LogEverything("Not Specified", "ApiClient.GetCalendarItems called");
+            log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.GetCalendarItems called");
 
             if (string.IsNullOrEmpty(userEmail))
                 throw new ArgumentNullException("userEmail cannot be null or empty");
@@ -218,7 +219,7 @@ namespace OutlookExchangeOnlineAPI
                 // Formating startDate and enddate according to https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings#Sortable
                 HttpResponseMessage httpresult = MakeApiCall("GET", requestUrl, userEmail, null, null);
                 string response = httpresult.Content.ReadAsStringAsync().Result;
-                log.LogEverything("Not Specified", "ApiClient.GetCalendarItems response is " + response);
+                log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.GetCalendarItems response is " + response);
                 if (response.Contains("odata"))
                 {
                     EventList curpage = JsonConvert.DeserializeObject<EventList>(response);
@@ -245,12 +246,12 @@ namespace OutlookExchangeOnlineAPI
                 throw new ArgumentNullException("globalId cannot be null or empty");
             if (string.IsNullOrEmpty(userEmail))
                 throw new ArgumentNullException("userEmail cannot be null or empty");
-            log.LogEverything("Not Specified", "ApiClient.GetEvent globalId is " + globalId);
-            log.LogEverything("Not Specified", "ApiClient.GetEvent userEmail is " + userEmail);
+            log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.GetEvent globalId is " + globalId);
+            log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.GetEvent userEmail is " + userEmail);
             string requestUrl = String.Format("/users/{0}/events/{1}", userEmail, globalId);
             HttpResponseMessage result = MakeApiCall("GET", requestUrl, userEmail, null, null);
             string response = result.Content.ReadAsStringAsync().Result;
-            log.LogEverything("Not Specified", "ApiClient.GetEvent response is " + response);
+            log.LogEverything(t.GetMethodName("OutlookExchangeOnlineAPIClient"), "ApiClient.GetEvent response is " + response);
             if (response.Contains("odata"))
             {
                 return JsonConvert.DeserializeObject<Event>(response);

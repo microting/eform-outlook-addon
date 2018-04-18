@@ -102,8 +102,8 @@ namespace OutlookCore
                     if (log == null)
                         log = sqlController.StartLog(this);
 
-                    log.LogCritical(t.GetMethodName("Core"), "###########################################################################");
-                    log.LogCritical(t.GetMethodName("Core"), "called");
+                    //log.LogCritical(t.GetMethodName("Core"), "###########################################################################");
+                    //log.LogCritical(t.GetMethodName("Core"), "called");
                     log.LogStandard(t.GetMethodName("Core"), "SqlController and Logger started");
 
                     //settings read
@@ -156,66 +156,13 @@ namespace OutlookCore
             #region catch
             catch (Exception ex)
             {
+                log.LogException(t.GetMethodName("Core"), "Start failed", ex, false);
                 throw ex;
-                //FatalExpection(t.GetMethodName() + " failed", ex);
-                //return false;
             }
             #endregion
 
             return true;
         }
-
-        //public override void Restart(int sameExceptionCount, int sameExceptionCountMax)
-        //{
-        //    try
-        //    {
-        //        if (coreRestarting == false)
-        //        {
-        //            coreRestarting = true;
-        //            log.LogCritical(t.GetMethodName("Core"), "called");
-        //            log.LogVariable(t.GetMethodName("Core"), nameof(sameExceptionCount), sameExceptionCount);
-        //            log.LogVariable(t.GetMethodName("Core"), nameof(sameExceptionCountMax), sameExceptionCountMax);
-
-        //            sameExceptionCountTried++;
-
-        //            if (sameExceptionCountTried > sameExceptionCountMax)
-        //                sameExceptionCountTried = sameExceptionCountMax;
-
-        //            if (sameExceptionCountTried > 4)
-        //                throw new Exception("The same Exception repeated to many times (5+) within one hour");
-
-        //            int secondsDelay = 0;
-        //            switch (sameExceptionCountTried)
-        //            {
-        //                case 1: secondsDelay = 001; break;
-        //                case 2: secondsDelay = 008; break;
-        //                case 3: secondsDelay = 064; break;
-        //                case 4: secondsDelay = 512; break;
-        //                default: throw new ArgumentOutOfRangeException("sameExceptionCount should be above 0");
-        //            }
-        //            log.LogVariable(t.GetMethodName("Core"), nameof(sameExceptionCountTried), sameExceptionCountTried);
-        //            log.LogVariable(t.GetMethodName("Core"), nameof(secondsDelay), secondsDelay);
-
-        //            Close();
-
-        //            log.LogStandard(t.GetMethodName("Core"), "Trying to restart the Core in " + secondsDelay + " seconds");
-
-        //            if (!skipRestartDelay)
-        //                Thread.Sleep(secondsDelay * 1000);
-        //            else
-        //                log.LogStandard(t.GetMethodName("Core"), "Delay skipped");
-        //            sdkCore.Close();
-
-        //            Start(connectionString, serviceLocation);
-        //            coreRestarting = false;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //        //FatalExpection(t.GetMethodName() + "failed. Core failed to restart", ex);
-        //    }
-        //}
 
         public bool Close()
 
@@ -255,8 +202,8 @@ namespace OutlookCore
             }
             catch (Exception ex)
             {
+                log.LogException(t.GetMethodName("Core"), "Core failed to close", ex, false);
                 throw ex;
-                //FatalExpection(t.GetMethodName() + "failed. Core failed to close", ex);
             }
             return true;
         }
@@ -308,30 +255,6 @@ namespace OutlookCore
 
             bus.SendLocal(new EformRetrieved(caseId));
             return true;
-            //Appointment appo = sqlController.AppointmentFindByCaseId(caseId);
-            //bool result = false;
-            //try
-            //{
-            //    result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Retrived, appo.Body);
-            //}
-            //catch (Exception ex)
-            //{
-            //    if (ex.Message.Equals("Item not found"))
-            //    {
-            //        result = true;
-            //    }
-            //}
-
-            //if (result)
-            //{
-            //    sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Retrived, appo.Body, "", "", false, appo.Start, appo.End, appo.Duration);
-            //    sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Retrived);
-            //    return true;
-            //}
-            //else
-            //{
-            //    return false;
-            //}
 
         }
 
@@ -339,30 +262,6 @@ namespace OutlookCore
         {
             log.LogStandard(t.GetMethodName("Core"), "called");
             bus.SendLocal(new EformCompleted(caseId));
-            //Appointment appo = sqlController.AppointmentFindCaseId(caseId);
-            //bool result = false;
-
-            //try
-            //{
-            //    result = outlookOnlineController.CalendarItemUpdate(appo.GlobalId, appo.Start, ProcessingStateOptions.Completed, appo.Body);
-            //}
-            //catch (Exception ex)
-            //{
-            //    if (ex.Message.Equals("Item not found"))
-            //    {
-            //        result = true;
-            //    }
-            //}
-            //if (result)
-            //{
-            //    sqlController.AppointmentsUpdate(appo.GlobalId, ProcessingStateOptions.Completed, appo.Body, "", "", true, appo.Start, appo.End, appo.Duration);
-            //    sqlController.AppointmentSiteUpdate((int)appo.AppointmentSites.First().Id, caseId, ProcessingStateOptions.Completed);
-            //    return true;
-            //}
-            //else
-            //{
-            //    return false;
-            //}
             return true;
         }
 
@@ -472,7 +371,7 @@ namespace OutlookCore
             }
             catch (Exception ex)
             {
-                log.LogException(t.GetMethodName("Core"), "failed", ex, true);
+                log.LogException(t.GetMethodName("Core"), "failed", ex, false);
             }
         }
 
@@ -496,60 +395,10 @@ namespace OutlookCore
             }
             catch (Exception ex)
             {
-                log.LogException(t.GetMethodName("Core"), "failed", ex, true);
+                log.LogException(t.GetMethodName("Core"), "failed", ex, false);
             }
         }
 
-        //private void SyncAppointmentsToSdk(string sdkConnectionString)
-        //{
-        //    try
-        //    {
-
-        //        if (sdkCore == null)
-        //        {
-        //            startSdkCoreSqlOnly(sdkConnectionString);
-        //        }
-
-        //        string serverAddress = sdkCore.GetHttpServerAddress();
-
-        //        Appointment appo = null;
-        //        int lastId = 0;
-        //        while (coreThreadRunning)
-        //        {
-        //            if (lastId != 0)
-        //            {
-        //                appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true, lastId);
-        //                lastId = (int)appo.Id;
-        //            }
-        //            else
-        //            {
-        //                appo = sqlController.AppointmentsFindOne(ProcessingStateOptions.Processed, true, null);
-        //                if (appo != null) {
-        //                    lastId = (int)appo.Id;
-        //                }                            
-        //            }
-
-        //            if (appo != null)
-        //            {
-        //                bus.SendLocal(new AppointmentCreatedInOutlook(appo)).Wait();
-        //            }
-        //            else
-        //            {
-        //                Thread.Sleep(5000); // This is done, so if we don't find an appointment, we don't hammer the db
-        //                                    // TODO find better way of solving this.
-        //            }
-        //            log.LogEverything(t.GetMethodName("Core"), "completed");
-        //        }
-        //    }
-        //    catch (ThreadAbortException)
-        //    {
-        //        log.LogWarning(t.GetMethodName("Core"), "catch of ThreadAbortException");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.LogException(t.GetMethodName("Core"), "failed", ex, true);
-        //    }
-        //}
         #endregion
 
         public void startSdkCoreSqlOnly(string sdkConnectionString)
