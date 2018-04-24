@@ -361,7 +361,7 @@ namespace OutlookCore
                 while (coreThreadRunning && coreAvailable)
                 {
                     outlookOnlineController.CalendarItemConvertRecurrences();
-                    log.LogEverything(t.GetMethodName("Core"), "outlookController.CalendarItemIntrepid() done and sleeping for 2 seconds");
+                    log.LogEverything(t.GetMethodName("Core"), "outlookOnlineController.CalendarItemConvertRecurrences() done and sleeping for 2 seconds");
                     Thread.Sleep(2000);
                 }
             }
@@ -382,10 +382,9 @@ namespace OutlookCore
                 while (coreThreadRunning && coreAvailable)
                 {
                     outlookOnlineController.ParseCalendarItems();
-                    log.LogEverything(t.GetMethodName("Core"), "outlookController.CalendarItemIntrepid() completed");
+                    log.LogEverything(t.GetMethodName("Core"), "outlookController.ParseCalendarItems() completed");
                     outlookOnlineController.CalendarItemReflecting(null);
-                    log.LogEverything(t.GetMethodName("Core"), "outlookController.CalendarItemReflecting() completed");
-                    log.LogEverything(t.GetMethodName("Core"), "outlookController.SyncOutlookApps() done and sleeping for 2 seconds");
+                    log.LogEverything(t.GetMethodName("Core"), "outlookController.CalendarItemReflecting() completed and sleeping for 2 seconds");
                     Thread.Sleep(2000);
                 }
             }

@@ -87,13 +87,14 @@ namespace OutlookOfficeOnline
 
                             location = location.ToLower();
                             #endregion
-
+                            Event appointmentGuid = null;
                             if (location == "planned")
                             #region ...
                             {
                                 try
                                 {
-                                    string appointmendId = CalendarItemCreate(location, item.Start.DateTime, (item.End.DateTime - item.Start.DateTime).Minutes, item.Subject,
+                                    double duration = (item.End.DateTime - item.Start.DateTime).TotalMinutes;
+                                    appointmentGuid = CalendarItemCreate(location, item.Start.DateTime, (int)Math.Round(duration), item.Subject,
                                     item.BodyPreview, item.OriginalStartTimeZone, item.OriginalEndTimeZone);
                                 }
                                 catch (Exception ex)
@@ -104,7 +105,8 @@ namespace OutlookOfficeOnline
 
                                 if (CalendarItemDelete(item.Id))
                                 {
-                                    log.LogStandard(t.GetMethodName("OutlookOnlineController"), item.Id + " / " + item.Start.DateTime + " converted to non-recurence appointment");
+                                    log.LogStandard(t.GetMethodName("OutlookOnlineController"), "converted " + item.Subject + " / " + item.Start.DateTime + "/ duration "+ (item.End.DateTime - item.Start.DateTime).Minutes + " to non-recurence appointment");
+                                    bus.SendLocal(new ParseOutlookItem(appointmentGuid)).Wait();
                                     ConvertedAny = true;
                                 }
 
@@ -435,7 +437,7 @@ namespace OutlookOfficeOnline
             }
         }
 
-        public string CalendarItemCreate(string location, DateTime start, int duration, string subject, string body, string originalStartTimeZone, string originalEndTimeZone)
+        public Event CalendarItemCreate(string location, DateTime start, int duration, string subject, string body, string originalStartTimeZone, string originalEndTimeZone)
         {
             if (string.IsNullOrEmpty(location))
                 throw new ArgumentNullException("location cannot be null or empty");
@@ -451,7 +453,7 @@ namespace OutlookOfficeOnline
             {
                 Event newAppo = outlookExchangeOnlineAPIClient.CreateEvent(userEmailAddess, GetCalendarID(), CalendarItemCreateBody(subject, body, location, start, start.AddMinutes(duration), originalStartTimeZone, originalEndTimeZone));
                 log.LogStandard(t.GetMethodName("OutlookOnlineController"), "Calendar item created in " + calendarName);
-                return newAppo.Id;
+                return newAppo;
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using OutlookSql;
+﻿using OutlookExchangeOnlineAPI;
+using OutlookSql;
 using System;
 using System.Collections.Generic;
 
@@ -12,7 +13,7 @@ namespace OutlookOfficeOnline
 
         bool CalendarItemReflecting(string globalId);
 
-        string CalendarItemCreate(string location, DateTime start, int duration, string subject, string body, string originalStartTimeZone, string originalEndTimeZone);
+        Event CalendarItemCreate(string location, DateTime start, int duration, string subject, string body, string originalStartTimeZone, string originalEndTimeZone);
 
         bool CalendarItemUpdate(string globalId, DateTime start, ProcessingStateOptions workflowState, string body);
 
