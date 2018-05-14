@@ -65,6 +65,8 @@ namespace OutlookCore
 
         int sameExceptionCountTried = 0;
         string serviceLocation;
+        int maxParallelism = 1;
+        int numberOfWorkers = 1;
         #endregion
 
         //con
@@ -101,6 +103,13 @@ namespace OutlookCore
                     //log
                     if (log == null)
                         log = sqlController.StartLog(this);
+
+                    try
+                    {
+                        maxParallelism = int.Parse(sqlController.SettingRead(Settings.maxParallelism));
+                        numberOfWorkers = int.Parse(sqlController.SettingRead(Settings.numberOfWorkers));
+                    }
+                    catch { }
 
                     //log.LogCritical(t.GetMethodName("Core"), "###########################################################################");
                     //log.LogCritical(t.GetMethodName("Core"), "called");
@@ -139,7 +148,7 @@ namespace OutlookCore
                     container.Register(Component.For<OutlookExchangeOnlineAPIClient>().Instance(outlookExchangeOnlineAPI));
                     container.Install(
                         new RebusHandlerInstaller()
-                        , new RebusInstaller(connectionString)
+                        , new RebusInstaller(connectionString, maxParallelism, numberOfWorkers)
                     );
 
 

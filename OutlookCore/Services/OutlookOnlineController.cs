@@ -299,17 +299,17 @@ namespace OutlookOfficeOnline
             }
             catch (Exception ex)
             {
-                var lineNumber = 0;
-                const string lineSearch = ":line ";
-                var index = ex.StackTrace.LastIndexOf(lineSearch);
-                if (index != -1)
-                {
-                    var lineNumerText = ex.StackTrace.Substring(index + lineSearch.Length);
-                    if (int.TryParse(lineNumerText, out lineNumber))
-                    {
-                    }
-                }
-                log.LogException("Exception", ex.Message + " Exception at line" + lineNumber.ToString(), ex, false);
+                //var lineNumber = 0;
+                //const string lineSearch = ":line ";
+                //var index = ex.StackTrace.LastIndexOf(lineSearch);
+                //if (index != -1)
+                //{
+                //    var lineNumerText = ex.StackTrace.Substring(index + lineSearch.Length);
+                //    if (int.TryParse(lineNumerText, out lineNumber))
+                //    {
+                //    }
+                //}
+                log.LogException(t.GetMethodName("OutlookOnlineController"),  "failed", ex, false);
                 throw new Exception(t.GetMethodName("OutlookOnlineController") + " failed", ex);
             }
         }
