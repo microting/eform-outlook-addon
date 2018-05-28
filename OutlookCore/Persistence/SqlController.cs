@@ -962,6 +962,8 @@ namespace OutlookSql
             SettingCreate(Settings.responseBeforeBody);
             SettingCreate(Settings.calendarName);
             SettingCreate(Settings.userEmailAddress);
+            SettingCreate(Settings.maxParallelism);
+            SettingCreate(Settings.numberOfWorkers);
 
             return true;
         }
